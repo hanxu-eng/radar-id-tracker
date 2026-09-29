@@ -1,0 +1,8 @@
+name: radar-id-tracker
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy>=1.26,<3

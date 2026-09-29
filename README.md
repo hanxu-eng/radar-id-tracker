@@ -1,120 +1,201 @@
-# Radar ID Tracker
+# Radar ID Tracker：10 Hz 雷达动态目标稳定编号
 
-An online multi-object tracker for a **10 Hz radar**. It assigns stable,
-monotonically increasing IDs to radar targets using a two-model interacting
-multiple model (IMM) filter, position and Doppler gating, deterministic
-Hungarian association, and time-based track management.
+本仓库是一个在线多目标跟踪器。每收到一帧雷达**检测结果**，它预测已有目标的位置，用位置与多普勒速度进行匹配，并输出持续使用的 `track_id`。标称输入频率为 10 Hz，即约每 0.1 秒处理一帧；程序无需等待凑齐 10 帧。
 
-The package consumes **detections**. These can come from a radar's built-in
-target list, a clustering stage, or a trained 3D detector. No detector weights
-or real radar data are included. The tracker itself runs on the CPU; an RTX
-4080 may be used by an upstream detector, but this repository does not claim
-an end-to-end GPU latency or accuracy result.
+核心方法：直行/加速双模型 IMM 滤波、位置与多普勒门控、分级 Hungarian 匹配、轨迹确认、短时漏检预测和休眠恢复。跟踪器在 CPU 上运行。RTX 4080 可以运行上游检测模型，但仓库**没有**训练好的 CenterPoint、TensorRT 引擎或真实雷达数据；也没有经过真实场景的精度与全链路延迟验收。
 
-## Install and try
+## 1. 在另一台电脑上准备环境
 
-Python 3.10 or newer and NumPy are required.
+以下安装步骤面向 Linux、macOS、Windows；建议使用 Python 3.11 的 Conda 环境。本项目只需 NumPy，不要求 CUDA、PyTorch 或 NVIDIA 驱动就能运行示例跟踪器。当前自动化测试运行于 Linux，其他系统请按下文在目标电脑上执行测试确认。
+
+先准备：
+
+- [Git](https://git-scm.com/downloads)；用 `git --version` 检查。
+- Conda。尚未安装时可按 [Conda 官方安装指南](https://docs.conda.io/projects/conda/en/stable/user-guide/install/)安装 Miniforge 或 Miniconda；Windows 请使用安装后的 Miniforge/Anaconda Prompt，Linux/macOS 使用终端。
+- 可以访问 GitHub 与 conda-forge 的网络。公开仓库克隆无需 GitHub 登录。
+
+以下命令均在终端执行。Windows 建议使用 PowerShell 或 Miniforge Prompt；路径分隔符由系统处理。
+
+### 步骤 1：克隆仓库
 
 ```bash
-python -m pip install .
-radar-id-track examples/detections.jsonl
+git clone https://github.com/hanxu-eng/radar-id-tracker.git
+cd radar-id-tracker
+```
+
+没有 Git 时也可在 GitHub 仓库页面选择 **Code → Download ZIP**，解压后进入含有 `environment.yml` 和 `pyproject.toml` 的目录。
+
+### 步骤 2：创建并激活 Conda 环境
+
+```bash
+conda env create -f environment.yml
+conda activate radar-id-tracker
+python --version
+```
+
+预期 Python 为 3.11.x。`environment.yml` 从 conda-forge 安装 Python、pip、NumPy；[Conda 官方说明](https://docs.conda.io/projects/conda/en/stable/commands/env/create.html)也使用 `conda env create -f environment.yml` 创建命名环境。
+
+如果 `conda activate` 提示未初始化 shell，先在当前 shell 执行 `conda init`，关闭并重新打开终端，再运行 `conda activate radar-id-tracker`。Windows 也可以直接打开 Miniforge Prompt。
+
+### 步骤 3：安装本仓库
+
+确认终端所在目录仍为 `radar-id-tracker`，然后运行：
+
+```bash
+python -m pip install -e . --no-deps
+python -c "import radar_id_tracker, numpy; print(radar_id_tracker.__file__); print(numpy.__version__)"
+```
+
+`-e` 表示开发模式安装，代码仍指向当前克隆目录。`--no-deps` 表示使用 Conda 已安装的 NumPy。如果第二条命令报 `ModuleNotFoundError`，先运行 `conda activate radar-id-tracker`，再在仓库根目录重试安装。
+
+### 步骤 4：运行自动测试
+
+```bash
 python -m unittest discover -s tests -v
 ```
 
-The first frame creates a tentative internal track. An ID is published after
-two high-confidence observations within 0.3 seconds. The example emits ID 1
-on its second frame, keeps it through an empty frame, and reports
-`predicted_only: true` for that prediction.
+预期最后出现 `OK`。测试包含目标交叉、短时漏检、休眠恢复、低分虚警、时间戳变化以及匈牙利分配。GitHub Actions 也在 Python 3.10 和 3.13 上运行相同测试。
 
-## Input contract
+### 步骤 5：运行自带的 10 Hz 示例
 
-Each JSONL line is one complete frame, including empty frames:
+在仓库根目录运行：
+
+```bash
+python -m radar_id_tracker examples/detections.jsonl
+```
+
+也可以使用安装后的命令行入口，并把结果保存为文件：
+
+```bash
+radar-id-track examples/detections.jsonl --output tracks.jsonl
+```
+
+示例共有四帧，时间戳分别为 0.0、0.1、0.2、0.3 秒。第一帧建立暂定轨迹，第二帧输出 `track_id: 1`；第三帧没有检测，仍输出同一 ID，并标记 `predicted_only: true`；第四帧重新检测到目标，恢复正常观测输出。`tracks.jsonl` 每行对应输入的一帧。
+
+如需在另一终端或日后重新运行，先进入克隆目录并激活环境：
+
+```bash
+cd radar-id-tracker
+conda activate radar-id-tracker
+python -m radar_id_tracker examples/detections.jsonl
+```
+
+处理自己录制的文件时，将示例路径换成实际文件路径，例如：
+
+```bash
+radar-id-track my_detections.jsonl --output my_tracks.jsonl
+```
+
+命令行适合离线回放；实时接入设备时，在采集回调或处理循环中按时间顺序调用下文的 Python API。
+
+## 2. 接入自己的雷达数据
+
+### 输入是什么
+
+命令行输入是 JSONL 文本：**每行一个雷达帧**。当前程序接收目标检测列表或聚类后的目标中心，不直接接收原始 ADC、Range-Doppler 热图或未聚类点云。若设备已经输出目标列表，先将其转换成下面的格式；若只有点云，应先运行自己的聚类/检测器。
 
 ```json
+{"timestamp_s":0.0,"sensor_xy":[0.0,0.0],"detections":[{"x":10.0,"y":2.0,"confidence":0.91,"radial_velocity":3.0,"length":4.2,"width":1.8}]}
 {"timestamp_s":0.1,"sensor_xy":[0.0,0.0],"detections":[{"x":10.3,"y":2.0,"confidence":0.88,"radial_velocity":3.0,"length":4.2,"width":1.8}]}
+{"timestamp_s":0.2,"sensor_xy":[0.0,0.0],"detections":[]}
 ```
 
-- `timestamp_s` must increase strictly; pass actual timestamps, not frame
-  numbers. Nominal 10 Hz means about 0.1 seconds between frames.
-- `x`, `y`, and `sensor_xy` must be in the **same fixed metric frame** (for
-  example an odometry frame). If the vehicle moves, transform radar detections
-  into that frame before calling the tracker. `z` and dimensions are optional.
-- `radial_velocity` is optional, in m/s, positive **away from the radar**.
-  It must be compensated for sensor motion. With line-of-sight unit vector
-  `u` and sensor velocity `v_sensor`, convert raw relative Doppler by
-  `v_compensated = v_raw + dot(u, v_sensor)`. Check the sign convention of your
-  radar driver before applying this equation.
-- `confidence` is a detector score in `[0, 1]`. High detections (default
-  `>= 0.5`) can create tracks. Low detections (`0.2` to `0.5`) may continue
-  confirmed tracks but cannot create IDs.
-- If detections come from a neural model, use its predicted box center and
-  measured/aggregated radar Doppler. Do not substitute a Cartesian speed
-  magnitude for radial velocity.
+必填字段：
 
-Python integration:
+| 字段 | 含义 |
+| --- | --- |
+| `timestamp_s` | 实际采集时间，单位秒；必须严格递增，可为小数。不能用帧编号代替。 |
+| `detections` | 本帧检测列表；无检测时填空数组 `[]`，仍需送入跟踪器。 |
+| `x`, `y` | 每个检测目标的中心位置，单位米。 |
+| `confidence` | 每个检测目标的置信度，范围 `[0, 1]`。 |
+
+帧级可选字段 `sensor_xy` 表示本帧雷达在同一固定坐标系中的 `[x, y]`（米）；省略时默认 `[0, 0]`。如果雷达在移动，必须提供其真实位置。
+
+可选的检测字段：`radial_velocity`（m/s）、`z`（m）、`length`/`width`/`height`（m）、`yaw`（弧度）。未提供多普勒时仍能运行，但目标交叉时更易换 ID。`z`、尺寸和航向沿用最近一次观测；当前滤波器只跟踪地面平面的 `x/y/vx/vy`。神经网络检测器可提供目标框中心和置信度，但不可把二维速度模长直接当作径向速度。
+
+### 坐标与多普勒约定
+
+`x/y` 与 `sensor_xy` 必须属于**同一个固定米制坐标系**，例如车辆里程计坐标系。车载雷达的自车坐标每帧会移动，应先使用里程计/定位把检测中心变换到固定坐标系，再输入跟踪器。坐标系重置后，重新创建一个跟踪器实例，并在外部记录新的流/运行编号。
+
+`radial_velocity` 使用“目标远离雷达为正”的约定，且必须已补偿雷达自身运动。若设备输出的是目标相对雷达的径向速度 `v_raw`，视线单位向量为 `u`，雷达在固定坐标系中的速度为 `v_sensor`，则转换为 `v_compensated = v_raw + dot(u, v_sensor)`。先核对设备驱动的正负号定义；符号反了会导致关联失败。
+
+输出同样是每帧一行 JSONL。每行包含 `timestamp_s` 和 `tracks` 数组；每个轨迹含 `track_id`、`x/y`、`vx/vy`、`predicted_only`、`missed_frames`、置信度及最近观测的可选尺寸字段。`tracks: []` 表示这一帧没有可发布的已确认轨迹。
+
+### 置信度与 ID 的默认行为
+
+- 高分检测：`confidence >= 0.5`，可新建暂定轨迹。
+- 低分检测：`0.2 <= confidence < 0.5`，可延续已确认轨迹，不能创建新 ID。
+- 新目标在 0.3 秒内累计两次高分命中后发布正式 ID，因此通常从第二个有效观测帧开始输出。
+- 短时漏检期间最多保留 0.5 秒的预测输出，`predicted_only` 为 `true`。
+- 再保留 1.0 秒休眠恢复窗口；休眠时不输出，重新匹配成功后恢复原 ID。
+- 单个跟踪器实例中的 ID 从 1 开始递增，运行期间不复用。重启进程后会重新从 1 开始。
+
+这些是配置初值，需用实际雷达数据调参。查看 [TrackerConfig](src/radar_id_tracker/tracker.py) 可调整门控阈值、确认时间和保活时间。
+
+## 3. 在 Python 程序中调用
 
 ```python
-from radar_id_tracker import Detection, RadarTracker
+from radar_id_tracker import Detection, RadarTracker, TrackerConfig
 
-tracker = RadarTracker()
-tracks = tracker.update(
-    timestamp_s=42.1,
-    detections=[Detection(x=12.0, y=1.8, confidence=0.91,
-                          radial_velocity=2.4)],
-    sensor_xy=(0.0, 0.0),
-)
-for track in tracks:
-    print(track.track_id, track.x, track.y, track.predicted_only)
+tracker = RadarTracker(TrackerConfig(lost_seconds=0.5, dormant_seconds=1.0))
+
+# 每收到一帧调用一次；没有目标时也传入空列表。
+frames = [
+    (0.0, [Detection(x=10.0, y=2.0, confidence=0.9, radial_velocity=3.0)]),
+    (0.1, [Detection(x=10.3, y=2.0, confidence=0.9, radial_velocity=3.0)]),
+    (0.2, []),
+]
+for timestamp_s, detections in frames:
+    tracks = tracker.update(timestamp_s, detections, sensor_xy=(0.0, 0.0))
+    for track in tracks:
+        print(timestamp_s, track.track_id, track.x, track.y, track.predicted_only)
 ```
 
-Use one `RadarTracker` instance per independent stream. Each instance starts
-IDs at 1 and never reuses them while running. For ID uniqueness across process
-restarts, persist a stream/epoch identifier alongside the numeric ID.
+为每路独立雷达数据流创建一个 `RadarTracker`。如果需要跨进程重启也不重复的全局 ID，请把设备 ID 和运行批次与 `track_id` 组合保存。
 
-## Algorithm
+## 4. 算法与部署边界
 
-1. Predict every existing track to the frame timestamp. The IMM has a
-   low-acceleration constant-velocity model and a constant-acceleration model.
-2. Reject impossible detection-track pairs with a position innovation gate,
-   absolute position residual cap, Doppler residual gate, and optional size
-   change gate. Doppler prediction is the track velocity projected onto the
-   current radar line of sight.
-3. Run four deterministic association passes: confirmed tracks with high
-   detections, unmatched confirmed tracks with low detections, dormant tracks
-   with high detections under stricter gates, then tentative tracks with
-   remaining high detections.
-4. Start tentative tracks from remaining high detections. Publish an ID after
-   two hits within 0.3 seconds. Publish prediction-only outputs for at most
-   0.5 seconds after a missed detection. Keep a further 1.0-second dormant
-   recovery window without output, then delete the track.
+每帧依次执行：按实际时间差预测现有轨迹；用位置创新距离、最大残差、多普勒残差和可选尺寸变化进行门控；按“已确认轨迹配高分检测 → 未配对的已确认轨迹配低分检测 → 休眠轨迹严格匹配高分检测 → 暂定轨迹配高分检测”四级顺序做确定性 Hungarian 分配；最后新建暂定轨迹或执行漏检保活。IMM 包含低加速度的匀速模型和匀加速模型。
 
-These thresholds are starting values, not calibrated performance claims. Set
-them with held-out sequences from the target radar, speeds, range, and false
-alarm conditions. `TrackerConfig` exposes the thresholds.
+单张 RTX 4080 只在接入上游 GPU 检测器时有用；本仓库本身是检测结果到稳定 ID 的 CPU 跟踪模块，不包含训练、点云预处理、外参标定、检测器权重或 TensorRT 引擎。实际部署建议采集、检测、跟踪分阶段异步运行，以采集时间戳排序，并限制等待队列长度，避免处理过期帧。接入接口为上文 JSONL 格式或 `Detection` 对象。
 
-## Validation and deployment
+当前实现有边界：只滤波地面二维运动，未解决多个物体长时间合并为一个检测的身份歧义；缺少多普勒或多个物体多普勒接近时，交叉场景仍可能换 ID。Python 实现可作原型和工程基线，最终是否满足吞吐要求需按实际目标数和硬件实测。
 
-The test suite checks deterministic assignment, crossing objects with
-opposite Doppler, variable timestamps, short dropouts, dormant recovery,
-low-score clutter, a distant new target, and malformed inputs. Run
-`python examples/benchmark.py` for a **tracker-only** CPU latency probe on
-synthetic detections. A production gate should additionally measure IDF1,
-HOTA association accuracy, ID switches, false tracks, recovery after missed
-frames, and P50/P95/P99 end-to-end latency on real labeled recordings.
+## 5. 性能与验收
 
-For an RTX 4080 deployment, connect an upstream detector through the
-`Detection` interface. Keep detection and tracking asynchronous, timestamp
-their outputs, and drop stale queued frames. A trained CenterPoint-Pillar
-detector, TensorRT engine, radar-specific preprocessing, and calibration data
-must be supplied and validated for the actual sensor. The code here does not
-include those assets.
+用合成检测运行 CPU 跟踪器基准：
 
-Limitations: 2D ground-plane motion is tracked; `z` and box dimensions are
-carried from the latest observation rather than filtered. An unresolved merge
-of two physical objects can still cause an ID switch, especially when Doppler
-is absent or nearly equal. The Python implementation is a reference and
-should be profiled against the target object count before production use.
+```bash
+python examples/benchmark.py
+```
 
-## License
+输出 `median_ms` 与 `p99_ms`。这是**跟踪模块**在当前电脑上的耗时，不包含雷达采集、点云预处理、检测模型、进程间传输和显示。对于 RTX 4080 系统，可将训练好的检测模型部署在 GPU，将其结果按上述接口输入跟踪器；本仓库不会自动下载或训练检测模型。
 
-MIT. See [LICENSE](LICENSE).
+真实部署前应在录制数据上分别统计 IDSW、IDF1、HOTA/AssA、漏检后原 ID 恢复率，以及端到端 P50/P95/P99 延迟。重点覆盖目标交叉、并行、急转、1～5 帧漏检、远距离弱目标和虚警。示例测试通过并不等于达到真实场景的指标。
+
+## 6. 常见问题
+
+| 现象 | 检查方法 |
+| --- | --- |
+| `conda: command not found` | 安装 Conda 后重新打开终端；Windows 使用 Miniforge/Anaconda Prompt。 |
+| `EnvironmentNameNotFound` | 在仓库根目录重新运行 `conda env create -f environment.yml`，再激活。 |
+| `ModuleNotFoundError: radar_id_tracker` | 先激活环境，在仓库根目录运行 `python -m pip install -e . --no-deps`。 |
+| 第一帧 `tracks` 为空 | 正常；默认需要两个有效观测才分配正式 ID。 |
+| 一直没有 ID | 检查置信度是否达到 0.5、时间戳是否递增、目标位置单位是否为米，以及门控条件。 |
+| 报错 `frame timestamps must strictly increase` | 按采集时间排序，每帧只调用一次；不要重复发送同一时间戳。 |
+| 目标交叉时 ID 改变 | 检查多普勒正负号、自车速度补偿、坐标系转换与检测质量，再根据录制数据调门控。 |
+| 运行速度达不到 10 Hz | 用基准脚本定位跟踪耗时，并分别测采集、检测和传输；减少目标数或使用编译语言实现。 |
+
+## 7. 仓库结构
+
+```text
+environment.yml                 Conda 环境
+src/radar_id_tracker/            跟踪器、IMM、匹配和命令行
+examples/detections.jsonl        四帧输入示例
+examples/benchmark.py            合成数据 CPU 跟踪耗时
+tests/                           单元与场景测试
+```
+
+## 许可证
+
+MIT，见 [LICENSE](LICENSE)。
