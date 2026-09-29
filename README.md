@@ -153,7 +153,53 @@ for timestamp_s, detections in frames:
 
 为每路独立雷达数据流创建一个 `RadarTracker`。如果需要跨进程重启也不重复的全局 ID，请把设备 ID 和运行批次与 `track_id` 组合保存。
 
-## 4. 算法与部署边界
+## 4. 推荐的公开雷达数据集与接入
+
+**首选 RadarScenes**：它公开雷达点云、真实采集时间、序列坐标、已补偿径向速度以及逐点目标 ID，最适合先查验位置/多普勒关联与换 ID 情况。不过它不是原生 10 Hz：官方给出的单传感器平均扫描周期约 60 ms。不要把四台雷达的异步扫描拼成“一台 10 Hz 雷达”，也不要把帧号乘 0.1 当作真实时间。[官方数据下载（Zenodo）](https://zenodo.org/records/4559821)、[字段说明](https://radar-scenes.com/dataset/structure/)、[传感器频率](https://radar-scenes.com/dataset/sensors/)、[官方 Python 工具](https://github.com/oleschum/radar_scenes)。数据约 11.1 GB，许可为 CC BY-NC-SA 4.0，**不可用于商业用途**。
+
+| 数据集 | 为什么推荐 | 接入时的限制 |
+| --- | --- | --- |
+| [RadarScenes](https://zenodo.org/records/4559821) | 逐点类别/目标 ID、`x_seq/y_seq`、`vr_compensated` 和里程计；适合先做雷达专用跟踪实验。 | 点云不是目标检测框；须先聚类或检测。逐点真值 ID 只用于离线评估。 |
+| [View of Delft（VoD）](https://github.com/tudelft-iv/view-of-delft-dataset) | 单个前向 3+1D 雷达约 13 Hz，配套标定、里程计和跨帧 3D 框 ID，适合接近实际车载 4D 雷达的验证。 | 须按[官网流程申请访问](https://viewofdelft-dataset.tudelft.nl/)；仅限符合许可条件的非商业学术研究。原始发布的框**没有**跟踪 ID，须另取[带 ID 标注](https://github.com/tudelft-iv/view-of-delft-dataset/blob/main/docs/ANNOTATION.md)。 |
+| [nuScenes / mini](https://www.nuscenes.org/nuscenes) | 五部雷达、多传感器标定及跨帧 `instance_token`，适合检查多传感器坐标链与数据管线；[官方教程含 mini 下载](https://www.nuscenes.org/tutorials/nuscenes_tutorial.html)。 | 跟踪真值与官方评测按 **2 Hz 关键帧**，不适合作为 10 Hz 每帧 ID 稳定性的主要验收集。中间 radar sweeps 没有逐帧框真值。 |
+
+### 通用接入流程
+
+1. **按序列处理**：每个 recording/scene 单独建立跟踪器，不跨序列继承 ID。每个雷达测量使用原始采集时间，不能把多帧点云融合后仍当作单帧输入。
+2. **产生检测结果**：雷达自带目标列表、点云聚类或检测模型输出每帧目标中心和 `[0,1]` 置信度。真值框可作“理想检测输入”仅调试关联器，不能据此宣称真实雷达检测加跟踪性能。禁止把数据集的 `track_id`、`instance_token` 输入跟踪器。
+3. **统一坐标**：用外参和里程计把目标中心、雷达自身位置转换到同一个序列固定米制坐标系。若有径向速度，统一“远离雷达为正”并补偿自车运动；确认之前可以先省略 `radial_velocity`，不能把速度模长直接填入。
+4. **输出每帧数据**：生成第 2 节的 JSONL；没有检测也保留空帧。按时间顺序运行 `radar-id-track`。预测 ID 与真值 ID 分开保存，最后再做 IDSW、IDF1/HOTA 和漏检恢复率评估。
+
+### CSV 桥接示例（适用于上述数据集的检测器输出）
+
+若你的预处理/检测器已经输出 CSV，可参考 [examples/detections.csv](examples/detections.csv)。一行一个目标，同一帧的多目标共用 `timestamp_s`；无目标时也保留一行时间戳，而 `x,y,confidence` 留空。字段如下：
+
+```text
+timestamp_s,sensor_x,sensor_y,x,y,confidence,radial_velocity,length,width
+0.0,0.0,0.0,10.0,2.0,0.91,3.0,4.2,1.8
+0.1,0.0,0.0,10.3,2.0,0.88,3.0,4.2,1.8
+0.2,0.0,0.0,,,,,,
+```
+
+其中 `timestamp_s,x,y,confidence` 是列名必需项，空帧的数据单元可留空；`sensor_x/sensor_y` 必须成对出现，省略时固定为零；`radial_velocity,z,length,width,height,yaw` 均可选。CSV 必须只含**一条序列**且按时间排序。转换脚本会拒绝额外列（包括真值 `track_id`），避免把标签泄漏进跟踪输入；输入有误时不会覆盖已有输出文件。
+
+```bash
+python examples/csv_to_jsonl.py examples/detections.csv converted.jsonl
+radar-id-track converted.jsonl --output converted_tracks.jsonl
+```
+
+对于 RadarScenes，如使用[官方 `Sequence.from_json` 接口](https://github.com/oleschum/radar_scenes/blob/master/radar_scenes/sequence.py)，可在现有 Conda 环境中按需安装读取依赖（不安装图形查看器的依赖）：
+
+```bash
+conda install -c conda-forge h5py
+python -m pip install radar_scenes --no-deps
+```
+
+然后读取 `data/sequence_XXX/scenes.json`，对该序列实际包含的雷达分别用 `sequence.scenes(sensor_id=1)` 等迭代。每个 `scene.timestamp` 是微秒，写 CSV 时除以 `1_000_000`；目标中心使用同帧检测器/聚类结果的序列坐标（可参考逐点 `x_seq/y_seq`），多普勒可参考逐点 `vr_compensated` 汇聚。聚类器若没有置信度，需要单独校准评分，不能直接拿真值标签伪造置信度；也**不要**用逐点真值 `track_id` 来聚类形成正式评测输入。`sensor_x/sensor_y` 应由该雷达的安装外参与该帧里程计姿态计算；只在雷达固定不动时才可省略。每个传感器/序列单独导出一个 CSV；若计划融合四雷达，先完成严格的时间同步和多雷达去重，再输入单个跟踪器。官方只对运动物体做目标标注，且在遮挡或停止超过约 500 ms 后可能给同一物体新 ID，计算恢复率时必须遵循其标注协议。[标注说明](https://radar-scenes.com/dataset/labeling/)。
+
+VoD 的 `label_2` 框位于相机坐标系，不能直接把其中的 x/y 填给本跟踪器；要先用标定转换到雷达/车体坐标，再结合里程计转到固定序列坐标。带 ID 的标注与检测输入应分开保存。nuScenes 同样要使用各雷达 `sample_data` 的实际时间、外参和 ego pose；2 Hz `sample_annotation.instance_token` 仅作关键帧真值，不得插值为“每帧真值”后宣称 10 Hz 跟踪精度。
+
+## 5. 算法与部署边界
 
 每帧依次执行：按实际时间差预测现有轨迹；用位置创新距离、最大残差、多普勒残差和可选尺寸变化进行门控；按“已确认轨迹配高分检测 → 未配对的已确认轨迹配低分检测 → 休眠轨迹严格匹配高分检测 → 暂定轨迹配高分检测”四级顺序做确定性 Hungarian 分配；最后新建暂定轨迹或执行漏检保活。IMM 包含低加速度的匀速模型和匀加速模型。
 
@@ -161,7 +207,7 @@ for timestamp_s, detections in frames:
 
 当前实现有边界：只滤波地面二维运动，未解决多个物体长时间合并为一个检测的身份歧义；缺少多普勒或多个物体多普勒接近时，交叉场景仍可能换 ID。Python 实现可作原型和工程基线，最终是否满足吞吐要求需按实际目标数和硬件实测。
 
-## 5. 性能与验收
+## 6. 性能与验收
 
 用合成检测运行 CPU 跟踪器基准：
 
@@ -173,7 +219,7 @@ python examples/benchmark.py
 
 真实部署前应在录制数据上分别统计 IDSW、IDF1、HOTA/AssA、漏检后原 ID 恢复率，以及端到端 P50/P95/P99 延迟。重点覆盖目标交叉、并行、急转、1～5 帧漏检、远距离弱目标和虚警。示例测试通过并不等于达到真实场景的指标。
 
-## 6. 常见问题
+## 7. 常见问题
 
 | 现象 | 检查方法 |
 | --- | --- |
@@ -186,12 +232,14 @@ python examples/benchmark.py
 | 目标交叉时 ID 改变 | 检查多普勒正负号、自车速度补偿、坐标系转换与检测质量，再根据录制数据调门控。 |
 | 运行速度达不到 10 Hz | 用基准脚本定位跟踪耗时，并分别测采集、检测和传输；减少目标数或使用编译语言实现。 |
 
-## 7. 仓库结构
+## 8. 仓库结构
 
 ```text
 environment.yml                 Conda 环境
 src/radar_id_tracker/            跟踪器、IMM、匹配和命令行
 examples/detections.jsonl        四帧输入示例
+examples/detections.csv          CSV 桥接输入示例
+examples/csv_to_jsonl.py         检测器 CSV 转 JSONL
 examples/benchmark.py            合成数据 CPU 跟踪耗时
 tests/                           单元与场景测试
 ```
