@@ -16,6 +16,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install .
+      - run: python -m pip install h5py radar_scenes --no-deps
       - run: python -m unittest discover -s tests -v
       - run: python -m radar_id_tracker examples/detections.jsonl
       - run: python examples/csv_to_jsonl.py examples/detections.csv converted.jsonl

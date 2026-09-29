@@ -1,0 +1,90 @@
+# RadarScenes 实际帧率接入与首轮测试
+
+这条链路直接读取 RadarScenes 官方格式中的一条序列、一部雷达的每次扫描，按真实采集时间运行跟踪器；**不做 10 Hz 重采样，也不合并相邻扫描**。官方说明每部雷达的平均测量周期约 60 ms，但实际间隔以 `scenes.json` 的微秒时间戳为准。
+
+这是可运行的接入和诊断基线，不是经过训练和精度验收的目标检测器。脚本使用单帧 `x_seq/y_seq/vr_compensated` 做简单空间与多普勒连通聚类，完全不读取逐点 `track_id` 或 `label_id` 来生成检测。常数置信度仅为接口占位，不代表校准过的检测概率。[官方结构说明](https://radar-scenes.com/dataset/structure/)、[官方数据下载](https://zenodo.org/records/4559821)、[官方读取工具](https://github.com/oleschum/radar_scenes)。
+
+## 1. 核对解压结果
+
+按 RadarScenes 官方包的目录结构，找到某条序列，例如：
+
+```text
+RadarScenes/
+├── sensors.json
+├── sequences.json
+└── data/
+    └── sequence_137/
+        ├── scenes.json
+        └── radar_data.h5
+```
+
+有些文档把安装文件写作 `sensor.json`；脚本会从 `scenes.json` 的父目录向上查找 `sensors.json` 或 `sensor.json`，也可用 `--sensors` 明确指定。不要把 11.1 GB 数据集拷入本 Git 仓库。数据集许可是 CC BY-NC-SA 4.0，不可商用。
+
+## 2. 在已经创建的 Conda 环境中安装可选读取依赖
+
+```bash
+conda activate radar-id-tracker
+conda install -c conda-forge h5py
+python -m pip install radar_scenes --no-deps
+python -c "from radar_scenes.sequence import Sequence; import h5py; print('RadarScenes reader OK')"
+```
+
+`--no-deps` 只安装本测试所需的官方读取 API，不安装它的图形查看器依赖。本仓库本体不需要 `h5py` 或 `radar_scenes`；只有运行这条数据集接入时才需要。
+
+## 3. 先跑前 200 次真实扫描
+
+将下面 `--scenes` 改为您电脑上的绝对路径。`--sensor-id` 取 1、2、3 或 4；若该序列没有指定传感器，脚本会列出可用编号。
+
+```bash
+python -m radar_id_tracker.radarscenes_adapter \
+  --scenes "/path/to/RadarScenes/data/sequence_137/scenes.json" \
+  --sensor-id 1 \
+  --output-dir "outputs/sequence_137_sensor1" \
+  --limit 200
+```
+
+Windows PowerShell 可以写成单行：
+
+```powershell
+python -m radar_id_tracker.radarscenes_adapter --scenes "D:\RadarScenes\data\sequence_137\scenes.json" --sensor-id 1 --output-dir "outputs\sequence_137_sensor1" --limit 200
+```
+
+如果传感器外参文件不在数据集根目录，加上 `--sensors "/path/to/RadarScenes/sensors.json"`。如安装后提示找不到 `radar_id_tracker.radarscenes_adapter`，先在仓库根目录执行 `python -m pip install -e . --no-deps`。
+
+脚本在输出目录写三个文件：
+
+- `detections.jsonl`：逐次扫描的候选目标，可再次用 `radar-id-track` 回放。
+- `tracks.jsonl`：逐次扫描的公开 `track_id`，首帧没有 ID 是正常的。
+- `summary.json`：读取与输出计数、真实中位扫描间隔、处理时间及“非精度验收”标记。
+
+日志和 `summary.json` 中，`frames > 0`、`radar_points > 0` 且两份 JSONL 行数均等于 `frames`，就表示**文件读取和帧级接入成功**。`cluster_detections > 0` 且 `unique_published_ids > 0` 才表示在这段数据上也实际生成了目标和 ID。测试区间若没有足够运动目标，后两个值可能为零，并不必然是读取失败。`median_interval_s` 来自真实选中扫描，不能由标称频率硬填。
+
+确认短序列能跑后，去掉 `--limit 200` 处理完整序列。每条序列和每部雷达用不同的 `--output-dir`，因为跟踪 ID 从 1 重新编号；再次运行同一目录会覆盖其中的三个结果文件。
+
+## 4. 默认聚类参数与诊断
+
+| 参数 | 默认 | 用途 |
+| --- | --- | --- |
+| `--min-abs-vr` | `0.5` m/s | 仅保留补偿后径向速度绝对值达到阈值的点。 |
+| `--spatial-eps` | `2.0` m | 单次扫描内两点可连通的最大平面距离。 |
+| `--doppler-eps` | `1.5` m/s | 两点可连通的最大径向速度差。 |
+| `--min-points` | `2` | 每个候选目标最少点数；稀疏时可暂设为 `1`。 |
+| `--confidence` | `0.75` | 占位分数，**未校准**；保证通过跟踪器默认高分门槛。 |
+| `--doppler-sign` | `as-is` | 使用 `vr_compensated`；若实测符号与跟踪器约定相反可选 `invert`，或先选 `off` 禁用多普勒关联。 |
+
+如 `frames` 正常但 `cluster_detections=0`，先检查该传感器这 200 帧是否有运动目标，再尝试 `--min-points 1 --min-abs-vr 0.2`。这只用于确认管线，不是提高精度的结论；降低阈值会增加静态杂波和虚警。官方也提醒：单靠多普勒阈值不能可靠地区分真实运动物体。[标注说明](https://radar-scenes.com/dataset/labeling/)。
+
+如有候选目标但 ID 经常跳变，检查聚类是否把一个物体拆成多团或把相邻物体合并；再检查多普勒符号、传感器位置与里程计。脚本的 `median_cluster_and_track_ms` 只计聚类和跟踪，不含文件读取/写入；不能当作端到端 60 ms 时限的验收值。
+
+## 5. 字段和评估边界
+
+| RadarScenes 字段 | 处理方式 |
+| --- | --- |
+| `scene.timestamp` | 微秒；相对首个选中扫描转为秒，保留真实间隔。 |
+| `scene.sensor_id` | 只取 `--sensor-id` 指定雷达，不把四部异步雷达当成同一帧。 |
+| `radar_data.x_seq/y_seq` | 已在序列固定坐标系；聚类后取中心。 |
+| `radar_data.vr_compensated` | 自车运动补偿后的径向速度；聚类取中位数。 |
+| `scene.odometry_data.x_seq/y_seq/yaw_seq`、`sensors.json` 的 `x/y` | 计算该帧雷达在序列坐标系中的 `sensor_xy`。 |
+| `radar_data.track_id/label_id` | **不进入检测和跟踪**；将来单独实现真值匹配与指标评估。 |
+
+官方逐点 ID 在目标遮挡或停止超过约 500 ms 后可能重新分配；不能直接把不同时间的同一物理车当作必然相同的真值 ID。首轮接入只回答“是否正确读取并跑通真实帧”，**不回答** IDF1、HOTA、检测精度或生产实时性是否达标。
