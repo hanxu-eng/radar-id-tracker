@@ -1,0 +1,4 @@
+{"timestamp_s":0.0,"sensor_xy":[0.0,0.0],"detections":[{"x":10.0,"y":2.0,"radial_velocity":3.0,"confidence":0.91,"length":4.2,"width":1.8}]}
+{"timestamp_s":0.1,"sensor_xy":[0.0,0.0],"detections":[{"x":10.3,"y":2.0,"radial_velocity":3.0,"confidence":0.88,"length":4.2,"width":1.8}]}
+{"timestamp_s":0.2,"sensor_xy":[0.0,0.0],"detections":[]}
+{"timestamp_s":0.3,"sensor_xy":[0.0,0.0],"detections":[{"x":10.9,"y":2.0,"radial_velocity":3.0,"confidence":0.82,"length":4.2,"width":1.8}]}
