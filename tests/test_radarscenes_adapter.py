@@ -8,7 +8,10 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from collections import deque
+from dataclasses import replace
 from pathlib import Path
+from xml.etree import ElementTree
 
 import h5py
 import numpy as np
@@ -20,6 +23,8 @@ from radar_id_tracker.radarscenes_adapter import (
     replay,
     sensor_position,
 )
+from radar_id_tracker.radarscenes_visualization import render_bev_svg
+from radar_id_tracker.types import TrackOutput
 
 
 RADAR_DTYPE = np.dtype([
@@ -110,13 +115,27 @@ class RadarScenesAdapterTests(unittest.TestCase):
 
             self.assertEqual(find_sensors_json(scenes_path, None), sensors_path)
             output_dir = root / "output"
-            summary = replay(scenes_path, sensors_path, output_dir, 1, ClusterConfig())
+            summary = replay(scenes_path, sensors_path, output_dir, 1, ClusterConfig(),
+                             visualize=True)
             self.assertEqual(summary["frames"], 3)
             self.assertEqual(summary["radar_points"], 6)
             self.assertEqual(summary["cluster_detections"], 3)
             self.assertEqual(summary["unique_published_ids"], 1)
             self.assertAlmostEqual(summary["median_interval_s"], 0.06)
             self.assertFalse(summary["ground_truth_used_as_input"])
+            self.assertEqual(summary["visualization_frames"], 3)
+            self.assertTrue((output_dir / "visualization.html").is_file())
+            html = (output_dir / "visualization.html").read_text(encoding="utf-8")
+            self.assertIn('[[0.0, "frames/frame_000000.svg"], [0.06,', html)
+            self.assertIn('frames[index + 1][0] - frames[index][0]', html)
+            for frame_index in range(3):
+                svg_path = output_dir / "frames" / f"frame_{frame_index:06d}.svg"
+                root_element = ElementTree.parse(svg_path).getroot()
+                markers = root_element.findall('.//*[@data-track-id]')
+                self.assertEqual(len(markers), 0 if frame_index == 0 else 1)
+                if markers:
+                    self.assertEqual(markers[0].attrib['data-track-id'], '1')
+                    self.assertEqual(markers[0].attrib['data-predicted-only'], 'false')
 
             detections = [json.loads(line) for line in
                           (output_dir / "detections.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -128,21 +147,40 @@ class RadarScenesAdapterTests(unittest.TestCase):
             self.assertEqual(tracks[1]["tracks"][0]["track_id"], 1)
             self.assertEqual(tracks[2]["tracks"][0]["track_id"], 1)
 
+            predicted = replace(TrackOutput(**tracks[1]["tracks"][0]),
+                                predicted_only=True)
+            svg = render_bev_svg(
+                radar[3:5], [], [predicted],
+                {1: deque([(0.06, predicted.x, predicted.y, True)])},
+                (1.0, 0.0), 0.06, "sequence_001", 1, 60.0,
+            )
+            marker = ElementTree.fromstring(svg).find('.//*[@data-track-id]')
+            self.assertEqual(marker.attrib['data-predicted-only'], 'true')
+            self.assertIn('ID 1 (P)', svg)
+
             cli_output = root / "cli-output"
             result = subprocess.run(
                 [
                     sys.executable, "-m", "radar_id_tracker.radarscenes_adapter",
                     "--scenes", str(scenes_path), "--sensor-id", "1",
                     "--output-dir", str(cli_output), "--limit", "2",
+                    "--visualize",
                 ],
                 capture_output=True, text=True, check=False,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["frames"], 2)
+            self.assertTrue((cli_output / "visualization.html").is_file())
             self.assertEqual(
                 len((cli_output / "tracks.jsonl").read_text(encoding="utf-8").splitlines()),
                 2,
             )
+
+            plain_output = root / "plain-output"
+            plain_summary = replay(scenes_path, sensors_path, plain_output, 1,
+                                   ClusterConfig(), limit=1)
+            self.assertNotIn("visualization_file", plain_summary)
+            self.assertFalse((plain_output / "visualization.html").exists())
 
             with self.assertRaisesRegex(ValueError, "no scans"):
                 replay(scenes_path, sensors_path, root / "no-sensor", 3, ClusterConfig())

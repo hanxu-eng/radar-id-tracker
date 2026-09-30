@@ -18,6 +18,7 @@ import numpy as np
 
 from .tracker import RadarTracker
 from .types import Detection
+from .radarscenes_visualization import RadarScenesVisualizer
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,6 +144,9 @@ def replay(
     sensor_id: int,
     config: ClusterConfig,
     limit: int | None = None,
+    visualize: bool = False,
+    vis_range_m: float = 60.0,
+    trail_seconds: float = 2.0,
 ) -> dict[str, object]:
     """Read one RadarScenes sequence and write detections/tracks/diagnostics."""
     try:
@@ -158,6 +162,10 @@ def replay(
         raise ValueError("sensor_id must be 1, 2, 3, or 4")
     if limit is not None and limit < 1:
         raise ValueError("limit must be at least 1")
+    if visualize and (not isfinite(vis_range_m) or vis_range_m <= 0):
+        raise ValueError("vis_range_m must be positive and finite")
+    if visualize and (not isfinite(trail_seconds) or trail_seconds <= 0):
+        raise ValueError("trail_seconds must be positive and finite")
     if not scenes_path.is_file():
         raise FileNotFoundError(f"scenes.json not found: {scenes_path}")
     if not (scenes_path.parent / "radar_data.h5").is_file():
@@ -185,6 +193,8 @@ def replay(
     tracks_path = output_dir / "tracks.jsonl"
     summary_path = output_dir / "summary.json"
     tracker = RadarTracker()
+    visualizer = (RadarScenesVisualizer(output_dir, sequence.sequence_name, sensor_id,
+                                        vis_range_m, trail_seconds) if visualize else None)
     base_timestamp_us = selected[0]
     frame_times: list[float] = []
     processing_ms: list[float] = []
@@ -217,6 +227,11 @@ def replay(
                     "timestamp_s": timestamp_s,
                     "tracks": [asdict(item) for item in tracks],
                 }, allow_nan=False) + "\n")
+                if visualizer is not None:
+                    visualizer.add_frame(scene.radar_data, detections, tracks,
+                                         sensor_xy, timestamp_s)
+
+    visualization_path = visualizer.finish() if visualizer is not None else None
 
     intervals = [right - left for left, right in zip(frame_times, frame_times[1:])]
     summary: dict[str, object] = {
@@ -238,6 +253,9 @@ def replay(
         "validated_detection_or_tracking_accuracy": False,
         "config": asdict(config),
     }
+    if visualization_path is not None:
+        summary["visualization_file"] = str(visualization_path)
+        summary["visualization_frames"] = len(visualizer.frames)
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return summary
 
@@ -255,6 +273,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--min-points", type=int, default=2)
     parser.add_argument("--confidence", type=float, default=0.75)
     parser.add_argument("--doppler-sign", choices=("as-is", "invert", "off"), default="as-is")
+    parser.add_argument("--visualize", action="store_true", help="write a local HTML replay and SVG BEV frames")
+    parser.add_argument("--vis-range-m", type=float, default=60.0, help="BEV half-width/height in meters")
+    parser.add_argument("--trail-seconds", type=float, default=2.0, help="visible track-history duration")
     args = parser.parse_args(argv)
     try:
         config = ClusterConfig(
@@ -266,7 +287,8 @@ def main(argv: list[str] | None = None) -> int:
             doppler_sign=args.doppler_sign,
         )
         sensors_path = find_sensors_json(args.scenes, args.sensors)
-        summary = replay(args.scenes, sensors_path, args.output_dir, args.sensor_id, config, args.limit)
+        summary = replay(args.scenes, sensors_path, args.output_dir, args.sensor_id, config,
+                         args.limit, args.visualize, args.vis_range_m, args.trail_seconds)
     except (OSError, ValueError, KeyError, RuntimeError) as error:
         parser.exit(2, f"RadarScenes input error: {error}\n")
     print(json.dumps(summary, ensure_ascii=False, indent=2))

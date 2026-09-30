@@ -51,15 +51,29 @@ python -m radar_id_tracker.radarscenes_adapter --scenes "D:\RadarScenes\data\seq
 
 如果传感器外参文件不在数据集根目录，加上 `--sensors "/path/to/RadarScenes/sensors.json"`。如安装后提示找不到 `radar_id_tracker.radarscenes_adapter`，先在仓库根目录执行 `python -m pip install -e . --no-deps`。
 
-脚本在输出目录写三个文件：
+默认在输出目录写三个文件：
 
 - `detections.jsonl`：逐次扫描的候选目标，可再次用 `radar-id-track` 回放。
 - `tracks.jsonl`：逐次扫描的公开 `track_id`，首帧没有 ID 是正常的。
 - `summary.json`：读取与输出计数、真实中位扫描间隔、处理时间及“非精度验收”标记。
 
+### 查看稳定 ID 的俯视角回放
+
+在原命令末尾加 `--visualize`，即可额外生成浏览器可打开的俯视角回放。这里使用您实际扫描间隔控制播放，不把 RadarScenes 强行变成 10 Hz，也不需要安装 OpenCV、Matplotlib、FFmpeg 或浏览器服务器。
+
+```powershell
+python -m radar_id_tracker.radarscenes_adapter --scenes "C:\Projects\hx\Datasets\RadarScenes\data\sequence_137\scenes.json" --sensor-id 1 --output-dir "outputs\sequence_137_sensor1" --limit 200 --visualize
+```
+
+完成后，在文件管理器中双击 `outputs\sequence_137_sensor1\visualization.html`，或把它拖进浏览器。`frames\frame_000000.svg` 等逐帧图像必须与 HTML 保持原有相对目录；若复制结果到另一台电脑，请一起复制整个输出目录。页面可播放、暂停、逐帧和拖动进度条；1× 播放按扫描时间戳之间的实际间隔调度，浏览器后台限速可能使显示稍慢，但**跟踪计算仍始终使用原始时间戳**。
+
+图中灰点是当前雷达原始点、橙方块是无标签聚类中心、彩色圆及 `ID n` 是跟踪器公开的编号；空心虚线圆与 `(P)` 表示这一帧仅靠预测、没有重新观测到该轨迹。彩色线是该 ID 最近 2 秒的路径，预测段用虚线。黑点是当前雷达位置。坐标使用 RadarScenes 固定序列系：雷达始终处于画面中心，视窗随车平移，但**不随车旋转**；默认可见范围为当前位置四周各 60 m。超出画面的点或轨迹不会绘出，但不会影响跟踪数据。
+
+视距和轨迹尾迹可调整，例如 `--vis-range-m 100 --trail-seconds 3`。`--visualize` 会额外写入每帧一张 SVG，长序列要预留磁盘空间；先用 `--limit 200` 检查，再决定是否处理全序列。反复写同一个输出目录时，HTML 仅引用本次生成的帧，但旧的多余 SVG 可能留在 `frames` 中；需要整洁归档时使用新的输出目录。该可视化并非 MP4，也没有拿官方 `track_id` 绘制或验证真值。
+
 日志和 `summary.json` 中，`frames > 0`、`radar_points > 0` 且两份 JSONL 行数均等于 `frames`，就表示**文件读取和帧级接入成功**。`cluster_detections > 0` 且 `unique_published_ids > 0` 才表示在这段数据上也实际生成了目标和 ID。测试区间若没有足够运动目标，后两个值可能为零，并不必然是读取失败。`median_interval_s` 来自真实选中扫描，不能由标称频率硬填。
 
-确认短序列能跑后，去掉 `--limit 200` 处理完整序列。每条序列和每部雷达用不同的 `--output-dir`，因为跟踪 ID 从 1 重新编号；再次运行同一目录会覆盖其中的三个结果文件。
+确认短序列能跑后，去掉 `--limit 200` 处理完整序列。每条序列和每部雷达用不同的 `--output-dir`，因为跟踪 ID 从 1 重新编号；再次运行同一目录会覆盖本次结果文件。
 
 ## 4. 默认聚类参数与诊断
 

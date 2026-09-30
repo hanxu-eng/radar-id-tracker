@@ -157,7 +157,7 @@ for timestamp_s, detections in frames:
 
 **首选 RadarScenes**：它公开雷达点云、真实采集时间、序列坐标、已补偿径向速度以及逐点目标 ID，最适合先查验位置/多普勒关联与换 ID 情况。不过它不是原生 10 Hz：官方给出的单传感器平均扫描周期约 60 ms。不要把四台雷达的异步扫描拼成“一台 10 Hz 雷达”，也不要把帧号乘 0.1 当作真实时间。[官方数据下载（Zenodo）](https://zenodo.org/records/4559821)、[字段说明](https://radar-scenes.com/dataset/structure/)、[传感器频率](https://radar-scenes.com/dataset/sensors/)、[官方 Python 工具](https://github.com/oleschum/radar_scenes)。数据约 11.1 GB，许可为 CC BY-NC-SA 4.0，**不可用于商业用途**。
 
-数据下载完后，按 [RadarScenes 实际帧率接入与首轮测试](docs/radarscenes.md) 直接运行本仓库的无标签逐帧聚类基线。它能生成 `detections.jsonl`、`tracks.jsonl` 和 `summary.json`，便于先验证真实数据的读取、时间戳、传感器位置和 ID 输出；这不是已训练检测器，也不能据其输出宣称真实场景精度达标。
+数据下载完后，按 [RadarScenes 实际帧率接入与首轮测试](docs/radarscenes.md) 直接运行本仓库的无标签逐帧聚类基线。它能生成 `detections.jsonl`、`tracks.jsonl` 和 `summary.json`；加 `--visualize` 还能生成可直接在浏览器打开的 `visualization.html` 和逐帧 SVG，查看原始点、聚类中心、稳定 ID、预测态与轨迹尾迹。这便于先验证真实数据的读取、时间戳、传感器位置和 ID 输出；它不是已训练检测器，也不能据其输出宣称真实场景精度达标。
 
 | 数据集 | 为什么推荐 | 接入时的限制 |
 | --- | --- | --- |
