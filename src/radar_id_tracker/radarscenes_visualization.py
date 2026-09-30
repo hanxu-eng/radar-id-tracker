@@ -6,10 +6,12 @@ but does not rotate with the vehicle; the same world direction always points up.
 
 from __future__ import annotations
 
+import json
 from collections import deque
 from html import escape
 from math import ceil, floor, isfinite
 from pathlib import Path
+from shutil import copy2
 
 import numpy as np
 
@@ -143,7 +145,8 @@ class RadarScenesVisualizer:
     """Stream SVG frames and write a local player without extra dependencies."""
 
     def __init__(self, output_dir: Path, sequence_name: str, sensor_id: int,
-                 range_m: float = 60.0, trail_seconds: float = 2.0) -> None:
+                 range_m: float = 60.0, trail_seconds: float = 2.0,
+                 with_camera: bool = False) -> None:
         if not isfinite(range_m) or range_m <= 0:
             raise ValueError("visualization range must be positive and finite")
         if not isfinite(trail_seconds) or trail_seconds <= 0:
@@ -151,16 +154,24 @@ class RadarScenesVisualizer:
         self.output_dir = output_dir
         self.frames_dir = output_dir / "frames"
         self.frames_dir.mkdir(parents=True, exist_ok=True)
+        self.with_camera = with_camera
+        self.camera_dir = output_dir / "camera"
+        if with_camera:
+            self.camera_dir.mkdir(parents=True, exist_ok=True)
+        self.camera_files: dict[Path, str] = {}
         self.sequence_name = sequence_name
         self.sensor_id = sensor_id
         self.range_m = range_m
         self.trail_seconds = trail_seconds
         self.histories: dict[int, deque[tuple[float, float, float, bool]]] = {}
-        self.frames: list[tuple[float, str]] = []
+        self.frames: list[tuple[float, str, str | None, float | None]] = []
 
     def add_frame(self, radar_data: np.ndarray, detections: list[Detection],
                   tracks: list[TrackOutput], sensor_xy: tuple[float, float],
-                  timestamp_s: float) -> None:
+                  timestamp_s: float, camera_path: Path | None = None,
+                  camera_offset_ms: float | None = None) -> None:
+        if self.with_camera != (camera_path is not None):
+            raise ValueError("camera_path must be supplied exactly when camera view is enabled")
         cutoff = timestamp_s - self.trail_seconds
         for track_id, history in list(self.histories.items()):
             while history and history[0][0] < cutoff:
@@ -175,13 +186,27 @@ class RadarScenesVisualizer:
                              sensor_xy, timestamp_s, self.sequence_name,
                              self.sensor_id, self.range_m)
         (self.frames_dir / name).write_text(svg, encoding="utf-8")
-        self.frames.append((timestamp_s, f"frames/{name}"))
+        camera_relative: str | None = None
+        if camera_path is not None:
+            source = camera_path.resolve()
+            camera_relative = self.camera_files.get(source)
+            if camera_relative is None:
+                camera_name = f"camera_{len(self.camera_files):06d}{source.suffix.lower()}"
+                copy2(source, self.camera_dir / camera_name)
+                camera_relative = f"camera/{camera_name}"
+                self.camera_files[source] = camera_relative
+        self.frames.append((timestamp_s, f"frames/{name}",
+                            camera_relative, camera_offset_ms))
 
     def finish(self) -> Path:
-        import json
-
         manifest = json.dumps(self.frames, ensure_ascii=False)
         title = escape(f"{self.sequence_name} · radar {self.sensor_id}")
+        camera_panel = """
+<div class="pane">
+  <h2>Nearest camera view</h2>
+  <img id="camera" alt="Documentary camera image nearest to this radar scan">
+  <p id="camera-status"></p>
+</div>""" if self.with_camera else ""
         html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -190,12 +215,15 @@ class RadarScenesVisualizer:
 <title>Radar BEV replay — {title}</title>
 <style>
 body {{ margin: 0; background: #e2e8f0; color: #0f172a; font: 16px system-ui, sans-serif; }}
-main {{ max-width: 1100px; margin: 0 auto; padding: 16px; }}
+main {{ max-width: 1850px; margin: 0 auto; padding: 16px; }}
 h1 {{ font-size: 22px; margin: 0 0 12px; }}
+h2 {{ font-size: 18px; margin: 0 0 8px; }}
 .controls {{ display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }}
 button, select {{ font: inherit; padding: 6px 10px; }}
 input[type=range] {{ flex: 1; min-width: 180px; }}
-img {{ display: block; width: 100%; max-width: 900px; background: white; border: 1px solid #94a3b8; }}
+.viewer {{ display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }}
+.pane {{ flex: 1 1 500px; min-width: 0; max-width: 900px; }}
+.pane img {{ display: block; width: 100%; max-height: 900px; object-fit: contain; background: white; border: 1px solid #94a3b8; }}
 p {{ color: #475569; }}
 </style>
 </head>
@@ -213,11 +241,16 @@ p {{ color: #475569; }}
   </select>
   <span id="status"></span>
 </div>
-<img id="frame" alt="Bird's-eye radar scan with numbered tracks">
-<p>Playback follows the original scan timestamp gaps at 1× (subject to browser timer scheduling). The viewport follows the radar without rotating. IDs are tracker outputs, not ground truth; this visualization does not evaluate tracking accuracy.</p>
+<div class="viewer">
+  <div class="pane"><h2>Radar BEV</h2><img id="frame" alt="Bird's-eye radar scan with numbered tracks"></div>
+  {camera_panel}
+</div>
+<p>Playback follows the original radar scan timestamp gaps at 1× (subject to browser timer scheduling). The viewport follows the radar without rotating. The camera is the nearest recorded image, not a calibrated radar projection. IDs are tracker outputs, not ground truth; this visualization does not evaluate tracking accuracy.</p>
 <script>
 const frames = {manifest};
 const image = document.getElementById('frame');
+const camera = document.getElementById('camera');
+const cameraStatus = document.getElementById('camera-status');
 const seek = document.getElementById('seek');
 const status = document.getElementById('status');
 const playButton = document.getElementById('play');
@@ -226,6 +259,13 @@ let timer = null;
 function show(i) {{
   index = Math.max(0, Math.min(frames.length - 1, i));
   image.src = frames[index][1];
+  if (camera !== null) {{
+    camera.src = frames[index][2];
+    const offset = frames[index][3];
+    cameraStatus.textContent = offset === null
+      ? 'Nearest camera image; timestamp offset unavailable'
+      : `Camera − radar timestamp: ${{offset >= 0 ? '+' : ''}}${{offset.toFixed(1)}} ms`;
+  }}
   seek.value = String(index);
   status.textContent = `Frame ${{index + 1}}/${{frames.length}} · t=${{frames[index][0].toFixed(3)}} s`;
 }}

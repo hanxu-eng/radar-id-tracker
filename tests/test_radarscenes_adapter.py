@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from base64 import b64decode
 from collections import deque
 from dataclasses import replace
 from pathlib import Path
@@ -36,6 +37,9 @@ ODOMETRY_DTYPE = np.dtype([
     ("timestamp", "i8"), ("x_seq", "f8"), ("y_seq", "f8"),
     ("yaw_seq", "f8"),
 ])
+TINY_PNG = b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/Z5kAAAAASUVORK5CYII="
+)
 
 
 class RadarScenesAdapterTests(unittest.TestCase):
@@ -66,6 +70,8 @@ class RadarScenesAdapterTests(unittest.TestCase):
             root = Path(directory)
             sequence_dir = root / "data" / "sequence_001"
             sequence_dir.mkdir(parents=True)
+            camera_dir = sequence_dir / "camera"
+            camera_dir.mkdir()
             sensors_path = root / "sensors.json"
             sensors_path.write_text(json.dumps({
                 "radar_1": {"x": 1.0, "y": 0.0, "yaw": 0.0},
@@ -98,13 +104,15 @@ class RadarScenesAdapterTests(unittest.TestCase):
                 (1_060_000, 1, 3, 5),
                 (1_120_000, 1, 5, 7),
             ]):
+                image_timestamp = 1_065_000 if timestamp == 1_120_000 else timestamp + 5_000
                 scenes[str(timestamp)] = {
                     "sensor_id": sensor,
                     "radar_indices": [begin, end],
                     "odometry_index": index,
                     "odometry_timestamp": timestamp,
-                    "image_name": "unused.jpg",
+                    "image_name": f"{image_timestamp}.png",
                 }
+                (camera_dir / f"{image_timestamp}.png").write_bytes(TINY_PNG)
             scenes_path = sequence_dir / "scenes.json"
             scenes_path.write_text(json.dumps({
                 "sequence_name": "sequence_001",
@@ -116,7 +124,7 @@ class RadarScenesAdapterTests(unittest.TestCase):
             self.assertEqual(find_sensors_json(scenes_path, None), sensors_path)
             output_dir = root / "output"
             summary = replay(scenes_path, sensors_path, output_dir, 1, ClusterConfig(),
-                             visualize=True)
+                             visualize=True, with_camera=True)
             self.assertEqual(summary["frames"], 3)
             self.assertEqual(summary["radar_points"], 6)
             self.assertEqual(summary["cluster_detections"], 3)
@@ -124,10 +132,16 @@ class RadarScenesAdapterTests(unittest.TestCase):
             self.assertAlmostEqual(summary["median_interval_s"], 0.06)
             self.assertFalse(summary["ground_truth_used_as_input"])
             self.assertEqual(summary["visualization_frames"], 3)
+            self.assertEqual(summary["camera_images_copied"], 2)
+            self.assertEqual(summary["median_abs_camera_offset_ms"], 5.0)
+            self.assertEqual(summary["max_abs_camera_offset_ms"], 55.0)
+            self.assertTrue(summary["camera_alignment_is_nearest_only"])
             self.assertTrue((output_dir / "visualization.html").is_file())
             html = (output_dir / "visualization.html").read_text(encoding="utf-8")
-            self.assertIn('[[0.0, "frames/frame_000000.svg"], [0.06,', html)
+            self.assertIn('[[0.0, "frames/frame_000000.svg", "camera/camera_000000.png", 5.0]', html)
+            self.assertIn('id="camera"', html)
             self.assertIn('frames[index + 1][0] - frames[index][0]', html)
+            self.assertEqual((output_dir / "camera" / "camera_000000.png").read_bytes(), TINY_PNG)
             for frame_index in range(3):
                 svg_path = output_dir / "frames" / f"frame_{frame_index:06d}.svg"
                 root_element = ElementTree.parse(svg_path).getroot()
@@ -164,13 +178,14 @@ class RadarScenesAdapterTests(unittest.TestCase):
                     sys.executable, "-m", "radar_id_tracker.radarscenes_adapter",
                     "--scenes", str(scenes_path), "--sensor-id", "1",
                     "--output-dir", str(cli_output), "--limit", "2",
-                    "--visualize",
+                    "--visualize", "--with-camera",
                 ],
                 capture_output=True, text=True, check=False,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["frames"], 2)
             self.assertTrue((cli_output / "visualization.html").is_file())
+            self.assertEqual(json.loads(result.stdout)["camera_images_copied"], 2)
             self.assertEqual(
                 len((cli_output / "tracks.jsonl").read_text(encoding="utf-8").splitlines()),
                 2,
@@ -178,12 +193,32 @@ class RadarScenesAdapterTests(unittest.TestCase):
 
             plain_output = root / "plain-output"
             plain_summary = replay(scenes_path, sensors_path, plain_output, 1,
-                                   ClusterConfig(), limit=1)
+                                   ClusterConfig())
             self.assertNotIn("visualization_file", plain_summary)
             self.assertFalse((plain_output / "visualization.html").exists())
+            for filename in ("detections.jsonl", "tracks.jsonl"):
+                self.assertEqual((plain_output / filename).read_bytes(),
+                                 (output_dir / filename).read_bytes())
+
+            radar_only_output = root / "radar-only-output"
+            replay(scenes_path, sensors_path, radar_only_output, 1,
+                   ClusterConfig(), limit=1, visualize=True)
+            radar_only_html = (radar_only_output / "visualization.html").read_text(encoding="utf-8")
+            self.assertNotIn('id="camera"', radar_only_html)
+            self.assertFalse((radar_only_output / "camera").exists())
+
+            with self.assertRaisesRegex(ValueError, "requires --visualize"):
+                replay(scenes_path, sensors_path, root / "invalid", 1,
+                       ClusterConfig(), with_camera=True)
 
             with self.assertRaisesRegex(ValueError, "no scans"):
                 replay(scenes_path, sensors_path, root / "no-sensor", 3, ClusterConfig())
+
+            (camera_dir / "1005000.png").unlink()
+            with self.assertRaisesRegex(FileNotFoundError, "camera image missing"):
+                replay(scenes_path, sensors_path, root / "missing-camera", 1,
+                       ClusterConfig(), visualize=True, with_camera=True)
+            self.assertFalse((root / "missing-camera").exists())
 
 
 if __name__ == "__main__":

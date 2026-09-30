@@ -147,6 +147,7 @@ def replay(
     visualize: bool = False,
     vis_range_m: float = 60.0,
     trail_seconds: float = 2.0,
+    with_camera: bool = False,
 ) -> dict[str, object]:
     """Read one RadarScenes sequence and write detections/tracks/diagnostics."""
     try:
@@ -166,6 +167,8 @@ def replay(
         raise ValueError("vis_range_m must be positive and finite")
     if visualize and (not isfinite(trail_seconds) or trail_seconds <= 0):
         raise ValueError("trail_seconds must be positive and finite")
+    if with_camera and not visualize:
+        raise ValueError("--with-camera requires --visualize")
     if not scenes_path.is_file():
         raise FileNotFoundError(f"scenes.json not found: {scenes_path}")
     if not (scenes_path.parent / "radar_data.h5").is_file():
@@ -188,13 +191,35 @@ def replay(
     if limit is not None:
         selected = selected[:limit]
 
+    camera_paths: dict[int, Path] = {}
+    camera_offsets_ms: dict[int, float | None] = {}
+    if with_camera:
+        camera_root = (scenes_path.parent / "camera").resolve()
+        for timestamp_us in selected:
+            scene = sequence.get_scene(timestamp_us)
+            assert scene is not None
+            source = Path(scene.camera_image_name).resolve()
+            if not source.is_relative_to(camera_root):
+                raise ValueError(f"camera image path is outside sequence camera folder: {source}")
+            if not source.is_file():
+                raise FileNotFoundError(
+                    f"camera image missing: {source}; download the camera folder or omit --with-camera"
+                )
+            camera_paths[timestamp_us] = source
+            image_timestamp = source.stem
+            camera_offsets_ms[timestamp_us] = (
+                (int(image_timestamp) - timestamp_us) / 1000.0
+                if image_timestamp.isdecimal() else None
+            )
+
     output_dir.mkdir(parents=True, exist_ok=True)
     detections_path = output_dir / "detections.jsonl"
     tracks_path = output_dir / "tracks.jsonl"
     summary_path = output_dir / "summary.json"
     tracker = RadarTracker()
     visualizer = (RadarScenesVisualizer(output_dir, sequence.sequence_name, sensor_id,
-                                        vis_range_m, trail_seconds) if visualize else None)
+                                        vis_range_m, trail_seconds, with_camera)
+                  if visualize else None)
     base_timestamp_us = selected[0]
     frame_times: list[float] = []
     processing_ms: list[float] = []
@@ -229,7 +254,9 @@ def replay(
                 }, allow_nan=False) + "\n")
                 if visualizer is not None:
                     visualizer.add_frame(scene.radar_data, detections, tracks,
-                                         sensor_xy, timestamp_s)
+                                         sensor_xy, timestamp_s,
+                                         camera_paths.get(timestamp_us),
+                                         camera_offsets_ms.get(timestamp_us))
 
     visualization_path = visualizer.finish() if visualizer is not None else None
 
@@ -256,6 +283,13 @@ def replay(
     if visualization_path is not None:
         summary["visualization_file"] = str(visualization_path)
         summary["visualization_frames"] = len(visualizer.frames)
+        if with_camera:
+            offsets = [abs(value) for value in camera_offsets_ms.values() if value is not None]
+            summary["camera_images_copied"] = len(visualizer.camera_files)
+            summary["camera_offset_parsed_frames"] = len(offsets)
+            summary["median_abs_camera_offset_ms"] = median(offsets) if offsets else None
+            summary["max_abs_camera_offset_ms"] = max(offsets) if offsets else None
+            summary["camera_alignment_is_nearest_only"] = True
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return summary
 
@@ -274,6 +308,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--confidence", type=float, default=0.75)
     parser.add_argument("--doppler-sign", choices=("as-is", "invert", "off"), default="as-is")
     parser.add_argument("--visualize", action="store_true", help="write a local HTML replay and SVG BEV frames")
+    parser.add_argument("--with-camera", action="store_true", help="show and copy the nearest camera image for each scan")
     parser.add_argument("--vis-range-m", type=float, default=60.0, help="BEV half-width/height in meters")
     parser.add_argument("--trail-seconds", type=float, default=2.0, help="visible track-history duration")
     args = parser.parse_args(argv)
@@ -288,7 +323,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         sensors_path = find_sensors_json(args.scenes, args.sensors)
         summary = replay(args.scenes, sensors_path, args.output_dir, args.sensor_id, config,
-                         args.limit, args.visualize, args.vis_range_m, args.trail_seconds)
+                         args.limit, args.visualize, args.vis_range_m, args.trail_seconds,
+                         args.with_camera)
     except (OSError, ValueError, KeyError, RuntimeError) as error:
         parser.exit(2, f"RadarScenes input error: {error}\n")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
