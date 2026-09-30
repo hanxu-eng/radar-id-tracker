@@ -113,14 +113,40 @@ python -m radar_id_tracker.radarscenes_adapter --scenes "C:\Projects\hx\Datasets
 | `radar_data.x_seq/y_seq` | 已在序列固定坐标系；聚类后取中心。 |
 | `radar_data.vr_compensated` | 自车运动补偿后的径向速度；聚类取中位数。 |
 | `scene.odometry_data.x_seq/y_seq/yaw_seq`、`sensors.json` 的 `x/y` | 计算该帧雷达在序列坐标系中的 `sensor_xy`。 |
-| `radar_data.track_id/label_id` | **不进入检测和跟踪**；将来单独实现真值匹配与指标评估。 |
+| `radar_data.track_id/label_id` | **不进入检测和跟踪**；仅由独立的离线评分命令读取。 |
 
-官方逐点 ID 在目标遮挡或停止超过约 500 ms 后可能重新分配；不能直接把不同时间的同一物理车当作必然相同的真值 ID。首轮接入只回答“是否正确读取并跑通真实帧”，**不回答** IDF1、HOTA、检测精度或生产实时性是否达标。
+官方逐点 ID 在目标遮挡或停止超过约 500 ms 后可能重新分配；不能直接把不同时间的同一物理车当作必然相同的真值 ID。首轮接入只回答“是否正确读取并跑通真实帧”；下述评分是自定义中心距离诊断，**不是**官方 RadarScenes 榜单、HOTA 或生产实时性验收。
 
 ## 6. 如何判断 ID 跟踪效果
 
 当前 `summary.json` 中的 `unique_published_ids`、`published_track_outputs` 和处理时间只能说明**有输出且跑得动**；它们不能说明 `ID 1` 是否跟对了同一辆车。相机并排图可以帮助判断道路场景，但它不具有真值标注资格。建议先在播放器中逐帧审查十字路口、两车交叉、短时漏检、远距离稀疏点和转弯片段：记录目标是否始终保留同一预测 ID、是否一个目标产生多个 ID、两目标是否被合成一个、无目标处是否长期存在彩色轨迹。`(P)` 连续很多帧且车已离开视野时，可能是假轨；一出现遮挡就换号，可能是关联或保活问题。
 
-可复现的量化验收应使用**未参与检测和跟踪**的官方逐点 `track_id/label_id` 作离线真值：逐帧把同一官方 ID 的动态点组成真值对象，固定中心/范围的定义与一对一匹配门限，再统计检测召回、虚警、ID switches、轨迹断裂，并计算 IDF1/HOTA。要同时报告评估序列、传感器、目标距离分层、匹配门限和是否计入仅预测轨迹；否则分数不可比较。[TrackEval](https://github.com/JonathonLuiten/TrackEval) 提供 IDF1/HOTA 参考实现，但**本仓库尚未实现 RadarScenes 到该评测格式的转换，不能把当前摘要当成这些指标**。官方标注只覆盖运动目标，且遮挡或停止超过约 500 ms 可能重新赋新真值 ID，因此这些事件需要单独标记，避免把真值定义变化误判为跟踪器换号。[官方标注规则](https://radar-scenes.com/dataset/labeling/)。
+### 对现有回放结果直接评分
+
+在仓库目录、已激活的 Conda 环境中，先 `git pull` 并执行 `python -m pip install -e . --no-deps`。评分不需要重新运行跟踪器；把 `--run-dir` 指向已有的 `summary.json`、`detections.jsonl`、`tracks.jsonl` 所在目录：
+
+```powershell
+python -m radar_id_tracker.radarscenes_evaluate --scenes "C:\Projects\hx\Datasets\RadarScenes\data\sequence_137\scenes.json" --run-dir "outputs\sequence_137_sensor1_vis" --distance-m 2.0
+```
+
+命令会生成 `evaluation.json`（汇总）和 `evaluation_frames.jsonl`（逐帧匹配、漏掉的真值 ID、未匹配的输出 ID）。输出目录不同就相应修改 `--run-dir`；有无相机图均可评分。程序核对序列、传感器、帧数和**每帧真实时间戳**，不匹配则报错，不会静默错位。评分与检测/跟踪是两个独立进程：真值只在评分器内读取。
+
+口径是：每次扫描内将官方动态点按 `track_id` 分组，取各组 `x_seq/y_seq` 的中位中心作为代理真值；候选中心与代理真值在 `--distance-m`（默认 2 m）内进行一对一最小距离匹配。`label_id=11` 的静态点不算真值。这个门限和中心定义是本项目的**诊断约定**，不是官方标准；远处方位误差、大型车辆点云分布及相邻目标会影响分数。建议固定同一口径比较不同版本，并另以 1 m、4 m 门限做敏感性检查；重复运行会覆盖这两个评分文件，请先备份需要对比的报告。[官方字段与标注](https://radar-scenes.com/dataset/structure/)、[标注说明](https://radar-scenes.com/dataset/labeling/)。
+
+`evaluation.json` 重点看：
+
+| 字段 | 如何解释 |
+| --- | --- |
+| `detections.precision/recall/f1` | 单帧聚类候选的虚警、漏检及综合情况；低召回优先检查聚类和多普勒阈值。 |
+| `observed_tracks.f1` | 排除 `predicted_only` 后，已确认轨迹的帧级位置匹配；明显低于候选检测时，检查确认、关联和漏检保活。 |
+| `observed_tracks.idf1` | 在**上述自定义空间门限**下，按整段序列做身份级全局对应的 IDF1；位置 F1 尚可而它低时，重点查换号。 |
+| `observed_tracks.id_changes/fragmentations` | 自定义诊断：同一官方 ID 两次匹配到不同预测 ID 的次数／中间有已标注但漏匹配扫描、后来重新匹配的次数；**不是**官方 IDSW/Frag。 |
+| `published_tracks_including_predictions` | 把纯预测轨迹也计入；真值只标有雷达测量的运动目标，遮挡期间的有效预测也可能被算成虚警，因此与 `observed_tracks` 一起看。 |
+| `gt_single_point_occurrences`、`gt_below_cluster_min_points` | 真值对象在某帧仅有 1 点、或少于当前 `min_points` 的次数；提示稀疏性压力，不是漏检的严格上界。 |
+| `worst_frame_indices_by_observed_fp_plus_fn` | 最值得回看的一批**零基**帧号；播放器显示从 1 开始，定位时加 1。 |
+
+所有指标的分母为零时输出 `null`，不会把没有目标的片段误报为满分。首帧通常尚未确认 ID，会在已观测轨迹评分中形成漏检，这是当前在线策略的真实行为。`IDF1` 使用与 [TrackEval Identity](https://github.com/JonathonLuiten/TrackEval/blob/master/trackeval/metrics/identity.py) 同类的全局身份匹配公式，但输入是这里自定义的 RadarScenes 点云中位中心和距离门限；**不可拿它与其他数据集或官方基准分数直接比较**。目前没有实现 HOTA。
+
+官方标注只覆盖运动目标，并在遮挡或停止超过约 500 ms 后可能重新赋真值 ID；相机图也不是可靠的像素级真值。因此一次 `sequence_137` 的 200 帧分数只适合定位问题，后续要在多个序列、多个传感器、相同评分口径下复验。[官方标注规则](https://radar-scenes.com/dataset/labeling/)。
 
 若审查发现问题，先定位是“单帧聚类没有产生正确候选”，还是“候选正确但关联换号”；不要同时改聚类阈值和跟踪门控。当前单帧空间＋多普勒聚类是管线基线，官方也明确指出仅按多普勒阈值不能可靠分离所有动态目标。改正时先保存当前命令和输出为对照，再只调整一个主要变量并重跑同一序列片段；比较漏检、虚警和换号是否共同改善。

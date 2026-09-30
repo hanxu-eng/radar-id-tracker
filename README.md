@@ -159,6 +159,8 @@ for timestamp_s, detections in frames:
 
 数据下载完后，按 [RadarScenes 实际帧率接入与首轮测试](docs/radarscenes.md) 直接运行本仓库的无标签逐帧聚类基线。它能生成 `detections.jsonl`、`tracks.jsonl` 和 `summary.json`；加 `--visualize` 还能生成可直接在浏览器打开的 `visualization.html` 和逐帧 SVG，查看原始点、聚类中心、稳定 ID、预测态与轨迹尾迹。如果已下载 `camera/`，再加 `--with-camera` 可并排显示时间最近的相机图。这便于先验证真实数据的读取、时间戳、传感器位置和 ID 输出；它不是已训练检测器，也不能据其输出宣称真实场景精度达标。
 
+对已有 RadarScenes 回放结果可运行独立的 `python -m radar_id_tracker.radarscenes_evaluate --scenes /path/to/scenes.json --run-dir outputs/sequence_137_sensor1_vis`，生成候选检测、已观测轨迹与全部公开轨迹的分项评分及逐帧错误清单。评分才读取官方真值，**不会反向影响检测或跟踪**；它是固定中心距离门限的诊断，不是官方榜单指标。命令、口径与解释见上述文档。
+
 | 数据集 | 为什么推荐 | 接入时的限制 |
 | --- | --- | --- |
 | [RadarScenes](https://zenodo.org/records/4559821) | 逐点类别/目标 ID、`x_seq/y_seq`、`vr_compensated` 和里程计；适合先做雷达专用跟踪实验。 | 点云不是目标检测框；须先聚类或检测。逐点真值 ID 只用于离线评估。 |

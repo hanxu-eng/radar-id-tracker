@@ -25,6 +25,7 @@ from radar_id_tracker.radarscenes_adapter import (
     sensor_position,
 )
 from radar_id_tracker.radarscenes_visualization import render_bev_svg
+from radar_id_tracker.radarscenes_evaluate import evaluate
 from radar_id_tracker.types import TrackOutput
 
 
@@ -161,6 +162,23 @@ class RadarScenesAdapterTests(unittest.TestCase):
             self.assertEqual(tracks[1]["tracks"][0]["track_id"], 1)
             self.assertEqual(tracks[2]["tracks"][0]["track_id"], 1)
 
+            evaluation = evaluate(scenes_path, output_dir, gate_m=2.0)
+            self.assertEqual(evaluation["frames"], 3)
+            self.assertEqual(evaluation["detections"]["f1"], 1.0)
+            self.assertEqual(evaluation["observed_tracks"]["tp"], 2)
+            self.assertEqual(evaluation["observed_tracks"]["fn"], 1)
+            self.assertAlmostEqual(evaluation["observed_tracks"]["idf1"], 0.8)
+            self.assertEqual(len((output_dir / "evaluation_frames.jsonl").read_text(
+                encoding="utf-8").splitlines()), 3)
+
+            eval_cli = subprocess.run(
+                [sys.executable, "-m", "radar_id_tracker.radarscenes_evaluate",
+                 "--scenes", str(scenes_path), "--run-dir", str(output_dir)],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(eval_cli.returncode, 0, eval_cli.stderr)
+            self.assertEqual(json.loads(eval_cli.stdout)["observed_tracks"]["fn"], 1)
+
             predicted = replace(TrackOutput(**tracks[1]["tracks"][0]),
                                 predicted_only=True)
             svg = render_bev_svg(
@@ -219,6 +237,13 @@ class RadarScenesAdapterTests(unittest.TestCase):
                 replay(scenes_path, sensors_path, root / "missing-camera", 1,
                        ClusterConfig(), visualize=True, with_camera=True)
             self.assertFalse((root / "missing-camera").exists())
+
+            tracks[1]["timestamp_s"] = 0.5
+            (output_dir / "tracks.jsonl").write_text(
+                "\n".join(json.dumps(row) for row in tracks) + "\n", encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "timestamp mismatch"):
+                evaluate(scenes_path, output_dir)
 
 
 if __name__ == "__main__":
