@@ -32,11 +32,12 @@ conda run --no-capture-output -n radar-id-tracker python -m unittest discover -s
 ```powershell
 git diff
 git diff --check
-git add <本轮明确修改的文件>
+git add -p
 git commit -m "描述本次修改"
 git push -u origin HEAD
 ```
 
+`git add -p` 按块选择已有文件改动；新文件使用 `git add 具体文件路径` 单独暂存。
 先确认没有其他尚未保存的修改再拉取；快进失败时应查看分支差异。
 `outputs/` 和根目录示例 `tracks.jsonl` 已加入忽略列表，保留本机结果且避免将
 大量 SVG、相机图和实验输出带入 Git。`datasets/` 同样被忽略；本轮小型 KITTI
@@ -78,3 +79,9 @@ git push -u origin HEAD
 3s 恢复退化，不采用为默认。报告见 [分数校准实验](lidar-sequence-calibration.md)，
 输出在 `outputs/kitti_sequence_calibration_grouped`。提交时逐个选取本轮文件，保留
 工作区中其他 RadarScenes 修改；不直接向 main 推送实验。
+
+第二轮使用 `codex/lidar-pedestrian-geometry`，基于分数校准分支，以独立草稿 PR
+发布。每折只继续训练行人几何分支，使用同预算原 L1 对照，不复用旧校准器。
+候选仍未验收，默认配置不变；报告见 [行人框几何实验](lidar-pedestrian-geometry.md)，
+输出在 `outputs/kitti_pedestrian_geometry`。原始点云、权重与特征不上传，0020
+继续封存。

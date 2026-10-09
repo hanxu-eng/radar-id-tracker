@@ -21,7 +21,7 @@ def main():
     p.add_argument('--run-root',type=Path,required=True)
     p.add_argument('--sequence',default='0001');p.add_argument('--frame',type=int,default=120)
     p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--comparison',choices=('detector','input','quality','heads','coverage','calibration'),default='detector')
+    p.add_argument('--comparison',choices=('detector','input','quality','heads','coverage','calibration','geometry'),default='detector')
     p.add_argument('--show-errors',action='store_true',help='offline front-ROI truth and TP/FP/missed coloring')
     args=p.parse_args();args.output.parent.mkdir(parents=True,exist_ok=True)
     os.environ.setdefault('MPLCONFIGDIR',str(args.output.parent.resolve()/'.mplconfig'))
@@ -46,6 +46,7 @@ def main():
     if args.comparison=='heads':titles=('CenterPoint original heads','Front head adaptation (experimental)')
     if args.comparison=='coverage':titles=('CenterPoint original heads','Expanded training coverage (experimental)')
     if args.comparison=='calibration':titles=('Same fold head: raw scores','Same fold head: calibrated + medium confirmation')
+    if args.comparison=='geometry':titles=('Matched budget: continued L1','Matched budget: weighted axis Huber')
     rows=json.loads((args.run_root/'benchmark.json').read_text())
     for ax,profile,title in zip(axes,('baseline','candidate'),titles):
         ax.set_facecolor('#172330');ax.axvspan(-51.2,0,color='#25314d',alpha=.5)
@@ -119,7 +120,7 @@ def main():
     if args.comparison in ('heads','coverage'):
         role=next(r['role'] for r in json.loads((args.run_root/'benchmark.json').read_text()) if r['sequence']==args.sequence)
         role_note=' | TRAINING REPLAY' if role=='training_replay' else ' | HELD-OUT VALIDATION'
-    if args.comparison=='calibration':role_note=' | DEVELOPMENT OUTER EVALUATION'
+    if args.comparison in ('calibration','geometry'):role_note=' | DEVELOPMENT OUTER EVALUATION'
     fig.suptitle(f'Original KITTI pointcloud + stable IDs | sequence {args.sequence}, frame {args.frame}{role_note}\n'+
         ('Front 3D IoU >= 0.25: green TP / red FP / yellow truth and MISS / gray ignored; rear unscored' if args.show_errors else
          'Front scores: Car/Pedestrian, +/-40 deg and 50m, local 3D IoU >= 0.25; rear boxes need independent verification'),fontsize=12)
