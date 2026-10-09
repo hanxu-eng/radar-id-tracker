@@ -1,0 +1,1585 @@
+{
+  "dataset": "KITTI Tracking",
+  "official_kitti_score": false,
+  "iou3d_threshold": 0.25,
+  "tuning_sequences": [
+    "0000"
+  ],
+  "regression_sequences": [
+    "0001",
+    "0005"
+  ],
+  "holdout_sequences": [
+    "0007",
+    "0010",
+    "0011"
+  ],
+  "raw_pointcloud_detector_tested": false,
+  "ground_truth_used_as_input": false,
+  "acceptance": {
+    "config_sha256": "d06c495026cd111893086487aa6c883b7089b38210d38ea5cf226d6a85f8b136",
+    "checks": {
+      "recall_gain_0005": false,
+      "precision_0005": false,
+      "regression_precision": false,
+      "natural_id_changes": false,
+      "fixed_recovery": true,
+      "no_new_wrong_restorations": true
+    },
+    "recommended": false,
+    "baseline_retained": true,
+    "thresholds": [
+      {
+        "label": "Car",
+        "continuation_confidence": 0.8,
+        "birth_confidence": 0.95,
+        "strong_confidence": 0.98,
+        "recovery_confidence": 0.98
+      },
+      {
+        "label": "Pedestrian",
+        "continuation_confidence": 0.6,
+        "birth_confidence": 0.6,
+        "strong_confidence": 0.98,
+        "recovery_confidence": 0.98
+      },
+      {
+        "label": "Cyclist",
+        "continuation_confidence": 0.8,
+        "birth_confidence": 0.98,
+        "strong_confidence": 0.98,
+        "recovery_confidence": 0.98
+      }
+    ]
+  },
+  "fixed_recovery": {
+    "baseline": {
+      "eligible": 26,
+      "same_id": 21,
+      "wrong_retained_identity": 1,
+      "missing_before": 0,
+      "no_track_after_return": 1
+    },
+    "candidate": {
+      "eligible": 26,
+      "same_id": 23,
+      "wrong_retained_identity": 1,
+      "missing_before": 0,
+      "no_track_after_return": 0
+    }
+  },
+  "results": [
+    {
+      "sequence": "0000",
+      "profile": "baseline",
+      "frames": 154,
+      "observed_tracks": {
+        "tp": 393,
+        "fp": 182,
+        "fn": 26,
+        "precision": 0.6834782608695652,
+        "recall": 0.9379474940334129,
+        "f1": 0.7907444668008048,
+        "ignored_outputs": 263,
+        "idtp": 393,
+        "idfn": 26,
+        "idfp": 182,
+        "idf1": 0.7907444668008048,
+        "id_changes": 0,
+        "fragmentations": 3,
+        "unique_predicted_ids": 20,
+        "unique_gt_ids": 12
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 229,
+          "fp": 93,
+          "fn": 14,
+          "precision": 0.7111801242236024,
+          "recall": 0.9423868312757202,
+          "f1": 0.8106194690265487,
+          "ignored_outputs": 263,
+          "idtp": 229,
+          "idfn": 14,
+          "idfp": 93,
+          "idf1": 0.8106194690265487,
+          "id_changes": 0,
+          "fragmentations": 3,
+          "unique_predicted_ids": 13,
+          "unique_gt_ids": 9
+        },
+        "Pedestrian": {
+          "tp": 11,
+          "fp": 77,
+          "fn": 11,
+          "precision": 0.125,
+          "recall": 0.5,
+          "f1": 0.2,
+          "ignored_outputs": 0,
+          "idtp": 11,
+          "idfn": 11,
+          "idfp": 77,
+          "idf1": 0.2,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 3,
+          "unique_gt_ids": 2
+        },
+        "Cyclist": {
+          "tp": 153,
+          "fp": 12,
+          "fn": 1,
+          "precision": 0.9272727272727272,
+          "recall": 0.9935064935064936,
+          "f1": 0.9592476489028213,
+          "ignored_outputs": 0,
+          "idtp": 153,
+          "idfn": 1,
+          "idfp": 12,
+          "idf1": 0.9592476489028213,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 4,
+          "unique_gt_ids": 1
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "score_filtered": 6,
+          "no_matching_input": 7,
+          "awaiting_confirmation": 1
+        },
+        "Pedestrian": {
+          "awaiting_confirmation": 2,
+          "no_matching_input": 3,
+          "score_filtered": 6
+        },
+        "Cyclist": {
+          "awaiting_confirmation": 1
+        }
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 1054,
+          "below_continuation": 321,
+          "tentative_created": 22,
+          "confirmed_strong": 16,
+          "tentative_matched": 16,
+          "below_birth_unmatched": 126,
+          "continued": 568,
+          "tentative_expired": 6,
+          "recovered": 1
+        },
+        "Cyclist": {
+          "input_detections": 259,
+          "tentative_created": 5,
+          "confirmed_strong": 4,
+          "tentative_matched": 4,
+          "continued": 161,
+          "below_continuation": 71,
+          "below_birth_unmatched": 18,
+          "tentative_expired": 1
+        },
+        "Pedestrian": {
+          "input_detections": 525,
+          "tentative_created": 5,
+          "below_birth_unmatched": 87,
+          "confirmed_strong": 3,
+          "tentative_matched": 3,
+          "below_continuation": 345,
+          "continued": 84,
+          "tentative_expired": 2,
+          "recovered": 1
+        }
+      },
+      "p99_tracker_ms": 0.7936109893489629
+    },
+    {
+      "sequence": "0000",
+      "profile": "candidate",
+      "frames": 154,
+      "observed_tracks": {
+        "tp": 402,
+        "fp": 246,
+        "fn": 17,
+        "precision": 0.6203703703703703,
+        "recall": 0.9594272076372315,
+        "f1": 0.753514526710403,
+        "ignored_outputs": 263,
+        "idtp": 402,
+        "idfn": 17,
+        "idfp": 246,
+        "idf1": 0.753514526710403,
+        "id_changes": 0,
+        "fragmentations": 3,
+        "unique_predicted_ids": 27,
+        "unique_gt_ids": 12
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 231,
+          "fp": 90,
+          "fn": 12,
+          "precision": 0.719626168224299,
+          "recall": 0.9506172839506173,
+          "f1": 0.8191489361702128,
+          "ignored_outputs": 263,
+          "idtp": 231,
+          "idfn": 12,
+          "idfp": 90,
+          "idf1": 0.8191489361702128,
+          "id_changes": 0,
+          "fragmentations": 3,
+          "unique_predicted_ids": 13,
+          "unique_gt_ids": 9
+        },
+        "Pedestrian": {
+          "tp": 18,
+          "fp": 144,
+          "fn": 4,
+          "precision": 0.1111111111111111,
+          "recall": 0.8181818181818182,
+          "f1": 0.1956521739130435,
+          "ignored_outputs": 0,
+          "idtp": 18,
+          "idfn": 4,
+          "idfp": 144,
+          "idf1": 0.1956521739130435,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 10,
+          "unique_gt_ids": 2
+        },
+        "Cyclist": {
+          "tp": 153,
+          "fp": 12,
+          "fn": 1,
+          "precision": 0.9272727272727272,
+          "recall": 0.9935064935064936,
+          "f1": 0.9592476489028213,
+          "ignored_outputs": 0,
+          "idtp": 153,
+          "idfn": 1,
+          "idfp": 12,
+          "idf1": 0.9592476489028213,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 4,
+          "unique_gt_ids": 1
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "score_filtered": 3,
+          "awaiting_confirmation": 2,
+          "no_matching_input": 7
+        },
+        "Pedestrian": {
+          "awaiting_confirmation": 1,
+          "no_matching_input": 3
+        },
+        "Cyclist": {
+          "awaiting_confirmation": 1
+        }
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 1054,
+          "below_continuation": 321,
+          "tentative_created": 35,
+          "confirmed_strong": 14,
+          "tentative_matched": 32,
+          "below_birth_unmatched": 98,
+          "continued": 568,
+          "tentative_expired": 18,
+          "confirmed_medium": 2
+        },
+        "Cyclist": {
+          "input_detections": 259,
+          "tentative_created": 5,
+          "confirmed_strong": 4,
+          "tentative_matched": 4,
+          "continued": 161,
+          "below_continuation": 71,
+          "below_birth_unmatched": 18,
+          "tentative_expired": 1
+        },
+        "Pedestrian": {
+          "input_detections": 525,
+          "tentative_created": 69,
+          "confirmed_strong": 2,
+          "tentative_matched": 60,
+          "below_continuation": 244,
+          "continued": 152,
+          "confirmed_medium": 8,
+          "tentative_expired": 55
+        }
+      },
+      "p99_tracker_ms": 1.0966500849463046
+    },
+    {
+      "sequence": "0001",
+      "profile": "baseline",
+      "frames": 447,
+      "observed_tracks": {
+        "tp": 2339,
+        "fp": 348,
+        "fn": 454,
+        "precision": 0.870487532564198,
+        "recall": 0.8374507697815968,
+        "f1": 0.8536496350364964,
+        "ignored_outputs": 89,
+        "idtp": 2335,
+        "idfn": 458,
+        "idfp": 352,
+        "idf1": 0.8521897810218978,
+        "id_changes": 2,
+        "fragmentations": 29,
+        "unique_predicted_ids": 111,
+        "unique_gt_ids": 92
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 2297,
+          "fp": 340,
+          "fn": 384,
+          "precision": 0.8710656048540008,
+          "recall": 0.8567698619917941,
+          "f1": 0.8638585934561865,
+          "ignored_outputs": 89,
+          "idtp": 2293,
+          "idfn": 388,
+          "idfp": 344,
+          "idf1": 0.8623542685220007,
+          "id_changes": 2,
+          "fragmentations": 29,
+          "unique_predicted_ids": 107,
+          "unique_gt_ids": 89
+        },
+        "Pedestrian": {
+          "tp": 42,
+          "fp": 8,
+          "fn": 70,
+          "precision": 0.84,
+          "recall": 0.375,
+          "f1": 0.5185185185185185,
+          "ignored_outputs": 0,
+          "idtp": 42,
+          "idfn": 70,
+          "idfp": 8,
+          "idf1": 0.5185185185185185,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 4,
+          "unique_gt_ids": 3
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 0,
+          "idf1": null,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 0
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 51,
+          "no_matching_input": 195,
+          "score_filtered": 136,
+          "association_or_expiry": 2
+        },
+        "Pedestrian": {
+          "score_filtered": 59,
+          "no_matching_input": 6,
+          "awaiting_confirmation": 5
+        },
+        "Cyclist": {}
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 4418,
+          "tentative_created": 143,
+          "below_continuation": 987,
+          "confirmed_strong": 108,
+          "tentative_matched": 108,
+          "below_birth_unmatched": 562,
+          "continued": 2611,
+          "tentative_expired": 35,
+          "recovered": 7
+        },
+        "Cyclist": {
+          "input_detections": 189,
+          "below_continuation": 161,
+          "below_birth_unmatched": 27,
+          "tentative_created": 1,
+          "tentative_expired": 1
+        },
+        "Pedestrian": {
+          "input_detections": 983,
+          "below_continuation": 747,
+          "below_birth_unmatched": 175,
+          "tentative_created": 11,
+          "tentative_expired": 7,
+          "confirmed_strong": 4,
+          "tentative_matched": 4,
+          "continued": 45,
+          "recovered": 1
+        }
+      },
+      "p99_tracker_ms": 1.0655099642463028
+    },
+    {
+      "sequence": "0001",
+      "profile": "candidate",
+      "frames": 447,
+      "observed_tracks": {
+        "tp": 2393,
+        "fp": 451,
+        "fn": 400,
+        "precision": 0.8414205344585092,
+        "recall": 0.8567848191908343,
+        "f1": 0.84903317367394,
+        "ignored_outputs": 89,
+        "idtp": 2389,
+        "idfn": 404,
+        "idfp": 455,
+        "idf1": 0.8476139790668795,
+        "id_changes": 2,
+        "fragmentations": 30,
+        "unique_predicted_ids": 121,
+        "unique_gt_ids": 92
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 2295,
+          "fp": 359,
+          "fn": 386,
+          "precision": 0.8647324792765637,
+          "recall": 0.856023871689668,
+          "f1": 0.8603561387066542,
+          "ignored_outputs": 89,
+          "idtp": 2291,
+          "idfn": 390,
+          "idfp": 363,
+          "idf1": 0.8588566073102155,
+          "id_changes": 2,
+          "fragmentations": 28,
+          "unique_predicted_ids": 109,
+          "unique_gt_ids": 89
+        },
+        "Pedestrian": {
+          "tp": 98,
+          "fp": 92,
+          "fn": 14,
+          "precision": 0.5157894736842106,
+          "recall": 0.875,
+          "f1": 0.6490066225165563,
+          "ignored_outputs": 0,
+          "idtp": 98,
+          "idfn": 14,
+          "idfp": 92,
+          "idf1": 0.6490066225165563,
+          "id_changes": 0,
+          "fragmentations": 2,
+          "unique_predicted_ids": 12,
+          "unique_gt_ids": 3
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 0,
+          "idf1": null,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 0
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 78,
+          "no_matching_input": 195,
+          "score_filtered": 110,
+          "association_or_expiry": 3
+        },
+        "Pedestrian": {
+          "awaiting_confirmation": 2,
+          "association_or_expiry": 4,
+          "no_matching_input": 6,
+          "score_filtered": 2
+        },
+        "Cyclist": {}
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 4418,
+          "tentative_created": 192,
+          "below_continuation": 987,
+          "confirmed_strong": 99,
+          "tentative_matched": 200,
+          "below_birth_unmatched": 406,
+          "continued": 2626,
+          "tentative_expired": 82,
+          "confirmed_medium": 11,
+          "recovered": 7
+        },
+        "Cyclist": {
+          "input_detections": 189,
+          "below_continuation": 161,
+          "below_birth_unmatched": 27,
+          "tentative_created": 1,
+          "tentative_expired": 1
+        },
+        "Pedestrian": {
+          "input_detections": 983,
+          "below_continuation": 579,
+          "tentative_created": 143,
+          "tentative_matched": 83,
+          "tentative_expired": 129,
+          "confirmed_medium": 12,
+          "continued": 178
+        }
+      },
+      "p99_tracker_ms": 1.3209580280818054
+    },
+    {
+      "sequence": "0005",
+      "profile": "baseline",
+      "frames": 297,
+      "observed_tracks": {
+        "tp": 851,
+        "fp": 17,
+        "fn": 563,
+        "precision": 0.9804147465437788,
+        "recall": 0.6018387553041018,
+        "f1": 0.7458369851007888,
+        "ignored_outputs": 0,
+        "idtp": 851,
+        "idfn": 563,
+        "idfp": 17,
+        "idf1": 0.7458369851007888,
+        "id_changes": 0,
+        "fragmentations": 7,
+        "unique_predicted_ids": 30,
+        "unique_gt_ids": 34
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 851,
+          "fp": 15,
+          "fn": 424,
+          "precision": 0.9826789838337182,
+          "recall": 0.6674509803921569,
+          "f1": 0.7949556282111163,
+          "ignored_outputs": 0,
+          "idtp": 851,
+          "idfn": 424,
+          "idfp": 15,
+          "idf1": 0.7949556282111163,
+          "id_changes": 0,
+          "fragmentations": 7,
+          "unique_predicted_ids": 29,
+          "unique_gt_ids": 33
+        },
+        "Pedestrian": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 0,
+          "idf1": null,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 0
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 139,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 139,
+          "idfp": 2,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 1,
+          "unique_gt_ids": 1
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 33,
+          "score_filtered": 212,
+          "no_matching_input": 179
+        },
+        "Pedestrian": {},
+        "Cyclist": {
+          "no_matching_input": 100,
+          "score_filtered": 39
+        }
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 1659,
+          "below_continuation": 536,
+          "tentative_created": 41,
+          "confirmed_strong": 29,
+          "tentative_matched": 29,
+          "continued": 835,
+          "below_birth_unmatched": 216,
+          "tentative_expired": 12,
+          "recovered": 2
+        },
+        "Pedestrian": {
+          "input_detections": 301,
+          "below_continuation": 270,
+          "below_birth_unmatched": 31
+        },
+        "Cyclist": {
+          "input_detections": 139,
+          "below_continuation": 106,
+          "below_birth_unmatched": 29,
+          "tentative_created": 2,
+          "tentative_expired": 1,
+          "confirmed_strong": 1,
+          "tentative_matched": 1,
+          "continued": 1
+        }
+      },
+      "p99_tracker_ms": 0.4344120481982828
+    },
+    {
+      "sequence": "0005",
+      "profile": "candidate",
+      "frames": 297,
+      "observed_tracks": {
+        "tp": 874,
+        "fp": 43,
+        "fn": 540,
+        "precision": 0.9531079607415486,
+        "recall": 0.6181046676096181,
+        "f1": 0.7498927498927499,
+        "ignored_outputs": 3,
+        "idtp": 874,
+        "idfn": 540,
+        "idfp": 43,
+        "idf1": 0.7498927498927499,
+        "id_changes": 0,
+        "fragmentations": 8,
+        "unique_predicted_ids": 34,
+        "unique_gt_ids": 34
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 874,
+          "fp": 15,
+          "fn": 401,
+          "precision": 0.983127109111361,
+          "recall": 0.6854901960784314,
+          "f1": 0.8077634011090573,
+          "ignored_outputs": 3,
+          "idtp": 874,
+          "idfn": 401,
+          "idfp": 15,
+          "idf1": 0.8077634011090573,
+          "id_changes": 0,
+          "fragmentations": 8,
+          "unique_predicted_ids": 30,
+          "unique_gt_ids": 33
+        },
+        "Pedestrian": {
+          "tp": 0,
+          "fp": 26,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 26,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 3,
+          "unique_gt_ids": 0
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 139,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 139,
+          "idfp": 2,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 1,
+          "unique_gt_ids": 1
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 75,
+          "no_matching_input": 179,
+          "score_filtered": 147
+        },
+        "Pedestrian": {},
+        "Cyclist": {
+          "no_matching_input": 100,
+          "score_filtered": 39
+        }
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 1659,
+          "below_continuation": 536,
+          "tentative_created": 61,
+          "confirmed_strong": 23,
+          "tentative_matched": 67,
+          "continued": 859,
+          "below_birth_unmatched": 134,
+          "tentative_expired": 30,
+          "confirmed_medium": 8,
+          "recovered": 2
+        },
+        "Pedestrian": {
+          "input_detections": 301,
+          "below_continuation": 229,
+          "tentative_created": 37,
+          "tentative_expired": 34,
+          "tentative_matched": 12,
+          "confirmed_medium": 3,
+          "continued": 23
+        },
+        "Cyclist": {
+          "input_detections": 139,
+          "below_continuation": 106,
+          "below_birth_unmatched": 29,
+          "tentative_created": 2,
+          "tentative_expired": 1,
+          "confirmed_strong": 1,
+          "tentative_matched": 1,
+          "continued": 1
+        }
+      },
+      "p99_tracker_ms": 0.5042599886655814
+    },
+    {
+      "sequence": "0007",
+      "profile": "baseline",
+      "frames": 800,
+      "observed_tracks": {
+        "tp": 2098,
+        "fp": 184,
+        "fn": 227,
+        "precision": 0.9193689745836985,
+        "recall": 0.9023655913978494,
+        "f1": 0.9107879314087258,
+        "ignored_outputs": 161,
+        "idtp": 2098,
+        "idfn": 227,
+        "idfp": 184,
+        "idf1": 0.9107879314087258,
+        "id_changes": 0,
+        "fragmentations": 5,
+        "unique_predicted_ids": 59,
+        "unique_gt_ids": 55
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 2098,
+          "fp": 153,
+          "fn": 160,
+          "precision": 0.9320302087960907,
+          "recall": 0.929140832595217,
+          "f1": 0.9305832778886671,
+          "ignored_outputs": 161,
+          "idtp": 2098,
+          "idfn": 160,
+          "idfp": 153,
+          "idf1": 0.9305832778886671,
+          "id_changes": 0,
+          "fragmentations": 5,
+          "unique_predicted_ids": 57,
+          "unique_gt_ids": 53
+        },
+        "Pedestrian": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 67,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 67,
+          "idfp": 0,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 2
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 31,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 31,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 2,
+          "unique_gt_ids": 0
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 32,
+          "no_matching_input": 60,
+          "score_filtered": 68
+        },
+        "Pedestrian": {
+          "score_filtered": 57,
+          "awaiting_confirmation": 1,
+          "no_matching_input": 9
+        },
+        "Cyclist": {}
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 4219,
+          "tentative_created": 79,
+          "below_continuation": 1239,
+          "confirmed_strong": 61,
+          "tentative_matched": 61,
+          "continued": 2350,
+          "below_birth_unmatched": 489,
+          "tentative_expired": 18,
+          "recovered": 1
+        },
+        "Cyclist": {
+          "input_detections": 366,
+          "tentative_created": 3,
+          "below_birth_unmatched": 60,
+          "below_continuation": 272,
+          "confirmed_strong": 2,
+          "tentative_matched": 2,
+          "continued": 29,
+          "tentative_expired": 1
+        },
+        "Pedestrian": {
+          "input_detections": 1169,
+          "below_continuation": 1005,
+          "below_birth_unmatched": 159,
+          "tentative_created": 5,
+          "tentative_expired": 5
+        }
+      },
+      "p99_tracker_ms": 0.5026409856509417
+    },
+    {
+      "sequence": "0007",
+      "profile": "candidate",
+      "frames": 800,
+      "observed_tracks": {
+        "tp": 2133,
+        "fp": 285,
+        "fn": 192,
+        "precision": 0.8821339950372209,
+        "recall": 0.9174193548387096,
+        "f1": 0.8994307400379506,
+        "ignored_outputs": 163,
+        "idtp": 2132,
+        "idfn": 193,
+        "idfp": 286,
+        "idf1": 0.8990090659919882,
+        "id_changes": 1,
+        "fragmentations": 7,
+        "unique_predicted_ids": 75,
+        "unique_gt_ids": 55
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 2091,
+          "fp": 169,
+          "fn": 167,
+          "precision": 0.9252212389380531,
+          "recall": 0.9260407440212578,
+          "f1": 0.9256308100929614,
+          "ignored_outputs": 163,
+          "idtp": 2091,
+          "idfn": 167,
+          "idfp": 169,
+          "idf1": 0.9256308100929614,
+          "id_changes": 0,
+          "fragmentations": 4,
+          "unique_predicted_ids": 58,
+          "unique_gt_ids": 53
+        },
+        "Pedestrian": {
+          "tp": 42,
+          "fp": 85,
+          "fn": 25,
+          "precision": 0.33070866141732286,
+          "recall": 0.6268656716417911,
+          "f1": 0.4329896907216495,
+          "ignored_outputs": 0,
+          "idtp": 41,
+          "idfn": 26,
+          "idfp": 86,
+          "idf1": 0.422680412371134,
+          "id_changes": 1,
+          "fragmentations": 3,
+          "unique_predicted_ids": 15,
+          "unique_gt_ids": 2
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 31,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 31,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 2,
+          "unique_gt_ids": 0
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 59,
+          "no_matching_input": 60,
+          "score_filtered": 48
+        },
+        "Pedestrian": {
+          "awaiting_confirmation": 6,
+          "score_filtered": 10,
+          "no_matching_input": 9
+        },
+        "Cyclist": {}
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 4219,
+          "tentative_created": 126,
+          "below_continuation": 1239,
+          "confirmed_strong": 49,
+          "tentative_matched": 139,
+          "continued": 2360,
+          "below_birth_unmatched": 353,
+          "tentative_expired": 65,
+          "recovered": 2,
+          "confirmed_medium": 12
+        },
+        "Cyclist": {
+          "input_detections": 366,
+          "tentative_created": 3,
+          "below_birth_unmatched": 60,
+          "below_continuation": 272,
+          "confirmed_strong": 2,
+          "tentative_matched": 2,
+          "continued": 29,
+          "tentative_expired": 1
+        },
+        "Pedestrian": {
+          "input_detections": 1169,
+          "below_continuation": 762,
+          "tentative_created": 180,
+          "tentative_matched": 115,
+          "confirmed_medium": 15,
+          "tentative_expired": 164,
+          "continued": 112
+        }
+      },
+      "p99_tracker_ms": 0.6310480309184641
+    },
+    {
+      "sequence": "0010",
+      "profile": "baseline",
+      "frames": 294,
+      "observed_tracks": {
+        "tp": 488,
+        "fp": 2,
+        "fn": 159,
+        "precision": 0.9959183673469387,
+        "recall": 0.7542503863987635,
+        "f1": 0.8583992963940194,
+        "ignored_outputs": 43,
+        "idtp": 488,
+        "idfn": 159,
+        "idfp": 2,
+        "idf1": 0.8583992963940194,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 15,
+        "unique_gt_ids": 16
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 480,
+          "fp": 2,
+          "fn": 123,
+          "precision": 0.995850622406639,
+          "recall": 0.7960199004975125,
+          "f1": 0.8847926267281107,
+          "ignored_outputs": 43,
+          "idtp": 480,
+          "idfn": 123,
+          "idfp": 2,
+          "idf1": 0.8847926267281107,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 14,
+          "unique_gt_ids": 13
+        },
+        "Pedestrian": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 30,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 30,
+          "idfp": 0,
+          "idf1": 0.0,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 2
+        },
+        "Cyclist": {
+          "tp": 8,
+          "fp": 0,
+          "fn": 6,
+          "precision": 1.0,
+          "recall": 0.5714285714285714,
+          "f1": 0.7272727272727273,
+          "ignored_outputs": 0,
+          "idtp": 8,
+          "idfn": 6,
+          "idfp": 0,
+          "idf1": 0.7272727272727273,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 1,
+          "unique_gt_ids": 1
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 15,
+          "no_matching_input": 58,
+          "score_filtered": 50
+        },
+        "Pedestrian": {
+          "score_filtered": 28,
+          "no_matching_input": 2
+        },
+        "Cyclist": {
+          "score_filtered": 5,
+          "awaiting_confirmation": 1
+        }
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 1131,
+          "below_continuation": 446,
+          "tentative_created": 26,
+          "confirmed_strong": 16,
+          "tentative_matched": 16,
+          "continued": 509,
+          "below_birth_unmatched": 134,
+          "tentative_expired": 10
+        },
+        "Pedestrian": {
+          "input_detections": 277,
+          "below_continuation": 242,
+          "below_birth_unmatched": 34,
+          "tentative_created": 1,
+          "tentative_expired": 1
+        },
+        "Cyclist": {
+          "input_detections": 105,
+          "below_continuation": 74,
+          "below_birth_unmatched": 22,
+          "tentative_created": 1,
+          "confirmed_strong": 1,
+          "tentative_matched": 1,
+          "continued": 7
+        }
+      },
+      "p99_tracker_ms": 0.6091759738046674
+    },
+    {
+      "sequence": "0010",
+      "profile": "candidate",
+      "frames": 294,
+      "observed_tracks": {
+        "tp": 500,
+        "fp": 9,
+        "fn": 147,
+        "precision": 0.9823182711198428,
+        "recall": 0.7727975270479135,
+        "f1": 0.8650519031141869,
+        "ignored_outputs": 43,
+        "idtp": 500,
+        "idfn": 147,
+        "idfp": 9,
+        "idf1": 0.8650519031141869,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 19,
+        "unique_gt_ids": 16
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 481,
+          "fp": 2,
+          "fn": 122,
+          "precision": 0.9958592132505176,
+          "recall": 0.7976782752902156,
+          "f1": 0.8858195211786372,
+          "ignored_outputs": 43,
+          "idtp": 481,
+          "idfn": 122,
+          "idfp": 2,
+          "idf1": 0.8858195211786372,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 14,
+          "unique_gt_ids": 13
+        },
+        "Pedestrian": {
+          "tp": 11,
+          "fp": 7,
+          "fn": 19,
+          "precision": 0.6111111111111112,
+          "recall": 0.36666666666666664,
+          "f1": 0.4583333333333333,
+          "ignored_outputs": 0,
+          "idtp": 11,
+          "idfn": 19,
+          "idfp": 7,
+          "idf1": 0.4583333333333333,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 4,
+          "unique_gt_ids": 2
+        },
+        "Cyclist": {
+          "tp": 8,
+          "fp": 0,
+          "fn": 6,
+          "precision": 1.0,
+          "recall": 0.5714285714285714,
+          "f1": 0.7272727272727273,
+          "ignored_outputs": 0,
+          "idtp": 8,
+          "idfn": 6,
+          "idfp": 0,
+          "idf1": 0.7272727272727273,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 1,
+          "unique_gt_ids": 1
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 20,
+          "no_matching_input": 58,
+          "score_filtered": 44
+        },
+        "Pedestrian": {
+          "score_filtered": 8,
+          "association_or_expiry": 1,
+          "awaiting_confirmation": 8,
+          "no_matching_input": 2
+        },
+        "Cyclist": {
+          "score_filtered": 5,
+          "awaiting_confirmation": 1
+        }
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 1131,
+          "below_continuation": 446,
+          "tentative_created": 37,
+          "confirmed_strong": 15,
+          "tentative_matched": 27,
+          "continued": 510,
+          "below_birth_unmatched": 111,
+          "tentative_expired": 21,
+          "confirmed_medium": 1
+        },
+        "Pedestrian": {
+          "input_detections": 277,
+          "below_continuation": 187,
+          "tentative_created": 44,
+          "tentative_matched": 32,
+          "tentative_expired": 38,
+          "confirmed_medium": 4,
+          "continued": 14
+        },
+        "Cyclist": {
+          "input_detections": 105,
+          "below_continuation": 74,
+          "below_birth_unmatched": 22,
+          "tentative_created": 1,
+          "confirmed_strong": 1,
+          "tentative_matched": 1,
+          "continued": 7
+        }
+      },
+      "p99_tracker_ms": 0.3802329848986119
+    },
+    {
+      "sequence": "0011",
+      "profile": "baseline",
+      "frames": 373,
+      "observed_tracks": {
+        "tp": 2493,
+        "fp": 42,
+        "fn": 1113,
+        "precision": 0.9834319526627219,
+        "recall": 0.6913477537437605,
+        "f1": 0.8119198827552516,
+        "ignored_outputs": 94,
+        "idtp": 2398,
+        "idfn": 1208,
+        "idfp": 137,
+        "idf1": 0.7809802963686696,
+        "id_changes": 4,
+        "fragmentations": 37,
+        "unique_predicted_ids": 49,
+        "unique_gt_ids": 57
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 2451,
+          "fp": 41,
+          "fn": 954,
+          "precision": 0.9835473515248796,
+          "recall": 0.7198237885462555,
+          "f1": 0.8312701373579786,
+          "ignored_outputs": 94,
+          "idtp": 2356,
+          "idfn": 1049,
+          "idfp": 136,
+          "idf1": 0.7990503645921655,
+          "id_changes": 4,
+          "fragmentations": 37,
+          "unique_predicted_ids": 47,
+          "unique_gt_ids": 52
+        },
+        "Pedestrian": {
+          "tp": 42,
+          "fp": 1,
+          "fn": 159,
+          "precision": 0.9767441860465116,
+          "recall": 0.208955223880597,
+          "f1": 0.3442622950819672,
+          "ignored_outputs": 0,
+          "idtp": 42,
+          "idfn": 159,
+          "idfp": 1,
+          "idf1": 0.3442622950819672,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 2,
+          "unique_gt_ids": 5
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 0,
+          "idf1": null,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 0
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 49,
+          "score_filtered": 354,
+          "no_matching_input": 551
+        },
+        "Pedestrian": {
+          "score_filtered": 56,
+          "no_matching_input": 102,
+          "awaiting_confirmation": 1
+        },
+        "Cyclist": {}
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 3814,
+          "below_continuation": 732,
+          "tentative_created": 71,
+          "confirmed_strong": 50,
+          "tentative_matched": 50,
+          "below_birth_unmatched": 425,
+          "continued": 2523,
+          "tentative_expired": 21,
+          "recovered": 13
+        },
+        "Cyclist": {
+          "input_detections": 257,
+          "below_continuation": 224,
+          "below_birth_unmatched": 31,
+          "tentative_created": 2,
+          "tentative_expired": 2
+        },
+        "Pedestrian": {
+          "input_detections": 808,
+          "below_continuation": 609,
+          "below_birth_unmatched": 152,
+          "tentative_created": 4,
+          "confirmed_strong": 2,
+          "tentative_matched": 2,
+          "continued": 41,
+          "tentative_expired": 2
+        }
+      },
+      "p99_tracker_ms": 0.9136559721082448
+    },
+    {
+      "sequence": "0011",
+      "profile": "candidate",
+      "frames": 373,
+      "observed_tracks": {
+        "tp": 2540,
+        "fp": 133,
+        "fn": 1066,
+        "precision": 0.9502431724653947,
+        "recall": 0.704381586245147,
+        "f1": 0.8090460264373308,
+        "ignored_outputs": 103,
+        "idtp": 2446,
+        "idfn": 1160,
+        "idfp": 227,
+        "idf1": 0.7791049530179965,
+        "id_changes": 1,
+        "fragmentations": 40,
+        "unique_predicted_ids": 54,
+        "unique_gt_ids": 57
+      },
+      "per_class_observed": {
+        "Car": {
+          "tp": 2466,
+          "fp": 44,
+          "fn": 939,
+          "precision": 0.9824701195219123,
+          "recall": 0.7242290748898679,
+          "f1": 0.8338123415046492,
+          "ignored_outputs": 103,
+          "idtp": 2372,
+          "idfn": 1033,
+          "idfp": 138,
+          "idf1": 0.802028740490279,
+          "id_changes": 1,
+          "fragmentations": 36,
+          "unique_predicted_ids": 47,
+          "unique_gt_ids": 52
+        },
+        "Pedestrian": {
+          "tp": 74,
+          "fp": 89,
+          "fn": 127,
+          "precision": 0.4539877300613497,
+          "recall": 0.3681592039800995,
+          "f1": 0.4065934065934066,
+          "ignored_outputs": 0,
+          "idtp": 74,
+          "idfn": 127,
+          "idfp": 89,
+          "idf1": 0.4065934065934066,
+          "id_changes": 0,
+          "fragmentations": 4,
+          "unique_predicted_ids": 7,
+          "unique_gt_ids": 5
+        },
+        "Cyclist": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "ignored_outputs": 0,
+          "idtp": 0,
+          "idfn": 0,
+          "idfp": 0,
+          "idf1": null,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 0,
+          "unique_gt_ids": 0
+        }
+      },
+      "miss_reasons_by_class": {
+        "Car": {
+          "awaiting_confirmation": 111,
+          "score_filtered": 277,
+          "no_matching_input": 551
+        },
+        "Pedestrian": {
+          "awaiting_confirmation": 11,
+          "no_matching_input": 103,
+          "score_filtered": 13
+        },
+        "Cyclist": {}
+      },
+      "class_diagnostics": {
+        "Car": {
+          "input_detections": 3814,
+          "below_continuation": 732,
+          "tentative_created": 109,
+          "confirmed_strong": 38,
+          "tentative_matched": 112,
+          "continued": 2552,
+          "confirmed_medium": 12,
+          "below_birth_unmatched": 298,
+          "tentative_expired": 59,
+          "recovered": 11
+        },
+        "Cyclist": {
+          "input_detections": 257,
+          "below_continuation": 224,
+          "below_birth_unmatched": 31,
+          "tentative_created": 2,
+          "tentative_expired": 2
+        },
+        "Pedestrian": {
+          "input_detections": 808,
+          "below_continuation": 477,
+          "tentative_created": 113,
+          "tentative_matched": 62,
+          "confirmed_medium": 7,
+          "continued": 155,
+          "tentative_expired": 105,
+          "recovered": 1
+        }
+      },
+      "p99_tracker_ms": 0.938379927538335
+    }
+  ],
+  "compatibility": "Original output fields and IDs match the frozen baseline on 898 natural frames.",
+  "config_sha256": "d06c495026cd111893086487aa6c883b7089b38210d38ea5cf226d6a85f8b136",
+  "prediction_sources": {
+    "ab3dmot_commit": "61f3bd72574093e367916c757b4747ca445f978c",
+    "detector": "published PointRCNN / AB3DMOT",
+    "sources": [
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Car_val/0007.txt",
+        "path": "datasets/kitti_tracking/detections/Car/0007.txt",
+        "bytes": 455547,
+        "sha256": "2df5a24ccd69819784af4b3e29d8eecc41b9c425e9d47fb957ec2931eac8766d"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Pedestrian_val/0007.txt",
+        "path": "datasets/kitti_tracking/detections/Pedestrian/0007.txt",
+        "bytes": 126541,
+        "sha256": "494e2f467d4432093d7a3da3ad97c1ae82a80e04186b306f03239aad3d9e671c"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Cyclist_val/0007.txt",
+        "path": "datasets/kitti_tracking/detections/Cyclist/0007.txt",
+        "bytes": 39400,
+        "sha256": "5ef376e8fdfbf08d7aa12342c33dbea381ed95d1e272be59343fcab2025a4aa9"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Car_val/0010.txt",
+        "path": "datasets/kitti_tracking/detections/Car/0010.txt",
+        "bytes": 122903,
+        "sha256": "1c2b1eacca7ae680a450e2ba4d97d6d1ab76ee4a2241c71c6adb4833cd4b7104"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Pedestrian_val/0010.txt",
+        "path": "datasets/kitti_tracking/detections/Pedestrian/0010.txt",
+        "bytes": 30131,
+        "sha256": "57ab699bf946cc3f2995a18a0aa92a7f8f60b9ef7c9b7b6943fd3f689633af0f"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Cyclist_val/0010.txt",
+        "path": "datasets/kitti_tracking/detections/Cyclist/0010.txt",
+        "bytes": 11344,
+        "sha256": "a453fdcb238156e023246ab49cc355f03ea35f9b80d5c0654314928704d8f031"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Car_val/0011.txt",
+        "path": "datasets/kitti_tracking/detections/Car/0011.txt",
+        "bytes": 411497,
+        "sha256": "e2c71a23de75f62c6c120f183c46cd772683a469a0f5f28a9946c7c55e6f51e3"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Pedestrian_val/0011.txt",
+        "path": "datasets/kitti_tracking/detections/Pedestrian/0011.txt",
+        "bytes": 87402,
+        "sha256": "a2ca3b38342bb2ef5f6a147ec1d85717c9054c611f56f7da8e3dd74c23ed6c47"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/xinshuoweng/AB3DMOT/61f3bd72574093e367916c757b4747ca445f978c/data/KITTI/detection/pointrcnn_Cyclist_val/0011.txt",
+        "path": "datasets/kitti_tracking/detections/Cyclist/0011.txt",
+        "bytes": 27693,
+        "sha256": "f8b09427a2b6ddcbec1420b0b6aef19a7ca33c08f1ca69816684ccecdbd847d9"
+      }
+    ]
+  }
+}

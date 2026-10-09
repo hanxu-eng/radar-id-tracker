@@ -1,0 +1,4 @@
+{"timestamp_s":0.0,"detections":[{"x":10.0,"y":2.0,"z":1.0,"length":4.2,"width":1.8,"height":1.6,"yaw":0.0,"confidence":0.99,"label":"Car"}]}
+{"timestamp_s":0.1,"detections":[{"x":10.0,"y":2.0,"z":1.0,"length":4.2,"width":1.8,"height":1.6,"yaw":0.0,"confidence":0.99,"label":"Car"}]}
+{"timestamp_s":0.2,"detections":[]}
+{"timestamp_s":3.2,"detections":[{"x":10.0,"y":2.0,"z":1.0,"length":4.2,"width":1.8,"height":1.6,"yaw":0.0,"confidence":0.99,"label":"Car"}]}

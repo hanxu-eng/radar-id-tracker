@@ -1,0 +1,28 @@
+{
+  "tuning_sequences": ["0000"],
+  "regression_sequences": ["0001", "0005"],
+  "holdout_sequences": ["0007", "0010", "0011"],
+  "strong_confidence": 0.98,
+  "recovery_confidence": 0.98,
+  "birth_candidates": {
+    "Car": [0.9, 0.95, 0.98],
+    "Pedestrian": [0.6, 0.8, 0.9, 0.98],
+    "Cyclist": [0.6, 0.8, 0.9, 0.98]
+  },
+  "continuation_confidence": 0.8,
+  "medium_confirmation_hits": 3,
+  "medium_confirmation_window_s": 0.4,
+  "maximum_confirmation_gap_s": 0.2,
+  "maximum_tentative_tracks": 64,
+  "duplicate_birth_iou": 0.85,
+  "selection": "Tune each class only on 0000: maximize recall with no more than 0.02 class precision loss, no additional ID changes; ties prefer higher birth threshold. All-legacy policy is the fallback. Freeze before evaluating holdouts.",
+  "acceptance": {
+    "0005_minimum_recall_gain": 0.1,
+    "0005_minimum_precision": 0.96,
+    "maximum_regression_precision_loss": 0.02,
+    "additional_id_changes": 0,
+    "minimum_fixed_recovery_successes": 21,
+    "fixed_recovery_opportunities": 26,
+    "additional_wrong_retained_identities": 0
+  }
+}

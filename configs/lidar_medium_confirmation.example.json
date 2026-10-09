@@ -1,0 +1,15 @@
+{
+  "high_confidence": 0.98,
+  "low_confidence": 0.8,
+  "retention_seconds": 4.0,
+  "score_policies": [
+    {"label": "Car", "continuation_confidence": 0.8, "birth_confidence": 0.95, "strong_confidence": 0.98, "recovery_confidence": 0.98},
+    {"label": "Pedestrian", "continuation_confidence": 0.6, "birth_confidence": 0.6, "strong_confidence": 0.98, "recovery_confidence": 0.98},
+    {"label": "Cyclist", "continuation_confidence": 0.8, "birth_confidence": 0.98, "strong_confidence": 0.98, "recovery_confidence": 0.98}
+  ],
+  "medium_confirmation_hits": 3,
+  "medium_confirmation_window_s": 0.4,
+  "maximum_confirmation_gap_s": 0.2,
+  "maximum_tentative_tracks": 64,
+  "duplicate_birth_iou": 0.85
+}
