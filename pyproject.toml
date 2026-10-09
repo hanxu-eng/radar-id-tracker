@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Online radar and 3D LiDAR box tracking with stable IDs"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = "MIT AND Apache-2.0"
 authors = [{name = "hanxu-eng"}]
 dependencies = ["numpy>=1.26,<3"]
 
@@ -21,3 +21,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 radar_id_tracker = ["lidar_review.js", "lidar_review.html"]
+
+[tool.setuptools.data-files]
+"share/radar-id-tracker/licenses" = ["THIRD_PARTY_NOTICES.md", "docs/LICENSE-OpenMMLab.txt"]

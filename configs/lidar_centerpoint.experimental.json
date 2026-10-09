@@ -1,0 +1,7 @@
+{
+  "high_confidence": 0.7,
+  "low_confidence": 0.1,
+  "retention_seconds": 4.0,
+  "maximum_tentative_tracks": 128,
+  "duplicate_birth_iou": 0.85
+}

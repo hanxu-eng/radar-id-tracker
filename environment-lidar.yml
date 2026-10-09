@@ -1,0 +1,12 @@
+name: radar-lidar-detector
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - numpy==1.26.4
+      - numba==0.61.2
+      - -e .
+# Install the CUDA wheel separately using the official PyTorch index documented
+# in docs/lidar-surround.md. PyPI's default wheel choice is platform dependent.
