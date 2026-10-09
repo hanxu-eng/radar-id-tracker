@@ -38,6 +38,9 @@ conda run --no-capture-output -n radar-id-tracker python -m radar_id_tracker.poi
 固定恢复测试。实验参数未通过总体精度、召回及 ID 切换验收，**旧默认策略保留**。
 
 本机 Git 同步与 Conda 运行方式见 [本机工作流程](docs/local-workflow.md)。
+新增 [整序列分数校准实验](docs/lidar-sequence-calibration.md)：检测训练、校准、评价
+三种角色隔离，17 条完整开发序列复验。中分确认提升召回，但精度及 3s 恢复退化，
+仍保留默认；原始点云对照和逐类别失败均已记录。
 `outputs/` 首轮效果审查、新实验档和多序列复验结果见
 [2026-09-30 迭代报告](docs/iteration-2026-09-30.md)。
 

@@ -43,7 +43,7 @@ def causal_cloud(history,current_transform,frame,period_s,intensity_scale):
 
 
 def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
-                   period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba',quality_model=None,head_model=None):
+                   period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba',quality_model=None,head_model=None,score_calibration_model=None):
     inference_config=RawLidarConfig(sweeps,period_s,intensity_scale,score_threshold,voxel_backend)
     if len(sequence)!=4 or not sequence.isdecimal():raise ValueError('invalid sequence ID')
     if head_model is not None:
@@ -53,6 +53,14 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
         if any(asdict(inference_config).get(k)!=v for k,v in head_metadata['inference_config'].items() if k!='voxel_backend'):
             raise ValueError('head model detector input domain differs')
     from .centerpoint_model import CenterPointDetector,CHECKPOINT_SHA256,CHECKPOINT_URL
+    calibration=None
+    if score_calibration_model is not None:
+        if head_model is None or quality_model is not None:
+            raise ValueError('score calibration requires its bound head model and no old quality model')
+        from .lidar_score_calibration import ScoreCalibrationModel
+        calibration=ScoreCalibrationModel.load(score_calibration_model)
+        calibration.validate_domain(dict(head_model_sha256=hashlib.sha256(head_model.read_bytes()).hexdigest(),
+            checkpoint_sha256=CHECKPOINT_SHA256,inference_config=asdict(inference_config),ground_truth_used_as_input=False))
     quality=None
     if quality_model is not None:
         from .lidar_box_features import BoxFeatureIndex
@@ -95,6 +103,8 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
                 detections=[box_to_world(box,score,label,world_from_model) for box,score,label in decoded]
                 if quality is not None:
                     detections,quality_details=quality.rescore(BoxFeatureIndex(points,transform),detections)
+                if calibration is not None:
+                    detections=calibration.rescore(detections,np.linalg.inv(transform))
                 rear_count+=sum(int(box[1]<0) for box,score,label in decoded)
                 for detection in detections:
                     class_counts[detection.label]=class_counts.get(detection.label,0)+1
@@ -147,6 +157,11 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
             head_front_only=True,head_inference_ground_truth_used=False,
             head_implementation_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
                 for name in ('centerpoint_head_adapter.py','lidar_head_targets.py')})
+    if calibration is not None:
+        summary.update(score_calibration_sha256=hashlib.sha256(score_calibration_model.read_bytes()).hexdigest(),
+            score_calibration_applied=True,calibration_inference_labels_used=False,
+            calibration_status='candidate; held-out reliability must be evaluated',
+            score_calibration_implementation_sha256=hashlib.sha256(Path(__file__).with_name('lidar_score_calibration.py').read_bytes()).hexdigest())
     (output_dir/'inference_summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     return summary
 
@@ -212,11 +227,14 @@ def main(argv=None):
     p.add_argument('--score-threshold',type=float)
     p.add_argument('--quality-model',type=Path,help='optional frozen JSON box quality model; explicit input config must match training domain')
     p.add_argument('--head-model',type=Path,help='optional frozen front-head manifest; incompatible with old quality models')
+    p.add_argument('--score-calibration-model',type=Path,help='optional frozen score calibrator bound to --head-model')
     p.add_argument('--track-output-dir',type=Path,help='optionally replay inference into a separate tracking directory')
     p.add_argument('--tracker-config',type=Path,help='explicit tracker JSON; required with --track-output-dir')
     args=p.parse_args(argv)
     if args.head_model and args.quality_model:
         p.error('--head-model cannot be combined with an old --quality-model')
+    if args.score_calibration_model and (not args.head_model or args.quality_model):
+        p.error('--score-calibration-model requires --head-model and no --quality-model')
     if bool(args.track_output_dir)!=bool(args.tracker_config):
         p.error('--track-output-dir and --tracker-config must be provided together')
     overrides={key:getattr(args,key) for key in RawLidarConfig.__dataclass_fields__ if getattr(args,key) is not None}
@@ -228,7 +246,7 @@ def main(argv=None):
         if args.track_output_dir and args.track_output_dir.resolve()==args.output_dir.resolve():
             raise ValueError('cache and tracking output directories must differ')
         summary=infer_sequence(args.dataset_root,args.sequence,args.output_dir,args.checkpoint,
-            device=args.device,quality_model=args.quality_model,head_model=args.head_model,**asdict(inference))
+            device=args.device,quality_model=args.quality_model,head_model=args.head_model,score_calibration_model=args.score_calibration_model,**asdict(inference))
         if args.track_output_dir:
             summary['tracking_run']=replay_cache(args.output_dir,args.track_output_dir,config)
     except (OSError,ValueError,ImportError,KeyError,TypeError) as error:p.exit(2,f'raw LiDAR inference error: {error}\n')

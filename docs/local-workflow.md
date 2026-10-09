@@ -32,9 +32,9 @@ conda run --no-capture-output -n radar-id-tracker python -m unittest discover -s
 ```powershell
 git diff
 git diff --check
-git add src tests docs examples .gitignore README.md pyproject.toml
+git add <本轮明确修改的文件>
 git commit -m "描述本次修改"
-git push origin main
+git push -u origin HEAD
 ```
 
 先确认没有其他尚未保存的修改再拉取；快进失败时应查看分支差异。
@@ -72,3 +72,9 @@ git push origin main
 独立草稿 PR 发布。17 条序列训练，0010/0015/0019 冻结验证，0020 留给后续。候选
 恢复部分行人召回，但整体仍未验收，默认配置不变。报告见
 [训练覆盖实验](lidar-training-coverage.md)，输出在 `outputs/kitti_training_coverage`。
+
+整序列分数校准使用 `codex/lidar-sequence-calibration`，基于训练覆盖分支，以独立
+草稿 PR 发布。三组轮换检测训练/校准/评价，0020 保持封存；召回提升伴随精度及
+3s 恢复退化，不采用为默认。报告见 [分数校准实验](lidar-sequence-calibration.md)，
+输出在 `outputs/kitti_sequence_calibration_grouped`。提交时逐个选取本轮文件，保留
+工作区中其他 RadarScenes 修改；不直接向 main 推送实验。

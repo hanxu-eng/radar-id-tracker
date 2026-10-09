@@ -31,6 +31,7 @@ def main():
     p.add_argument('--voxel-backend',choices=('numpy','numba'))
     p.add_argument('--quality-model',type=Path)
     p.add_argument('--head-model',type=Path)
+    p.add_argument('--score-calibration-model',type=Path)
     args=p.parse_args();torch.set_num_threads(4)
     protocol=json.loads(args.config.read_text())
     inference=RawLidarConfig.from_dict(protocol.get('frozen_inference_config',{}))
@@ -43,6 +44,13 @@ def main():
         if any(asdict(inference).get(k)!=v for k,v in head_metadata['inference_config'].items() if k!='voxel_backend'):
             raise ValueError('head model detector input domain differs')
     if quality:quality.validate_detector_inputs(CHECKPOINT_SHA256,asdict(inference))
+    calibration=None
+    if args.score_calibration_model:
+        if not args.head_model or quality:raise ValueError('calibration requires its head and no old quality model')
+        from radar_id_tracker.lidar_score_calibration import ScoreCalibrationModel
+        calibration=ScoreCalibrationModel.load(args.score_calibration_model)
+        calibration.validate_domain(dict(head_model_sha256=hashlib.sha256(args.head_model.read_bytes()).hexdigest(),
+            checkpoint_sha256=CHECKPOINT_SHA256,inference_config=asdict(inference),ground_truth_used_as_input=False))
     poses=load_poses(args.dataset_root/'training/oxts'/f'{args.sequence}.txt')
     _,lidar_to_imu=calibration_transforms(args.dataset_root/'training/calib'/f'{args.sequence}.txt')
     transforms=[pose @ lidar_to_imu for pose in poses]
@@ -66,25 +74,30 @@ def main():
         detector_ms=(perf_counter()-before)*1000
         before=perf_counter();matrix=transforms[index] @ KITTI_TO_MODEL.T
         boxes=[box_to_world(box,s,c,matrix) for box,s,c in decoded]
-        quality_ms=0.
+        quality_ms=0.;calibration_ms=0.
         if quality:
             before_quality=perf_counter();boxes,_=quality.rescore(BoxFeatureIndex(points,transforms[index]),boxes)
             quality_ms=(perf_counter()-before_quality)*1000
+        if calibration:
+            before_quality=perf_counter();boxes=calibration.rescore(boxes,np.linalg.inv(transforms[index]))
+            calibration_ms=(perf_counter()-before_quality)*1000
         tracks=tracker.update(index*inference.period_s,boxes)
         track_ms=(perf_counter()-before)*1000
         if index>=args.start:
             records.append(dict(frame=index,read_sha256_ms=read_ms,compensation_ms=compensate_ms,
                 detector_voxel_decode_ms=detector_ms,world_box_tracker_ms=track_ms,
                 box_quality_ms=quality_ms,
+                score_calibration_ms=calibration_ms,
                 total_ms=(perf_counter()-start)*1000,tracks=len(tracks),source_sha256=digest))
     if not records:raise ValueError('no available scans in latency frame range')
     result=dict(sequence=args.sequence,requested_frames=args.frames,measured_frames=len(records),voxel_backend=backend,
         inference_config={**asdict(inference),'voxel_backend':backend},
         box_quality_model_sha256=hashlib.sha256(args.quality_model.read_bytes()).hexdigest() if quality else None,
         head_model_sha256=hashlib.sha256(args.head_model.read_bytes()).hexdigest() if args.head_model else None,
+        score_calibration_sha256=hashlib.sha256(args.score_calibration_model.read_bytes()).hexdigest() if calibration else None,
         period_budget_ms=inference.period_s*1000,gpu=torch.cuda.get_device_name(),torch_version=torch.__version__,
         stages={key:dict(median=float(np.median([r[key] for r in records])),p99=float(np.quantile([r[key] for r in records],.99)))
-            for key in ('read_sha256_ms','compensation_ms','detector_voxel_decode_ms','world_box_tracker_ms','box_quality_ms','total_ms')},
+            for key in ('read_sha256_ms','compensation_ms','detector_voxel_decode_ms','world_box_tracker_ms','box_quality_ms','score_calibration_ms','total_ms')},
         deadline_misses=sum(r['total_ms']>inference.period_s*1000 for r in records),
         no_other_repo_inference_process=True,warmup_frames=min(warmup,args.start),records=records)
     args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(result,indent=2)+'\n')

@@ -1,0 +1,23 @@
+{
+  "format_version": 1,
+  "groups": [
+    ["0000", "0003", "0007", "0014", "0016", "0018"],
+    ["0001", "0004", "0008", "0011", "0012", "0013"],
+    ["0002", "0005", "0006", "0009", "0017"]
+  ],
+  "roles": [[0, 1, 2], [1, 2, 0], [2, 0, 1]],
+  "reserved_sequences": ["0020"],
+  "excluded_viewed_sequences": ["0010", "0015", "0019"],
+  "inference_config": {"sweeps": 5, "period_s": 0.1, "intensity_scale": 64, "score_threshold": 0.1, "voxel_backend": "numba"},
+  "tracker_config": {"high_confidence": 0.7, "low_confidence": 0.1, "maximum_tentative_tracks": 128, "duplicate_birth_iou": 0.85},
+  "calibration": {"method": "positive_slope_logit_sigmoid", "l2": 0.01, "iterations": 100, "target_iou": 0.25, "sequence_equal_weight": true},
+  "medium_policy": {"continuation_confidence": 0.1, "birth_confidence": 0.5, "strong_confidence": 0.7, "medium_confirmation_hits": 3},
+  "recovery_raw_score_floor": 0.7,
+  "dropout_start_frame": 50,
+  "dropout_frames": 30,
+  "acceptance_precision": 0.96,
+  "acceptance_recall": 0.85,
+  "evaluation_used_for_selection": false,
+  "geometry_training_changed": false,
+  "note": "Development-only train/calibrate/evaluate rotations. Fixed final epoch and policies; no reserved-sequence access or best-fold selection."
+}
