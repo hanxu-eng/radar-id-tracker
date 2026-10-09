@@ -1,0 +1,4295 @@
+{
+  "protocol": {
+    "training_sequences": [
+      "0000",
+      "0001",
+      "0002",
+      "0005",
+      "0006"
+    ],
+    "validation_sequences": [
+      "0003",
+      "0004",
+      "0008"
+    ],
+    "feature_names": [
+      "detector_score",
+      "range_m",
+      "relative_center_height_m",
+      "length_m",
+      "width_m",
+      "height_m",
+      "log_inside_points",
+      "log_context_points",
+      "extent_length",
+      "extent_width",
+      "extent_height",
+      "std_length",
+      "std_width",
+      "std_height",
+      "mean_length",
+      "mean_width",
+      "mean_height",
+      "upper_fraction",
+      "lower_fraction",
+      "xy_occupancy",
+      "z_occupancy"
+    ],
+    "features_current_scan_only": true,
+    "identifiers_used_as_features": false,
+    "training_parameters": {
+      "max_iter": 60,
+      "max_leaf_nodes": 7,
+      "max_depth": 3,
+      "min_samples_leaf": 40,
+      "learning_rate": 0.1,
+      "l2_regularization": 1.0,
+      "early_stopping": false,
+      "categorical_features": null,
+      "random_state": 17
+    },
+    "sklearn_version": "1.9.0",
+    "sequence_equal_weight": true,
+    "frame_random_split": false,
+    "threshold_tuned": false,
+    "frozen_inference_config": {
+      "sweeps": 5,
+      "period_s": 0.1,
+      "intensity_scale": 64,
+      "score_threshold": 0.1,
+      "voxel_backend": "numba"
+    },
+    "frozen_config": {
+      "high_confidence": 0.7,
+      "low_confidence": 0.1,
+      "maximum_tentative_tracks": 128,
+      "duplicate_birth_iou": 0.85
+    },
+    "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+    "folds": [
+      {
+        "held_out_sequence": "0000",
+        "training_sequences": [
+          "0001",
+          "0002",
+          "0005",
+          "0006"
+        ],
+        "model_sha256": "2ea97ffb0a3c28e472c7c2e24a7680dff968c415b010359fa5863c8149a4b8d2",
+        "parity": {
+          "Car": {
+            "samples": 55265,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          },
+          "Pedestrian": {
+            "samples": 89953,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          }
+        }
+      },
+      {
+        "held_out_sequence": "0001",
+        "training_sequences": [
+          "0000",
+          "0002",
+          "0005",
+          "0006"
+        ],
+        "model_sha256": "d4e91bcf995c17a6ced1d5c87bfdbaabc62267d094d838d2aaba17704e4ff8ee",
+        "parity": {
+          "Car": {
+            "samples": 55265,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          },
+          "Pedestrian": {
+            "samples": 89953,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          }
+        }
+      },
+      {
+        "held_out_sequence": "0002",
+        "training_sequences": [
+          "0000",
+          "0001",
+          "0005",
+          "0006"
+        ],
+        "model_sha256": "c8c27d6063da4ad1b93ca9ef069ac4eeec73d2f3a2b0a7494dd1dfb0d11d0734",
+        "parity": {
+          "Car": {
+            "samples": 55265,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          },
+          "Pedestrian": {
+            "samples": 89953,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          }
+        }
+      },
+      {
+        "held_out_sequence": "0005",
+        "training_sequences": [
+          "0000",
+          "0001",
+          "0002",
+          "0006"
+        ],
+        "model_sha256": "e6c870e223b00b1721e059df01627fcbe420528faf928ecda8e73e5245ee669b",
+        "parity": {
+          "Car": {
+            "samples": 55265,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          },
+          "Pedestrian": {
+            "samples": 89953,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          }
+        }
+      },
+      {
+        "held_out_sequence": "0006",
+        "training_sequences": [
+          "0000",
+          "0001",
+          "0002",
+          "0005"
+        ],
+        "model_sha256": "26e36b29fb27522091cc2a8955da9d620a330f61e90bb147c9ab7583d8221f72",
+        "parity": {
+          "Car": {
+            "samples": 55265,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          },
+          "Pedestrian": {
+            "samples": 89953,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          }
+        }
+      },
+      {
+        "held_out_sequence": null,
+        "training_sequences": [
+          "0000",
+          "0001",
+          "0002",
+          "0005",
+          "0006"
+        ],
+        "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+        "parity": {
+          "Car": {
+            "samples": 55265,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          },
+          "Pedestrian": {
+            "samples": 89953,
+            "maximum_absolute_difference": 1.1102230246251565e-16
+          }
+        }
+      }
+    ],
+    "acceptance_precision": 0.96,
+    "acceptance_recall": 0.85,
+    "source_sha256": {
+      "train_box_quality.py": "c3740206a42e48f7deac4528c93847faf5f8933f479cf879fa14e8c16632f6d7",
+      "lidar_box_features.py": "89efb45c9215a7c6c557091deb684a1b3d46a8bb88ae6fdacec2daff89cbabac",
+      "lidar_box_quality.py": "3db09fa15accb9d1baabe267b32019b49b8f790a098f5e1819e890794c571787"
+    }
+  },
+  "scope": {
+    "range_m": 50,
+    "half_angle_degrees": 40,
+    "iou3d": 0.25,
+    "classes": [
+      "Car",
+      "Pedestrian"
+    ],
+    "rear_scored": false,
+    "official_kitti_score": false,
+    "dontcare_2d_evaluation": false,
+    "training_dontcare_negative_exclusion": true
+  },
+  "acceptance": {
+    "default_configuration_changed": false,
+    "real_vehicle_ready": false,
+    "precision_recall_guard_pass": false,
+    "reasons": [
+      "fresh validation precision/recall guard failures",
+      "pedestrian recall remains inadequate",
+      "0008 ID changes increased",
+      "12/100 frames miss 100ms deadline",
+      "3s artificial-dropout evidence has only 3 eligible targets; rear and RoboSense data unvalidated"
+    ]
+  },
+  "training_target_counts": {
+    "0000": {
+      "Car": {
+        "-1": 4178,
+        "0": 601,
+        "1": 231
+      },
+      "Pedestrian": {
+        "-1": 7988,
+        "0": 2523,
+        "1": 21
+      }
+    },
+    "0001": {
+      "Car": {
+        "-1": 20490,
+        "0": 1944,
+        "1": 2321
+      },
+      "Pedestrian": {
+        "-1": 19551,
+        "0": 6720,
+        "1": 113
+      }
+    },
+    "0002": {
+      "Car": {
+        "-1": 5224,
+        "0": 647,
+        "1": 395
+      },
+      "Pedestrian": {
+        "-1": 12093,
+        "0": 3447,
+        "1": 37
+      }
+    },
+    "0005": {
+      "Car": {
+        "-1": 7323,
+        "0": 644,
+        "1": 755
+      },
+      "Pedestrian": {
+        "-1": 13719,
+        "0": 2597,
+        "1": 0
+      }
+    },
+    "0006": {
+      "Car": {
+        "-1": 9192,
+        "0": 881,
+        "1": 439
+      },
+      "Pedestrian": {
+        "-1": 16194,
+        "0": 4950,
+        "1": 0
+      }
+    }
+  },
+  "rows": [
+    {
+      "sequence": "0000",
+      "role": "out_of_fold",
+      "scenario": "natural",
+      "scored_frames": 154,
+      "model_sha256": "2ea97ffb0a3c28e472c7c2e24a7680dff968c415b010359fa5863c8149a4b8d2",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 239,
+            "fp": 102,
+            "fn": 10,
+            "precision": 0.7008797653958945,
+            "recall": 0.9598393574297188,
+            "f1": 0.8101694915254237,
+            "ignored_outputs": 177,
+            "idtp": 239,
+            "idfn": 10,
+            "idfp": 102,
+            "idf1": 0.8101694915254237,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 13,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 239,
+            "fp": 102,
+            "fn": 10,
+            "precision": 0.7008797653958945,
+            "recall": 0.9598393574297188,
+            "f1": 0.8101694915254237,
+            "ignored_outputs": 180,
+            "idtp": 239,
+            "idfn": 10,
+            "idfp": 102,
+            "idf1": 0.8101694915254237,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 13,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 249,
+            "fp": 3962,
+            "fn": 0,
+            "precision": 0.059130847779624796,
+            "recall": 1.0,
+            "f1": 0.11165919282511211,
+            "ignored_outputs": 260
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 224,
+              "fp": 86,
+              "fn": 6,
+              "precision": 0.7225806451612903,
+              "recall": 0.9739130434782609,
+              "f1": 0.8296296296296296,
+              "ignored_outputs": 177,
+              "idtp": 224,
+              "idfn": 6,
+              "idfp": 86,
+              "idf1": 0.8296296296296296,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 11,
+              "unique_gt_ids": 9
+            },
+            "Pedestrian": {
+              "tp": 15,
+              "fp": 16,
+              "fn": 4,
+              "precision": 0.4838709677419355,
+              "recall": 0.7894736842105263,
+              "f1": 0.6,
+              "ignored_outputs": 0,
+              "idtp": 15,
+              "idfn": 4,
+              "idfp": 16,
+              "idf1": 0.6,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 2,
+              "unique_gt_ids": 2
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 236,
+            "fp": 181,
+            "fn": 13,
+            "precision": 0.565947242206235,
+            "recall": 0.9477911646586346,
+            "f1": 0.7087087087087087,
+            "ignored_outputs": 220,
+            "idtp": 236,
+            "idfn": 13,
+            "idfp": 181,
+            "idf1": 0.7087087087087087,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 21,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 237,
+            "fp": 222,
+            "fn": 12,
+            "precision": 0.5163398692810458,
+            "recall": 0.9518072289156626,
+            "f1": 0.6694915254237288,
+            "ignored_outputs": 245,
+            "idtp": 237,
+            "idfn": 12,
+            "idfp": 222,
+            "idf1": 0.6694915254237288,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 21,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 249,
+            "fp": 3962,
+            "fn": 0,
+            "precision": 0.059130847779624796,
+            "recall": 1.0,
+            "f1": 0.11165919282511211,
+            "ignored_outputs": 260
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 224,
+              "fp": 181,
+              "fn": 6,
+              "precision": 0.5530864197530864,
+              "recall": 0.9739130434782609,
+              "f1": 0.705511811023622,
+              "ignored_outputs": 220,
+              "idtp": 224,
+              "idfn": 6,
+              "idfp": 181,
+              "idf1": 0.705511811023622,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 20,
+              "unique_gt_ids": 9
+            },
+            "Pedestrian": {
+              "tp": 12,
+              "fp": 0,
+              "fn": 7,
+              "precision": 1.0,
+              "recall": 0.631578947368421,
+              "f1": 0.7741935483870968,
+              "ignored_outputs": 0,
+              "idtp": 12,
+              "idfn": 7,
+              "idfp": 0,
+              "idf1": 0.7741935483870968,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 2
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0000",
+      "role": "out_of_fold",
+      "scenario": "dropout_3s",
+      "scored_frames": 154,
+      "model_sha256": "2ea97ffb0a3c28e472c7c2e24a7680dff968c415b010359fa5863c8149a4b8d2",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 239,
+            "fp": 80,
+            "fn": 10,
+            "precision": 0.7492163009404389,
+            "recall": 0.9598393574297188,
+            "f1": 0.8415492957746479,
+            "ignored_outputs": 135,
+            "idtp": 239,
+            "idfn": 10,
+            "idfp": 80,
+            "idf1": 0.8415492957746479,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 12,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 239,
+            "fp": 80,
+            "fn": 10,
+            "precision": 0.7492163009404389,
+            "recall": 0.9598393574297188,
+            "f1": 0.8415492957746479,
+            "ignored_outputs": 140,
+            "idtp": 239,
+            "idfn": 10,
+            "idfp": 80,
+            "idf1": 0.8415492957746479,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 12,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 249,
+            "fp": 2967,
+            "fn": 0,
+            "precision": 0.07742537313432836,
+            "recall": 1.0,
+            "f1": 0.14372294372294372,
+            "ignored_outputs": 217
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 224,
+              "fp": 64,
+              "fn": 6,
+              "precision": 0.7777777777777778,
+              "recall": 0.9739130434782609,
+              "f1": 0.8648648648648649,
+              "ignored_outputs": 135,
+              "idtp": 224,
+              "idfn": 6,
+              "idfp": 64,
+              "idf1": 0.8648648648648649,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 9
+            },
+            "Pedestrian": {
+              "tp": 15,
+              "fp": 16,
+              "fn": 4,
+              "precision": 0.4838709677419355,
+              "recall": 0.7894736842105263,
+              "f1": 0.6,
+              "ignored_outputs": 0,
+              "idtp": 15,
+              "idfn": 4,
+              "idfp": 16,
+              "idf1": 0.6,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 2,
+              "unique_gt_ids": 2
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 236,
+            "fp": 159,
+            "fn": 13,
+            "precision": 0.5974683544303797,
+            "recall": 0.9477911646586346,
+            "f1": 0.7329192546583851,
+            "ignored_outputs": 186,
+            "idtp": 236,
+            "idfn": 13,
+            "idfp": 159,
+            "idf1": 0.7329192546583851,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 18,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 237,
+            "fp": 182,
+            "fn": 12,
+            "precision": 0.5656324582338902,
+            "recall": 0.9518072289156626,
+            "f1": 0.7095808383233533,
+            "ignored_outputs": 210,
+            "idtp": 237,
+            "idfn": 12,
+            "idfp": 182,
+            "idf1": 0.7095808383233533,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 19,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 249,
+            "fp": 2967,
+            "fn": 0,
+            "precision": 0.07742537313432836,
+            "recall": 1.0,
+            "f1": 0.14372294372294372,
+            "ignored_outputs": 217
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 224,
+              "fp": 159,
+              "fn": 6,
+              "precision": 0.5848563968668408,
+              "recall": 0.9739130434782609,
+              "f1": 0.7308319738988581,
+              "ignored_outputs": 186,
+              "idtp": 224,
+              "idfn": 6,
+              "idfp": 159,
+              "idf1": 0.7308319738988581,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 17,
+              "unique_gt_ids": 9
+            },
+            "Pedestrian": {
+              "tp": 12,
+              "fp": 0,
+              "fn": 7,
+              "precision": 1.0,
+              "recall": 0.631578947368421,
+              "f1": 0.7741935483870968,
+              "ignored_outputs": 0,
+              "idtp": 12,
+              "idfn": 7,
+              "idfp": 0,
+              "idf1": 0.7741935483870968,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 2
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0001",
+      "role": "out_of_fold",
+      "scenario": "natural",
+      "scored_frames": 443,
+      "model_sha256": "d4e91bcf995c17a6ced1d5c87bfdbaabc62267d094d838d2aaba17704e4ff8ee",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 1773,
+            "fp": 181,
+            "fn": 690,
+            "precision": 0.9073694984646878,
+            "recall": 0.7198538367844093,
+            "f1": 0.8028073352954495,
+            "ignored_outputs": 79,
+            "idtp": 1762,
+            "idfn": 701,
+            "idfp": 192,
+            "idf1": 0.7978265791261037,
+            "id_changes": 2,
+            "fragmentations": 4,
+            "unique_predicted_ids": 94,
+            "unique_gt_ids": 90
+          },
+          "published_tracks": {
+            "tp": 1773,
+            "fp": 182,
+            "fn": 690,
+            "precision": 0.9069053708439898,
+            "recall": 0.7198538367844093,
+            "f1": 0.8026256224535989,
+            "ignored_outputs": 79,
+            "idtp": 1762,
+            "idfn": 701,
+            "idfp": 193,
+            "idf1": 0.7976459936622906,
+            "id_changes": 2,
+            "fragmentations": 4,
+            "unique_predicted_ids": 94,
+            "unique_gt_ids": 90
+          },
+          "all_input_detections": {
+            "tp": 2416,
+            "fp": 10869,
+            "fn": 47,
+            "precision": 0.18185923974407225,
+            "recall": 0.9809175801867641,
+            "f1": 0.30683261366522735,
+            "ignored_outputs": 88
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 1739,
+              "fp": 158,
+              "fn": 617,
+              "precision": 0.9167105956773853,
+              "recall": 0.7381154499151104,
+              "f1": 0.8177756877498237,
+              "ignored_outputs": 79,
+              "idtp": 1728,
+              "idfn": 628,
+              "idfp": 169,
+              "idf1": 0.812602868563367,
+              "id_changes": 2,
+              "fragmentations": 4,
+              "unique_predicted_ids": 92,
+              "unique_gt_ids": 87
+            },
+            "Pedestrian": {
+              "tp": 34,
+              "fp": 23,
+              "fn": 73,
+              "precision": 0.5964912280701754,
+              "recall": 0.3177570093457944,
+              "f1": 0.4146341463414634,
+              "ignored_outputs": 0,
+              "idtp": 34,
+              "idfn": 73,
+              "idfp": 23,
+              "idf1": 0.4146341463414634,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 2,
+              "unique_gt_ids": 3
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 2133,
+            "fp": 280,
+            "fn": 330,
+            "precision": 0.8839618731869042,
+            "recall": 0.8660170523751523,
+            "f1": 0.8748974569319115,
+            "ignored_outputs": 81,
+            "idtp": 2126,
+            "idfn": 337,
+            "idfp": 287,
+            "idf1": 0.8720262510254306,
+            "id_changes": 0,
+            "fragmentations": 7,
+            "unique_predicted_ids": 106,
+            "unique_gt_ids": 90
+          },
+          "published_tracks": {
+            "tp": 2143,
+            "fp": 344,
+            "fn": 320,
+            "precision": 0.8616807398472055,
+            "recall": 0.8700771416971174,
+            "f1": 0.8658585858585859,
+            "ignored_outputs": 81,
+            "idtp": 2136,
+            "idfn": 327,
+            "idfp": 351,
+            "idf1": 0.863030303030303,
+            "id_changes": 0,
+            "fragmentations": 3,
+            "unique_predicted_ids": 106,
+            "unique_gt_ids": 90
+          },
+          "all_input_detections": {
+            "tp": 2416,
+            "fp": 10869,
+            "fn": 47,
+            "precision": 0.18185923974407225,
+            "recall": 0.9809175801867641,
+            "f1": 0.30683261366522735,
+            "ignored_outputs": 88
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 2113,
+              "fp": 280,
+              "fn": 243,
+              "precision": 0.8829920601755119,
+              "recall": 0.8968590831918506,
+              "f1": 0.8898715519056644,
+              "ignored_outputs": 81,
+              "idtp": 2106,
+              "idfn": 250,
+              "idfp": 287,
+              "idf1": 0.886923562855338,
+              "id_changes": 0,
+              "fragmentations": 7,
+              "unique_predicted_ids": 105,
+              "unique_gt_ids": 87
+            },
+            "Pedestrian": {
+              "tp": 20,
+              "fp": 0,
+              "fn": 87,
+              "precision": 1.0,
+              "recall": 0.18691588785046728,
+              "f1": 0.31496062992125984,
+              "ignored_outputs": 0,
+              "idtp": 20,
+              "idfn": 87,
+              "idfp": 0,
+              "idf1": 0.31496062992125984,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 3
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0001",
+      "role": "out_of_fold",
+      "scenario": "dropout_3s",
+      "scored_frames": 443,
+      "model_sha256": "d4e91bcf995c17a6ced1d5c87bfdbaabc62267d094d838d2aaba17704e4ff8ee",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 1632,
+            "fp": 170,
+            "fn": 831,
+            "precision": 0.9056603773584906,
+            "recall": 0.6626065773447016,
+            "f1": 0.7652989449003517,
+            "ignored_outputs": 79,
+            "idtp": 1621,
+            "idfn": 842,
+            "idfp": 181,
+            "idf1": 0.7601406799531066,
+            "id_changes": 2,
+            "fragmentations": 4,
+            "unique_predicted_ids": 90,
+            "unique_gt_ids": 90
+          },
+          "published_tracks": {
+            "tp": 1647,
+            "fp": 171,
+            "fn": 816,
+            "precision": 0.905940594059406,
+            "recall": 0.6686967113276492,
+            "f1": 0.7694463910301331,
+            "ignored_outputs": 79,
+            "idtp": 1636,
+            "idfn": 827,
+            "idfp": 182,
+            "idf1": 0.7643074048119598,
+            "id_changes": 2,
+            "fragmentations": 4,
+            "unique_predicted_ids": 90,
+            "unique_gt_ids": 90
+          },
+          "all_input_detections": {
+            "tp": 2217,
+            "fp": 10118,
+            "fn": 246,
+            "precision": 0.1797324685853263,
+            "recall": 0.9001218026796589,
+            "f1": 0.29963508582240844,
+            "ignored_outputs": 82
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 1598,
+              "fp": 147,
+              "fn": 758,
+              "precision": 0.9157593123209169,
+              "recall": 0.6782682512733447,
+              "f1": 0.7793221165569373,
+              "ignored_outputs": 79,
+              "idtp": 1587,
+              "idfn": 769,
+              "idfp": 158,
+              "idf1": 0.7739575713240673,
+              "id_changes": 2,
+              "fragmentations": 4,
+              "unique_predicted_ids": 88,
+              "unique_gt_ids": 87
+            },
+            "Pedestrian": {
+              "tp": 34,
+              "fp": 23,
+              "fn": 73,
+              "precision": 0.5964912280701754,
+              "recall": 0.3177570093457944,
+              "f1": 0.4146341463414634,
+              "ignored_outputs": 0,
+              "idtp": 34,
+              "idfn": 73,
+              "idfp": 23,
+              "idf1": 0.4146341463414634,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 2,
+              "unique_gt_ids": 3
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 1939,
+            "fp": 237,
+            "fn": 524,
+            "precision": 0.8910845588235294,
+            "recall": 0.7872513195290296,
+            "f1": 0.8359560250053891,
+            "ignored_outputs": 81,
+            "idtp": 1932,
+            "idfn": 531,
+            "idfp": 244,
+            "idf1": 0.8329381332183661,
+            "id_changes": 0,
+            "fragmentations": 7,
+            "unique_predicted_ids": 101,
+            "unique_gt_ids": 90
+          },
+          "published_tracks": {
+            "tp": 1974,
+            "fp": 294,
+            "fn": 489,
+            "precision": 0.8703703703703703,
+            "recall": 0.8014616321559074,
+            "f1": 0.8344958782498415,
+            "ignored_outputs": 81,
+            "idtp": 1967,
+            "idfn": 496,
+            "idfp": 301,
+            "idf1": 0.8315366730078207,
+            "id_changes": 0,
+            "fragmentations": 3,
+            "unique_predicted_ids": 101,
+            "unique_gt_ids": 90
+          },
+          "all_input_detections": {
+            "tp": 2217,
+            "fp": 10118,
+            "fn": 246,
+            "precision": 0.1797324685853263,
+            "recall": 0.9001218026796589,
+            "f1": 0.29963508582240844,
+            "ignored_outputs": 82
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 1919,
+              "fp": 237,
+              "fn": 437,
+              "precision": 0.890074211502783,
+              "recall": 0.8145161290322581,
+              "f1": 0.8506205673758865,
+              "ignored_outputs": 81,
+              "idtp": 1912,
+              "idfn": 444,
+              "idfp": 244,
+              "idf1": 0.8475177304964538,
+              "id_changes": 0,
+              "fragmentations": 7,
+              "unique_predicted_ids": 100,
+              "unique_gt_ids": 87
+            },
+            "Pedestrian": {
+              "tp": 20,
+              "fp": 0,
+              "fn": 87,
+              "precision": 1.0,
+              "recall": 0.18691588785046728,
+              "f1": 0.31496062992125984,
+              "ignored_outputs": 0,
+              "idtp": 20,
+              "idfn": 87,
+              "idfp": 0,
+              "idf1": 0.31496062992125984,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 3
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0002",
+      "role": "out_of_fold",
+      "scenario": "natural",
+      "scored_frames": 233,
+      "model_sha256": "c8c27d6063da4ad1b93ca9ef069ac4eeec73d2f3a2b0a7494dd1dfb0d11d0734",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 293,
+            "fp": 40,
+            "fn": 274,
+            "precision": 0.8798798798798799,
+            "recall": 0.5167548500881834,
+            "f1": 0.6511111111111111,
+            "ignored_outputs": 53,
+            "idtp": 293,
+            "idfn": 274,
+            "idfp": 40,
+            "idf1": 0.6511111111111111,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 12
+          },
+          "published_tracks": {
+            "tp": 293,
+            "fp": 40,
+            "fn": 274,
+            "precision": 0.8798798798798799,
+            "recall": 0.5167548500881834,
+            "f1": 0.6511111111111111,
+            "ignored_outputs": 53,
+            "idtp": 293,
+            "idfn": 274,
+            "idfp": 40,
+            "idf1": 0.6511111111111111,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 12
+          },
+          "all_input_detections": {
+            "tp": 421,
+            "fp": 4526,
+            "fn": 146,
+            "precision": 0.08510208206994138,
+            "recall": 0.7425044091710759,
+            "f1": 0.15270221254987304,
+            "ignored_outputs": 71
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 293,
+              "fp": 40,
+              "fn": 107,
+              "precision": 0.8798798798798799,
+              "recall": 0.7325,
+              "f1": 0.7994542974079127,
+              "ignored_outputs": 53,
+              "idtp": 293,
+              "idfn": 107,
+              "idfp": 40,
+              "idf1": 0.7994542974079127,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 167,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 167,
+              "idfp": 0,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 1
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 351,
+            "fp": 2,
+            "fn": 216,
+            "precision": 0.9943342776203966,
+            "recall": 0.6190476190476191,
+            "f1": 0.7630434782608696,
+            "ignored_outputs": 68,
+            "idtp": 351,
+            "idfn": 216,
+            "idfp": 2,
+            "idf1": 0.7630434782608696,
+            "id_changes": 0,
+            "fragmentations": 9,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 12
+          },
+          "published_tracks": {
+            "tp": 362,
+            "fp": 5,
+            "fn": 205,
+            "precision": 0.9863760217983651,
+            "recall": 0.6384479717813051,
+            "f1": 0.7751605995717344,
+            "ignored_outputs": 68,
+            "idtp": 362,
+            "idfn": 205,
+            "idfp": 5,
+            "idf1": 0.7751605995717344,
+            "id_changes": 0,
+            "fragmentations": 2,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 12
+          },
+          "all_input_detections": {
+            "tp": 421,
+            "fp": 4526,
+            "fn": 146,
+            "precision": 0.08510208206994138,
+            "recall": 0.7425044091710759,
+            "f1": 0.15270221254987304,
+            "ignored_outputs": 71
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 351,
+              "fp": 2,
+              "fn": 49,
+              "precision": 0.9943342776203966,
+              "recall": 0.8775,
+              "f1": 0.9322709163346613,
+              "ignored_outputs": 68,
+              "idtp": 351,
+              "idfn": 49,
+              "idfp": 2,
+              "idf1": 0.9322709163346613,
+              "id_changes": 0,
+              "fragmentations": 9,
+              "unique_predicted_ids": 11,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 167,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 167,
+              "idfp": 0,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 1
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0002",
+      "role": "out_of_fold",
+      "scenario": "dropout_3s",
+      "scored_frames": 233,
+      "model_sha256": "c8c27d6063da4ad1b93ca9ef069ac4eeec73d2f3a2b0a7494dd1dfb0d11d0734",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 260,
+            "fp": 40,
+            "fn": 307,
+            "precision": 0.8666666666666667,
+            "recall": 0.4585537918871252,
+            "f1": 0.5997693194925029,
+            "ignored_outputs": 53,
+            "idtp": 260,
+            "idfn": 307,
+            "idfp": 40,
+            "idf1": 0.5997693194925029,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 9,
+            "unique_gt_ids": 12
+          },
+          "published_tracks": {
+            "tp": 260,
+            "fp": 40,
+            "fn": 307,
+            "precision": 0.8666666666666667,
+            "recall": 0.4585537918871252,
+            "f1": 0.5997693194925029,
+            "ignored_outputs": 53,
+            "idtp": 260,
+            "idfn": 307,
+            "idfp": 40,
+            "idf1": 0.5997693194925029,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 9,
+            "unique_gt_ids": 12
+          },
+          "all_input_detections": {
+            "tp": 377,
+            "fp": 4007,
+            "fn": 190,
+            "precision": 0.08599452554744526,
+            "recall": 0.6649029982363316,
+            "f1": 0.15229246616845082,
+            "ignored_outputs": 71
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 260,
+              "fp": 40,
+              "fn": 140,
+              "precision": 0.8666666666666667,
+              "recall": 0.65,
+              "f1": 0.7428571428571429,
+              "ignored_outputs": 53,
+              "idtp": 260,
+              "idfn": 140,
+              "idfp": 40,
+              "idf1": 0.7428571428571429,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 9,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 167,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 167,
+              "idfp": 0,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 1
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 314,
+            "fp": 2,
+            "fn": 253,
+            "precision": 0.9936708860759493,
+            "recall": 0.5537918871252204,
+            "f1": 0.711211778029445,
+            "ignored_outputs": 68,
+            "idtp": 314,
+            "idfn": 253,
+            "idfp": 2,
+            "idf1": 0.711211778029445,
+            "id_changes": 0,
+            "fragmentations": 9,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 12
+          },
+          "published_tracks": {
+            "tp": 325,
+            "fp": 5,
+            "fn": 242,
+            "precision": 0.9848484848484849,
+            "recall": 0.5731922398589065,
+            "f1": 0.7246376811594203,
+            "ignored_outputs": 68,
+            "idtp": 325,
+            "idfn": 242,
+            "idfp": 5,
+            "idf1": 0.7246376811594203,
+            "id_changes": 0,
+            "fragmentations": 2,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 12
+          },
+          "all_input_detections": {
+            "tp": 377,
+            "fp": 4007,
+            "fn": 190,
+            "precision": 0.08599452554744526,
+            "recall": 0.6649029982363316,
+            "f1": 0.15229246616845082,
+            "ignored_outputs": 71
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 314,
+              "fp": 2,
+              "fn": 86,
+              "precision": 0.9936708860759493,
+              "recall": 0.785,
+              "f1": 0.8770949720670391,
+              "ignored_outputs": 68,
+              "idtp": 314,
+              "idfn": 86,
+              "idfp": 2,
+              "idf1": 0.8770949720670391,
+              "id_changes": 0,
+              "fragmentations": 9,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 167,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 167,
+              "idfp": 0,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 1
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0005",
+      "role": "out_of_fold",
+      "scenario": "natural",
+      "scored_frames": 297,
+      "model_sha256": "e6c870e223b00b1721e059df01627fcbe420528faf928ecda8e73e5245ee669b",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 407,
+            "fp": 6,
+            "fn": 396,
+            "precision": 0.9854721549636803,
+            "recall": 0.5068493150684932,
+            "f1": 0.6694078947368421,
+            "ignored_outputs": 0,
+            "idtp": 407,
+            "idfn": 396,
+            "idfp": 6,
+            "idf1": 0.6694078947368421,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 15,
+            "unique_gt_ids": 33
+          },
+          "published_tracks": {
+            "tp": 407,
+            "fp": 6,
+            "fn": 396,
+            "precision": 0.9854721549636803,
+            "recall": 0.5068493150684932,
+            "f1": 0.6694078947368421,
+            "ignored_outputs": 0,
+            "idtp": 407,
+            "idfn": 396,
+            "idfp": 6,
+            "idf1": 0.6694078947368421,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 15,
+            "unique_gt_ids": 33
+          },
+          "all_input_detections": {
+            "tp": 744,
+            "fp": 3355,
+            "fn": 59,
+            "precision": 0.18150768480117102,
+            "recall": 0.9265255292652553,
+            "f1": 0.30354957160342716,
+            "ignored_outputs": 9
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 407,
+              "fp": 2,
+              "fn": 396,
+              "precision": 0.9951100244498777,
+              "recall": 0.5068493150684932,
+              "f1": 0.6716171617161716,
+              "ignored_outputs": 0,
+              "idtp": 407,
+              "idfn": 396,
+              "idfp": 2,
+              "idf1": 0.6716171617161716,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 14,
+              "unique_gt_ids": 33
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 4,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 4,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 551,
+            "fp": 10,
+            "fn": 252,
+            "precision": 0.982174688057041,
+            "recall": 0.6861768368617683,
+            "f1": 0.8079178885630498,
+            "ignored_outputs": 0,
+            "idtp": 551,
+            "idfn": 252,
+            "idfp": 10,
+            "idf1": 0.8079178885630498,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 30,
+            "unique_gt_ids": 33
+          },
+          "published_tracks": {
+            "tp": 553,
+            "fp": 20,
+            "fn": 250,
+            "precision": 0.9650959860383944,
+            "recall": 0.688667496886675,
+            "f1": 0.8037790697674418,
+            "ignored_outputs": 0,
+            "idtp": 553,
+            "idfn": 250,
+            "idfp": 20,
+            "idf1": 0.8037790697674418,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 30,
+            "unique_gt_ids": 33
+          },
+          "all_input_detections": {
+            "tp": 744,
+            "fp": 3355,
+            "fn": 59,
+            "precision": 0.18150768480117102,
+            "recall": 0.9265255292652553,
+            "f1": 0.30354957160342716,
+            "ignored_outputs": 9
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 551,
+              "fp": 10,
+              "fn": 252,
+              "precision": 0.982174688057041,
+              "recall": 0.6861768368617683,
+              "f1": 0.8079178885630498,
+              "ignored_outputs": 0,
+              "idtp": 551,
+              "idfn": 252,
+              "idfp": 10,
+              "idf1": 0.8079178885630498,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 30,
+              "unique_gt_ids": 33
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0005",
+      "role": "out_of_fold",
+      "scenario": "dropout_3s",
+      "scored_frames": 297,
+      "model_sha256": "e6c870e223b00b1721e059df01627fcbe420528faf928ecda8e73e5245ee669b",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 377,
+            "fp": 6,
+            "fn": 426,
+            "precision": 0.9843342036553525,
+            "recall": 0.46948941469489414,
+            "f1": 0.6357504215851602,
+            "ignored_outputs": 0,
+            "idtp": 377,
+            "idfn": 426,
+            "idfp": 6,
+            "idf1": 0.6357504215851602,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 15,
+            "unique_gt_ids": 33
+          },
+          "published_tracks": {
+            "tp": 382,
+            "fp": 6,
+            "fn": 421,
+            "precision": 0.9845360824742269,
+            "recall": 0.47571606475716066,
+            "f1": 0.6414777497900923,
+            "ignored_outputs": 0,
+            "idtp": 382,
+            "idfn": 421,
+            "idfp": 6,
+            "idf1": 0.6414777497900923,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 15,
+            "unique_gt_ids": 33
+          },
+          "all_input_detections": {
+            "tp": 686,
+            "fp": 3117,
+            "fn": 117,
+            "precision": 0.18038390744149355,
+            "recall": 0.8542963885429639,
+            "f1": 0.2978723404255319,
+            "ignored_outputs": 9
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 377,
+              "fp": 2,
+              "fn": 426,
+              "precision": 0.9947229551451188,
+              "recall": 0.46948941469489414,
+              "f1": 0.637901861252115,
+              "ignored_outputs": 0,
+              "idtp": 377,
+              "idfn": 426,
+              "idfp": 2,
+              "idf1": 0.637901861252115,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 14,
+              "unique_gt_ids": 33
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 4,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 4,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 519,
+            "fp": 10,
+            "fn": 284,
+            "precision": 0.9810964083175804,
+            "recall": 0.6463262764632628,
+            "f1": 0.7792792792792793,
+            "ignored_outputs": 0,
+            "idtp": 519,
+            "idfn": 284,
+            "idfp": 10,
+            "idf1": 0.7792792792792793,
+            "id_changes": 0,
+            "fragmentations": 2,
+            "unique_predicted_ids": 29,
+            "unique_gt_ids": 33
+          },
+          "published_tracks": {
+            "tp": 526,
+            "fp": 20,
+            "fn": 277,
+            "precision": 0.9633699633699634,
+            "recall": 0.6550435865504358,
+            "f1": 0.7798369162342476,
+            "ignored_outputs": 0,
+            "idtp": 526,
+            "idfn": 277,
+            "idfp": 20,
+            "idf1": 0.7798369162342476,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 29,
+            "unique_gt_ids": 33
+          },
+          "all_input_detections": {
+            "tp": 686,
+            "fp": 3117,
+            "fn": 117,
+            "precision": 0.18038390744149355,
+            "recall": 0.8542963885429639,
+            "f1": 0.2978723404255319,
+            "ignored_outputs": 9
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 519,
+              "fp": 10,
+              "fn": 284,
+              "precision": 0.9810964083175804,
+              "recall": 0.6463262764632628,
+              "f1": 0.7792792792792793,
+              "ignored_outputs": 0,
+              "idtp": 519,
+              "idfn": 284,
+              "idfp": 10,
+              "idf1": 0.7792792792792793,
+              "id_changes": 0,
+              "fragmentations": 2,
+              "unique_predicted_ids": 29,
+              "unique_gt_ids": 33
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0006",
+      "role": "out_of_fold",
+      "scenario": "natural",
+      "scored_frames": 270,
+      "model_sha256": "26e36b29fb27522091cc2a8955da9d620a330f61e90bb147c9ab7583d8221f72",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 420,
+            "fp": 658,
+            "fn": 7,
+            "precision": 0.38961038961038963,
+            "recall": 0.9836065573770492,
+            "f1": 0.5581395348837209,
+            "ignored_outputs": 36,
+            "idtp": 420,
+            "idfn": 7,
+            "idfp": 658,
+            "idf1": 0.5581395348837209,
+            "id_changes": 1,
+            "fragmentations": 0,
+            "unique_predicted_ids": 20,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 420,
+            "fp": 700,
+            "fn": 7,
+            "precision": 0.375,
+            "recall": 0.9836065573770492,
+            "f1": 0.5429864253393665,
+            "ignored_outputs": 36,
+            "idtp": 420,
+            "idfn": 7,
+            "idfp": 700,
+            "idf1": 0.5429864253393665,
+            "id_changes": 1,
+            "fragmentations": 0,
+            "unique_predicted_ids": 20,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 424,
+            "fp": 6030,
+            "fn": 3,
+            "precision": 0.06569569259374032,
+            "recall": 0.9929742388758782,
+            "f1": 0.12323790146780991,
+            "ignored_outputs": 48
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 420,
+              "fp": 31,
+              "fn": 7,
+              "precision": 0.9312638580931264,
+              "recall": 0.9836065573770492,
+              "f1": 0.9567198177676538,
+              "ignored_outputs": 36,
+              "idtp": 420,
+              "idfn": 7,
+              "idfp": 31,
+              "idf1": 0.9567198177676538,
+              "id_changes": 1,
+              "fragmentations": 0,
+              "unique_predicted_ids": 11,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 627,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 627,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 9,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 420,
+            "fp": 5,
+            "fn": 7,
+            "precision": 0.9882352941176471,
+            "recall": 0.9836065573770492,
+            "f1": 0.9859154929577465,
+            "ignored_outputs": 43,
+            "idtp": 420,
+            "idfn": 7,
+            "idfp": 5,
+            "idf1": 0.9859154929577465,
+            "id_changes": 0,
+            "fragmentations": 2,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 424,
+            "fp": 6,
+            "fn": 3,
+            "precision": 0.986046511627907,
+            "recall": 0.9929742388758782,
+            "f1": 0.9894982497082847,
+            "ignored_outputs": 54,
+            "idtp": 424,
+            "idfn": 3,
+            "idfp": 6,
+            "idf1": 0.9894982497082847,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 424,
+            "fp": 6030,
+            "fn": 3,
+            "precision": 0.06569569259374032,
+            "recall": 0.9929742388758782,
+            "f1": 0.12323790146780991,
+            "ignored_outputs": 48
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 420,
+              "fp": 5,
+              "fn": 7,
+              "precision": 0.9882352941176471,
+              "recall": 0.9836065573770492,
+              "f1": 0.9859154929577465,
+              "ignored_outputs": 43,
+              "idtp": 420,
+              "idfn": 7,
+              "idfp": 5,
+              "idf1": 0.9859154929577465,
+              "id_changes": 0,
+              "fragmentations": 2,
+              "unique_predicted_ids": 11,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": true,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0006",
+      "role": "out_of_fold",
+      "scenario": "dropout_3s",
+      "scored_frames": 270,
+      "model_sha256": "26e36b29fb27522091cc2a8955da9d620a330f61e90bb147c9ab7583d8221f72",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 313,
+            "fp": 430,
+            "fn": 114,
+            "precision": 0.42126514131897713,
+            "recall": 0.7330210772833724,
+            "f1": 0.535042735042735,
+            "ignored_outputs": 36,
+            "idtp": 308,
+            "idfn": 119,
+            "idfp": 435,
+            "idf1": 0.5264957264957265,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 18,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 323,
+            "fp": 453,
+            "fn": 104,
+            "precision": 0.4162371134020619,
+            "recall": 0.7564402810304449,
+            "f1": 0.5369908561928513,
+            "ignored_outputs": 36,
+            "idtp": 314,
+            "idfn": 113,
+            "idfp": 462,
+            "idf1": 0.5220282626766417,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 18,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 317,
+            "fp": 5225,
+            "fn": 110,
+            "precision": 0.05719956694334175,
+            "recall": 0.7423887587822015,
+            "f1": 0.10621544647344613,
+            "ignored_outputs": 48
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 313,
+              "fp": 4,
+              "fn": 114,
+              "precision": 0.9873817034700315,
+              "recall": 0.7330210772833724,
+              "f1": 0.8413978494623656,
+              "ignored_outputs": 36,
+              "idtp": 308,
+              "idfn": 119,
+              "idfp": 9,
+              "idf1": 0.8279569892473119,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 426,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 426,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 8,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 313,
+            "fp": 2,
+            "fn": 114,
+            "precision": 0.9936507936507937,
+            "recall": 0.7330210772833724,
+            "f1": 0.8436657681940701,
+            "ignored_outputs": 43,
+            "idtp": 308,
+            "idfn": 119,
+            "idfp": 7,
+            "idf1": 0.8301886792452831,
+            "id_changes": 0,
+            "fragmentations": 2,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 11
+          },
+          "published_tracks": {
+            "tp": 327,
+            "fp": 3,
+            "fn": 100,
+            "precision": 0.990909090909091,
+            "recall": 0.765807962529274,
+            "f1": 0.8639365918097754,
+            "ignored_outputs": 54,
+            "idtp": 318,
+            "idfn": 109,
+            "idfp": 12,
+            "idf1": 0.8401585204755614,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 11
+          },
+          "all_input_detections": {
+            "tp": 317,
+            "fp": 5225,
+            "fn": 110,
+            "precision": 0.05719956694334175,
+            "recall": 0.7423887587822015,
+            "f1": 0.10621544647344613,
+            "ignored_outputs": 48
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 313,
+              "fp": 2,
+              "fn": 114,
+              "precision": 0.9936507936507937,
+              "recall": 0.7330210772833724,
+              "f1": 0.8436657681940701,
+              "ignored_outputs": 43,
+              "idtp": 308,
+              "idfn": 119,
+              "idfp": 7,
+              "idf1": 0.8301886792452831,
+              "id_changes": 0,
+              "fragmentations": 2,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 11
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0003",
+      "role": "validation",
+      "scenario": "natural",
+      "scored_frames": 144,
+      "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 191,
+            "fp": 12,
+            "fn": 87,
+            "precision": 0.9408866995073891,
+            "recall": 0.6870503597122302,
+            "f1": 0.7941787941787942,
+            "ignored_outputs": 0,
+            "idtp": 191,
+            "idfn": 87,
+            "idfp": 12,
+            "idf1": 0.7941787941787942,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 3,
+            "unique_gt_ids": 8
+          },
+          "published_tracks": {
+            "tp": 191,
+            "fp": 17,
+            "fn": 87,
+            "precision": 0.9182692307692307,
+            "recall": 0.6870503597122302,
+            "f1": 0.7860082304526749,
+            "ignored_outputs": 0,
+            "idtp": 191,
+            "idfn": 87,
+            "idfp": 17,
+            "idf1": 0.7860082304526749,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 3,
+            "unique_gt_ids": 8
+          },
+          "all_input_detections": {
+            "tp": 273,
+            "fp": 2055,
+            "fn": 5,
+            "precision": 0.1172680412371134,
+            "recall": 0.9820143884892086,
+            "f1": 0.20951650038372985,
+            "ignored_outputs": 9
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 191,
+              "fp": 12,
+              "fn": 87,
+              "precision": 0.9408866995073891,
+              "recall": 0.6870503597122302,
+              "f1": 0.7941787941787942,
+              "ignored_outputs": 0,
+              "idtp": 191,
+              "idfn": 87,
+              "idfp": 12,
+              "idf1": 0.7941787941787942,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 3,
+              "unique_gt_ids": 8
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 259,
+            "fp": 19,
+            "fn": 19,
+            "precision": 0.9316546762589928,
+            "recall": 0.9316546762589928,
+            "f1": 0.9316546762589928,
+            "ignored_outputs": 6,
+            "idtp": 259,
+            "idfn": 19,
+            "idfp": 19,
+            "idf1": 0.9316546762589928,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 9,
+            "unique_gt_ids": 8
+          },
+          "published_tracks": {
+            "tp": 259,
+            "fp": 25,
+            "fn": 19,
+            "precision": 0.9119718309859155,
+            "recall": 0.9316546762589928,
+            "f1": 0.9217081850533808,
+            "ignored_outputs": 6,
+            "idtp": 259,
+            "idfn": 19,
+            "idfp": 25,
+            "idf1": 0.9217081850533808,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 9,
+            "unique_gt_ids": 8
+          },
+          "all_input_detections": {
+            "tp": 273,
+            "fp": 2055,
+            "fn": 5,
+            "precision": 0.1172680412371134,
+            "recall": 0.9820143884892086,
+            "f1": 0.20951650038372985,
+            "ignored_outputs": 9
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 259,
+              "fp": 19,
+              "fn": 19,
+              "precision": 0.9316546762589928,
+              "recall": 0.9316546762589928,
+              "f1": 0.9316546762589928,
+              "ignored_outputs": 6,
+              "idtp": 259,
+              "idfn": 19,
+              "idfp": 19,
+              "idf1": 0.9316546762589928,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 9,
+              "unique_gt_ids": 8
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0003",
+      "role": "validation",
+      "scenario": "dropout_3s",
+      "scored_frames": 144,
+      "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 133,
+            "fp": 0,
+            "fn": 145,
+            "precision": 1.0,
+            "recall": 0.4784172661870504,
+            "f1": 0.6472019464720195,
+            "ignored_outputs": 0,
+            "idtp": 133,
+            "idfn": 145,
+            "idfp": 0,
+            "idf1": 0.6472019464720195,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 3,
+            "unique_gt_ids": 8
+          },
+          "published_tracks": {
+            "tp": 143,
+            "fp": 0,
+            "fn": 135,
+            "precision": 1.0,
+            "recall": 0.5143884892086331,
+            "f1": 0.6793349168646081,
+            "ignored_outputs": 0,
+            "idtp": 143,
+            "idfn": 135,
+            "idfp": 0,
+            "idf1": 0.6793349168646081,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 3,
+            "unique_gt_ids": 8
+          },
+          "all_input_detections": {
+            "tp": 207,
+            "fp": 1424,
+            "fn": 71,
+            "precision": 0.12691600245248313,
+            "recall": 0.7446043165467626,
+            "f1": 0.21686746987951808,
+            "ignored_outputs": 8
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 133,
+              "fp": 0,
+              "fn": 145,
+              "precision": 1.0,
+              "recall": 0.4784172661870504,
+              "f1": 0.6472019464720195,
+              "ignored_outputs": 0,
+              "idtp": 133,
+              "idfn": 145,
+              "idfp": 0,
+              "idf1": 0.6472019464720195,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 3,
+              "unique_gt_ids": 8
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 192,
+            "fp": 1,
+            "fn": 86,
+            "precision": 0.9948186528497409,
+            "recall": 0.6906474820143885,
+            "f1": 0.8152866242038217,
+            "ignored_outputs": 5,
+            "idtp": 192,
+            "idfn": 86,
+            "idfp": 1,
+            "idf1": 0.8152866242038217,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 8,
+            "unique_gt_ids": 8
+          },
+          "published_tracks": {
+            "tp": 202,
+            "fp": 1,
+            "fn": 76,
+            "precision": 0.9950738916256158,
+            "recall": 0.7266187050359713,
+            "f1": 0.83991683991684,
+            "ignored_outputs": 5,
+            "idtp": 202,
+            "idfn": 76,
+            "idfp": 1,
+            "idf1": 0.83991683991684,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 8,
+            "unique_gt_ids": 8
+          },
+          "all_input_detections": {
+            "tp": 207,
+            "fp": 1424,
+            "fn": 71,
+            "precision": 0.12691600245248313,
+            "recall": 0.7446043165467626,
+            "f1": 0.21686746987951808,
+            "ignored_outputs": 8
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 192,
+              "fp": 1,
+              "fn": 86,
+              "precision": 0.9948186528497409,
+              "recall": 0.6906474820143885,
+              "f1": 0.8152866242038217,
+              "ignored_outputs": 5,
+              "idtp": 192,
+              "idfn": 86,
+              "idfp": 1,
+              "idf1": 0.8152866242038217,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 8,
+              "unique_gt_ids": 8
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 0,
+              "idf1": null,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 0,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0004",
+      "role": "validation",
+      "scenario": "natural",
+      "scored_frames": 314,
+      "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 571,
+            "fp": 45,
+            "fn": 201,
+            "precision": 0.926948051948052,
+            "recall": 0.7396373056994818,
+            "f1": 0.8227665706051873,
+            "ignored_outputs": 28,
+            "idtp": 562,
+            "idfn": 210,
+            "idfp": 54,
+            "idf1": 0.8097982708933718,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 30
+          },
+          "published_tracks": {
+            "tp": 571,
+            "fp": 50,
+            "fn": 201,
+            "precision": 0.9194847020933977,
+            "recall": 0.7396373056994818,
+            "f1": 0.8198133524766691,
+            "ignored_outputs": 29,
+            "idtp": 562,
+            "idfn": 210,
+            "idfp": 59,
+            "idf1": 0.8068916008614501,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 30
+          },
+          "all_input_detections": {
+            "tp": 712,
+            "fp": 5170,
+            "fn": 60,
+            "precision": 0.12104726283577015,
+            "recall": 0.9222797927461139,
+            "f1": 0.21400661256387135,
+            "ignored_outputs": 68
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 562,
+              "fp": 31,
+              "fn": 146,
+              "precision": 0.9477234401349073,
+              "recall": 0.7937853107344632,
+              "f1": 0.8639508070714835,
+              "ignored_outputs": 28,
+              "idtp": 553,
+              "idfn": 155,
+              "idfp": 40,
+              "idf1": 0.8501152959262106,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 24,
+              "unique_gt_ids": 25
+            },
+            "Pedestrian": {
+              "tp": 9,
+              "fp": 14,
+              "fn": 55,
+              "precision": 0.391304347826087,
+              "recall": 0.140625,
+              "f1": 0.20689655172413793,
+              "ignored_outputs": 0,
+              "idtp": 9,
+              "idfn": 55,
+              "idfp": 14,
+              "idf1": 0.20689655172413793,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 3,
+              "unique_gt_ids": 5
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 653,
+            "fp": 20,
+            "fn": 119,
+            "precision": 0.9702823179791976,
+            "recall": 0.8458549222797928,
+            "f1": 0.9038062283737024,
+            "ignored_outputs": 53,
+            "idtp": 653,
+            "idfn": 119,
+            "idfp": 20,
+            "idf1": 0.9038062283737024,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 29,
+            "unique_gt_ids": 30
+          },
+          "published_tracks": {
+            "tp": 656,
+            "fp": 34,
+            "fn": 116,
+            "precision": 0.9507246376811594,
+            "recall": 0.8497409326424871,
+            "f1": 0.8974008207934336,
+            "ignored_outputs": 60,
+            "idtp": 656,
+            "idfn": 116,
+            "idfp": 34,
+            "idf1": 0.8974008207934336,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 29,
+            "unique_gt_ids": 30
+          },
+          "all_input_detections": {
+            "tp": 712,
+            "fp": 5170,
+            "fn": 60,
+            "precision": 0.12104726283577015,
+            "recall": 0.9222797927461139,
+            "f1": 0.21400661256387135,
+            "ignored_outputs": 68
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 653,
+              "fp": 14,
+              "fn": 55,
+              "precision": 0.9790104947526237,
+              "recall": 0.922316384180791,
+              "f1": 0.9498181818181818,
+              "ignored_outputs": 53,
+              "idtp": 653,
+              "idfn": 55,
+              "idfp": 14,
+              "idf1": 0.9498181818181818,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 28,
+              "unique_gt_ids": 25
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 6,
+              "fn": 64,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 64,
+              "idfp": 6,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 5
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0004",
+      "role": "validation",
+      "scenario": "dropout_3s",
+      "scored_frames": 314,
+      "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 489,
+            "fp": 39,
+            "fn": 283,
+            "precision": 0.9261363636363636,
+            "recall": 0.633419689119171,
+            "f1": 0.7523076923076923,
+            "ignored_outputs": 28,
+            "idtp": 487,
+            "idfn": 285,
+            "idfp": 41,
+            "idf1": 0.7492307692307693,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 30
+          },
+          "published_tracks": {
+            "tp": 508,
+            "fp": 49,
+            "fn": 264,
+            "precision": 0.9120287253141831,
+            "recall": 0.6580310880829016,
+            "f1": 0.764484574868322,
+            "ignored_outputs": 29,
+            "idtp": 506,
+            "idfn": 266,
+            "idfp": 51,
+            "idf1": 0.7614747930775019,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 30
+          },
+          "all_input_detections": {
+            "tp": 626,
+            "fp": 4771,
+            "fn": 146,
+            "precision": 0.11599036501760238,
+            "recall": 0.810880829015544,
+            "f1": 0.20295023504619875,
+            "ignored_outputs": 68
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 480,
+              "fp": 25,
+              "fn": 228,
+              "precision": 0.9504950495049505,
+              "recall": 0.6779661016949152,
+              "f1": 0.7914262159934048,
+              "ignored_outputs": 28,
+              "idtp": 478,
+              "idfn": 230,
+              "idfp": 27,
+              "idf1": 0.7881286067600989,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 24,
+              "unique_gt_ids": 25
+            },
+            "Pedestrian": {
+              "tp": 9,
+              "fp": 14,
+              "fn": 55,
+              "precision": 0.391304347826087,
+              "recall": 0.140625,
+              "f1": 0.20689655172413793,
+              "ignored_outputs": 0,
+              "idtp": 9,
+              "idfn": 55,
+              "idfp": 14,
+              "idf1": 0.20689655172413793,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 3,
+              "unique_gt_ids": 5
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 572,
+            "fp": 19,
+            "fn": 200,
+            "precision": 0.9678510998307953,
+            "recall": 0.7409326424870466,
+            "f1": 0.8393250183418929,
+            "ignored_outputs": 53,
+            "idtp": 572,
+            "idfn": 200,
+            "idfp": 19,
+            "idf1": 0.8393250183418929,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 30
+          },
+          "published_tracks": {
+            "tp": 594,
+            "fp": 32,
+            "fn": 178,
+            "precision": 0.9488817891373802,
+            "recall": 0.7694300518134715,
+            "f1": 0.8497854077253219,
+            "ignored_outputs": 60,
+            "idtp": 594,
+            "idfn": 178,
+            "idfp": 32,
+            "idf1": 0.8497854077253219,
+            "id_changes": 0,
+            "fragmentations": 1,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 30
+          },
+          "all_input_detections": {
+            "tp": 626,
+            "fp": 4771,
+            "fn": 146,
+            "precision": 0.11599036501760238,
+            "recall": 0.810880829015544,
+            "f1": 0.20295023504619875,
+            "ignored_outputs": 68
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 572,
+              "fp": 13,
+              "fn": 136,
+              "precision": 0.9777777777777777,
+              "recall": 0.807909604519774,
+              "f1": 0.8847641144624904,
+              "ignored_outputs": 53,
+              "idtp": 572,
+              "idfn": 136,
+              "idfp": 13,
+              "idf1": 0.8847641144624904,
+              "id_changes": 0,
+              "fragmentations": 1,
+              "unique_predicted_ids": 26,
+              "unique_gt_ids": 25
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 6,
+              "fn": 64,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 64,
+              "idfp": 6,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 1,
+              "unique_gt_ids": 5
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": true
+    },
+    {
+      "sequence": "0008",
+      "role": "validation",
+      "scenario": "natural",
+      "scored_frames": 390,
+      "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 585,
+            "fp": 87,
+            "fn": 130,
+            "precision": 0.8705357142857143,
+            "recall": 0.8181818181818182,
+            "f1": 0.8435472242249459,
+            "ignored_outputs": 6,
+            "idtp": 585,
+            "idfn": 130,
+            "idfp": 87,
+            "idf1": 0.8435472242249459,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 21
+          },
+          "published_tracks": {
+            "tp": 585,
+            "fp": 87,
+            "fn": 130,
+            "precision": 0.8705357142857143,
+            "recall": 0.8181818181818182,
+            "f1": 0.8435472242249459,
+            "ignored_outputs": 6,
+            "idtp": 585,
+            "idfn": 130,
+            "idfp": 87,
+            "idf1": 0.8435472242249459,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 21
+          },
+          "all_input_detections": {
+            "tp": 703,
+            "fp": 5034,
+            "fn": 12,
+            "precision": 0.12253791180059265,
+            "recall": 0.9832167832167832,
+            "f1": 0.21791692498450094,
+            "ignored_outputs": 36
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 585,
+              "fp": 6,
+              "fn": 130,
+              "precision": 0.9898477157360406,
+              "recall": 0.8181818181818182,
+              "f1": 0.8958652373660031,
+              "ignored_outputs": 6,
+              "idtp": 585,
+              "idfn": 130,
+              "idfp": 6,
+              "idf1": 0.8958652373660031,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 17,
+              "unique_gt_ids": 21
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 81,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 81,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 678,
+            "fp": 52,
+            "fn": 37,
+            "precision": 0.9287671232876712,
+            "recall": 0.9482517482517483,
+            "f1": 0.9384083044982698,
+            "ignored_outputs": 27,
+            "idtp": 675,
+            "idfn": 40,
+            "idfp": 55,
+            "idf1": 0.9342560553633218,
+            "id_changes": 1,
+            "fragmentations": 1,
+            "unique_predicted_ids": 24,
+            "unique_gt_ids": 21
+          },
+          "published_tracks": {
+            "tp": 678,
+            "fp": 72,
+            "fn": 37,
+            "precision": 0.904,
+            "recall": 0.9482517482517483,
+            "f1": 0.9255972696245733,
+            "ignored_outputs": 30,
+            "idtp": 675,
+            "idfn": 40,
+            "idfp": 75,
+            "idf1": 0.9215017064846417,
+            "id_changes": 1,
+            "fragmentations": 1,
+            "unique_predicted_ids": 24,
+            "unique_gt_ids": 21
+          },
+          "all_input_detections": {
+            "tp": 703,
+            "fp": 5034,
+            "fn": 12,
+            "precision": 0.12253791180059265,
+            "recall": 0.9832167832167832,
+            "f1": 0.21791692498450094,
+            "ignored_outputs": 36
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 678,
+              "fp": 44,
+              "fn": 37,
+              "precision": 0.9390581717451524,
+              "recall": 0.9482517482517483,
+              "f1": 0.9436325678496869,
+              "ignored_outputs": 27,
+              "idtp": 675,
+              "idfn": 40,
+              "idfp": 47,
+              "idf1": 0.9394572025052192,
+              "id_changes": 1,
+              "fragmentations": 1,
+              "unique_predicted_ids": 22,
+              "unique_gt_ids": 21
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 8,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 2,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": false
+    },
+    {
+      "sequence": "0008",
+      "role": "validation",
+      "scenario": "dropout_3s",
+      "scored_frames": 390,
+      "model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+      "scores": {
+        "baseline": {
+          "observed_tracks": {
+            "tp": 585,
+            "fp": 87,
+            "fn": 130,
+            "precision": 0.8705357142857143,
+            "recall": 0.8181818181818182,
+            "f1": 0.8435472242249459,
+            "ignored_outputs": 3,
+            "idtp": 585,
+            "idfn": 130,
+            "idfp": 87,
+            "idf1": 0.8435472242249459,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 21
+          },
+          "published_tracks": {
+            "tp": 585,
+            "fp": 87,
+            "fn": 130,
+            "precision": 0.8705357142857143,
+            "recall": 0.8181818181818182,
+            "f1": 0.8435472242249459,
+            "ignored_outputs": 3,
+            "idtp": 585,
+            "idfn": 130,
+            "idfp": 87,
+            "idf1": 0.8435472242249459,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 27,
+            "unique_gt_ids": 21
+          },
+          "all_input_detections": {
+            "tp": 703,
+            "fp": 4889,
+            "fn": 12,
+            "precision": 0.12571530758226038,
+            "recall": 0.9832167832167832,
+            "f1": 0.22292690661170128,
+            "ignored_outputs": 30
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 585,
+              "fp": 6,
+              "fn": 130,
+              "precision": 0.9898477157360406,
+              "recall": 0.8181818181818182,
+              "f1": 0.8958652373660031,
+              "ignored_outputs": 3,
+              "idtp": 585,
+              "idfn": 130,
+              "idfp": 6,
+              "idf1": 0.8958652373660031,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 17,
+              "unique_gt_ids": 21
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 81,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 81,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 10,
+              "unique_gt_ids": 0
+            }
+          }
+        },
+        "candidate": {
+          "observed_tracks": {
+            "tp": 678,
+            "fp": 52,
+            "fn": 37,
+            "precision": 0.9287671232876712,
+            "recall": 0.9482517482517483,
+            "f1": 0.9384083044982698,
+            "ignored_outputs": 21,
+            "idtp": 675,
+            "idfn": 40,
+            "idfp": 55,
+            "idf1": 0.9342560553633218,
+            "id_changes": 1,
+            "fragmentations": 1,
+            "unique_predicted_ids": 24,
+            "unique_gt_ids": 21
+          },
+          "published_tracks": {
+            "tp": 678,
+            "fp": 72,
+            "fn": 37,
+            "precision": 0.904,
+            "recall": 0.9482517482517483,
+            "f1": 0.9255972696245733,
+            "ignored_outputs": 29,
+            "idtp": 675,
+            "idfn": 40,
+            "idfp": 75,
+            "idf1": 0.9215017064846417,
+            "id_changes": 1,
+            "fragmentations": 1,
+            "unique_predicted_ids": 24,
+            "unique_gt_ids": 21
+          },
+          "all_input_detections": {
+            "tp": 703,
+            "fp": 4889,
+            "fn": 12,
+            "precision": 0.12571530758226038,
+            "recall": 0.9832167832167832,
+            "f1": 0.22292690661170128,
+            "ignored_outputs": 30
+          },
+          "per_class_observed": {
+            "Car": {
+              "tp": 678,
+              "fp": 44,
+              "fn": 37,
+              "precision": 0.9390581717451524,
+              "recall": 0.9482517482517483,
+              "f1": 0.9436325678496869,
+              "ignored_outputs": 21,
+              "idtp": 675,
+              "idfn": 40,
+              "idfp": 47,
+              "idf1": 0.9394572025052192,
+              "id_changes": 1,
+              "fragmentations": 1,
+              "unique_predicted_ids": 22,
+              "unique_gt_ids": 21
+            },
+            "Pedestrian": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f1": 0.0,
+              "ignored_outputs": 0,
+              "idtp": 0,
+              "idfn": 0,
+              "idfp": 8,
+              "idf1": 0.0,
+              "id_changes": 0,
+              "fragmentations": 0,
+              "unique_predicted_ids": 2,
+              "unique_gt_ids": 0
+            }
+          }
+        }
+      },
+      "precision_recall_guard_pass": false,
+      "id_changes_non_regressing": false
+    }
+  ],
+  "fixed_recovery": {
+    "0000": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0001": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0002": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0005": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 1,
+      "baseline_same_id": 1,
+      "candidate_same_id": 1,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0006": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0003": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 1,
+      "baseline_same_id": 1,
+      "candidate_same_id": 1,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0004": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 1,
+      "baseline_same_id": 1,
+      "candidate_same_id": 1,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    },
+    "0008": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0
+    }
+  },
+  "integrated_parity": {
+    "sequence": "0003",
+    "frames": 144,
+    "detections": 33767,
+    "maximum_difference": 0.0,
+    "compared": "actual raw-scan integrated inference vs independent cached feature/JSON inference",
+    "training_model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544"
+  },
+  "latency": {
+    "sequence": "0004",
+    "requested_frames": 100,
+    "measured_frames": 100,
+    "voxel_backend": "numba",
+    "inference_config": {
+      "sweeps": 5,
+      "period_s": 0.1,
+      "intensity_scale": 64,
+      "score_threshold": 0.1,
+      "voxel_backend": "numba"
+    },
+    "box_quality_model_sha256": "59d86914d14d476bf4d2e7bc3650152bf08e7d9cad7885d967f843d71974e544",
+    "period_budget_ms": 100.0,
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "torch_version": "2.7.1+cu126",
+    "stages": {
+      "read_sha256_ms": {
+        "median": 2.054949989542365,
+        "p99": 2.4587029730901127
+      },
+      "compensation_ms": {
+        "median": 24.71889997832477,
+        "p99": 30.269659037003297
+      },
+      "detector_voxel_decode_ms": {
+        "median": 34.04374996898696,
+        "p99": 47.33631597016938
+      },
+      "world_box_tracker_ms": {
+        "median": 26.23350004432723,
+        "p99": 30.489025003043935
+      },
+      "box_quality_ms": {
+        "median": 21.834450017195195,
+        "p99": 25.553241994930435
+      },
+      "total_ms": {
+        "median": 88.62595004029572,
+        "p99": 104.09456102410331
+      }
+    },
+    "deadline_misses": 12,
+    "no_other_repo_inference_process": true,
+    "warmup_frames": 5,
+    "records": [
+      {
+        "frame": 100,
+        "read_sha256_ms": 2.162100048735738,
+        "compensation_ms": 24.804200045764446,
+        "detector_voxel_decode_ms": 34.29999994114041,
+        "world_box_tracker_ms": 24.869500077329576,
+        "box_quality_ms": 21.15470007993281,
+        "total_ms": 86.23719995375723,
+        "tracks": 3,
+        "source_sha256": "6fefdf018bd71a571e0ea7fb1fec6f74d378816c9874e8c6676158575156dfab"
+      },
+      {
+        "frame": 101,
+        "read_sha256_ms": 2.4415000807493925,
+        "compensation_ms": 26.839100057259202,
+        "detector_voxel_decode_ms": 34.7687000175938,
+        "world_box_tracker_ms": 23.527299985289574,
+        "box_quality_ms": 19.920899998396635,
+        "total_ms": 87.81230007298291,
+        "tracks": 3,
+        "source_sha256": "6982a568d5bfc3f591f4b8cac9d927a351ac4c1a5b3893fa8cac9f9623728f5e"
+      },
+      {
+        "frame": 102,
+        "read_sha256_ms": 2.432100009173155,
+        "compensation_ms": 28.44070002902299,
+        "detector_voxel_decode_ms": 29.572899919003248,
+        "world_box_tracker_ms": 25.07019997574389,
+        "box_quality_ms": 21.18880010675639,
+        "total_ms": 85.62869997695088,
+        "tracks": 3,
+        "source_sha256": "ad1b8bac823e1e71bf6eddeb663ae92d13ef1b06acbe2ffdbb548994cf35b998"
+      },
+      {
+        "frame": 103,
+        "read_sha256_ms": 2.5382000021636486,
+        "compensation_ms": 24.276999989524484,
+        "detector_voxel_decode_ms": 30.100699979811907,
+        "world_box_tracker_ms": 24.08630005083978,
+        "box_quality_ms": 20.2533999690786,
+        "total_ms": 81.10020007006824,
+        "tracks": 3,
+        "source_sha256": "20e00743bdfef6964a1b12fb61244c34175b3b295268cfc73706edeaa140665e"
+      },
+      {
+        "frame": 104,
+        "read_sha256_ms": 2.155399997718632,
+        "compensation_ms": 26.43349999561906,
+        "detector_voxel_decode_ms": 34.43090000655502,
+        "world_box_tracker_ms": 25.618200073949993,
+        "box_quality_ms": 21.821500035002828,
+        "total_ms": 88.79080007318407,
+        "tracks": 3,
+        "source_sha256": "d57dfa26529f44825dddbf14b6022a3d99fd87a342def29fadea36b8f7ae10bc"
+      },
+      {
+        "frame": 105,
+        "read_sha256_ms": 2.45789997279644,
+        "compensation_ms": 29.336699983105063,
+        "detector_voxel_decode_ms": 33.7874999968335,
+        "world_box_tracker_ms": 24.90590000525117,
+        "box_quality_ms": 20.83409996703267,
+        "total_ms": 90.61750001274049,
+        "tracks": 3,
+        "source_sha256": "8e20bc2c1e91490149a89bddd58467edb505d98cfe44e5730dc19b66a824e810"
+      },
+      {
+        "frame": 106,
+        "read_sha256_ms": 2.177800051867962,
+        "compensation_ms": 26.1117999907583,
+        "detector_voxel_decode_ms": 33.657200052402914,
+        "world_box_tracker_ms": 26.393499923869967,
+        "box_quality_ms": 22.440599976107478,
+        "total_ms": 88.46110000740737,
+        "tracks": 3,
+        "source_sha256": "f72460a8631bb9f893b04b4a9d304324d96f7ed6f31109d7bce70ec66f723dde"
+      },
+      {
+        "frame": 107,
+        "read_sha256_ms": 2.0437000785022974,
+        "compensation_ms": 23.05990003515035,
+        "detector_voxel_decode_ms": 32.03389991540462,
+        "world_box_tracker_ms": 24.413499981164932,
+        "box_quality_ms": 20.67579992581159,
+        "total_ms": 81.66969998273998,
+        "tracks": 3,
+        "source_sha256": "b826524f4e6d3da8ca042c5613a69c52c163867a7049e275c612df73d0f73fa8"
+      },
+      {
+        "frame": 108,
+        "read_sha256_ms": 2.017199993133545,
+        "compensation_ms": 23.04320002440363,
+        "detector_voxel_decode_ms": 32.15129999443889,
+        "world_box_tracker_ms": 24.6951999142766,
+        "box_quality_ms": 20.765900029800832,
+        "total_ms": 82.00599998235703,
+        "tracks": 4,
+        "source_sha256": "ddcb886066cd991b0f910568791d622ce380eadb7aedc517c3b15cc9ce6a90b2"
+      },
+      {
+        "frame": 109,
+        "read_sha256_ms": 2.1861999994143844,
+        "compensation_ms": 24.918699986301363,
+        "detector_voxel_decode_ms": 29.376199934631586,
+        "world_box_tracker_ms": 26.226600049994886,
+        "box_quality_ms": 22.342300042510033,
+        "total_ms": 82.81430008355528,
+        "tracks": 4,
+        "source_sha256": "bd9321c43686b1451058b3b8569d4d10c32951cbb9e612884dffe0dc0056d658"
+      },
+      {
+        "frame": 110,
+        "read_sha256_ms": 2.1260998910292983,
+        "compensation_ms": 22.894400055520236,
+        "detector_voxel_decode_ms": 30.763300019316375,
+        "world_box_tracker_ms": 23.389099980704486,
+        "box_quality_ms": 19.476599991321564,
+        "total_ms": 79.27479990758002,
+        "tracks": 4,
+        "source_sha256": "df0239c6f1e9605120a867867a1ac4d18d0d6158c6919213a00779c7bba09e67"
+      },
+      {
+        "frame": 111,
+        "read_sha256_ms": 2.0499000092968345,
+        "compensation_ms": 23.34539999719709,
+        "detector_voxel_decode_ms": 30.853600008413196,
+        "world_box_tracker_ms": 22.404099931009114,
+        "box_quality_ms": 18.741399981081486,
+        "total_ms": 78.75430001877248,
+        "tracks": 4,
+        "source_sha256": "3a64d439befc79ddd9c834d2ec970b715aadd9167129febe0a4fb243cf5d9f5e"
+      },
+      {
+        "frame": 112,
+        "read_sha256_ms": 2.1195999579504132,
+        "compensation_ms": 23.92479998525232,
+        "detector_voxel_decode_ms": 29.740000027231872,
+        "world_box_tracker_ms": 22.95440004672855,
+        "box_quality_ms": 19.06059996690601,
+        "total_ms": 78.8577999919653,
+        "tracks": 3,
+        "source_sha256": "d1c7b66d789eb08d1fe59ad4b2fabefe8c6bd1e1e94d77cb8d9d13ab1543c797"
+      },
+      {
+        "frame": 113,
+        "read_sha256_ms": 2.105999970808625,
+        "compensation_ms": 23.19480001460761,
+        "detector_voxel_decode_ms": 32.222699956037104,
+        "world_box_tracker_ms": 22.30860001873225,
+        "box_quality_ms": 18.560700002126396,
+        "total_ms": 79.9307000124827,
+        "tracks": 3,
+        "source_sha256": "68dbfdcfe1b1d1de18d14166f7370950a2d3fe4eab7ad20c75e4f168d5208eec"
+      },
+      {
+        "frame": 114,
+        "read_sha256_ms": 1.9529999699443579,
+        "compensation_ms": 23.343499982729554,
+        "detector_voxel_decode_ms": 29.49300000909716,
+        "world_box_tracker_ms": 22.54869998432696,
+        "box_quality_ms": 18.621700000949204,
+        "total_ms": 77.43699999991804,
+        "tracks": 3,
+        "source_sha256": "f49aa7b35e143a6579aa108f7e353decc18a986fb0040ab9bde1c2379afc95e4"
+      },
+      {
+        "frame": 115,
+        "read_sha256_ms": 2.005999907851219,
+        "compensation_ms": 23.362800013273954,
+        "detector_voxel_decode_ms": 30.379099887795746,
+        "world_box_tracker_ms": 22.44960004463792,
+        "box_quality_ms": 18.56320002116263,
+        "total_ms": 78.31909996457398,
+        "tracks": 3,
+        "source_sha256": "bb8b3047a9deb1b707fca01ea897d64e5bd01dc1de8805c545b15b52a2efae92"
+      },
+      {
+        "frame": 116,
+        "read_sha256_ms": 1.9413999980315566,
+        "compensation_ms": 23.958100005984306,
+        "detector_voxel_decode_ms": 28.390199993737042,
+        "world_box_tracker_ms": 23.88350002001971,
+        "box_quality_ms": 20.02090006135404,
+        "total_ms": 78.27759999781847,
+        "tracks": 3,
+        "source_sha256": "7de0dd7005ce556f2daa9a17a8b27b30479d3597d325a7a0467b1b20780c4e95"
+      },
+      {
+        "frame": 117,
+        "read_sha256_ms": 2.046799985691905,
+        "compensation_ms": 23.482399992644787,
+        "detector_voxel_decode_ms": 29.985700035467744,
+        "world_box_tracker_ms": 18.977300031110644,
+        "box_quality_ms": 16.340999980457127,
+        "total_ms": 74.58279991988093,
+        "tracks": 3,
+        "source_sha256": "7c7a74dcca9dada0e0ff1bcb254be696ab5e61994e2043586836db1461bc00a9"
+      },
+      {
+        "frame": 118,
+        "read_sha256_ms": 1.8364000134170055,
+        "compensation_ms": 23.692799964919686,
+        "detector_voxel_decode_ms": 28.66019995417446,
+        "world_box_tracker_ms": 19.866400049068034,
+        "box_quality_ms": 16.532600042410195,
+        "total_ms": 74.15820006281137,
+        "tracks": 4,
+        "source_sha256": "c20acd889a0124fe2a29dc0031e0e53539e61cbf839407e5994fd2fd9f80e860"
+      },
+      {
+        "frame": 119,
+        "read_sha256_ms": 2.005699905566871,
+        "compensation_ms": 23.875900078564882,
+        "detector_voxel_decode_ms": 28.92549999523908,
+        "world_box_tracker_ms": 17.181799979880452,
+        "box_quality_ms": 14.930500066839159,
+        "total_ms": 72.08309997804463,
+        "tracks": 4,
+        "source_sha256": "63164c4f8023b60f4c57850de5ce286ab731592aa65f7bac471c53a8f4a71fc0"
+      },
+      {
+        "frame": 120,
+        "read_sha256_ms": 2.066300017759204,
+        "compensation_ms": 25.150599889457226,
+        "detector_voxel_decode_ms": 28.152900049462914,
+        "world_box_tracker_ms": 17.6414999878034,
+        "box_quality_ms": 14.729100046679378,
+        "total_ms": 73.11340002343059,
+        "tracks": 4,
+        "source_sha256": "b3c644d70ef081bcc9fb7f3af1328f61b2bd8cd7af29438156a66e2b949e154b"
+      },
+      {
+        "frame": 121,
+        "read_sha256_ms": 2.0009001018479466,
+        "compensation_ms": 24.022300029173493,
+        "detector_voxel_decode_ms": 29.47810001205653,
+        "world_box_tracker_ms": 19.851700053550303,
+        "box_quality_ms": 16.420300002209842,
+        "total_ms": 75.44939999934286,
+        "tracks": 4,
+        "source_sha256": "894e5f85e4b4c7bfac751ed0a9973d9f2c8acee8dfd66b00eda5f87c71f48920"
+      },
+      {
+        "frame": 122,
+        "read_sha256_ms": 2.225800068117678,
+        "compensation_ms": 23.738599964417517,
+        "detector_voxel_decode_ms": 29.218400013633072,
+        "world_box_tracker_ms": 22.05820009112358,
+        "box_quality_ms": 18.571099964901805,
+        "total_ms": 77.3572000907734,
+        "tracks": 4,
+        "source_sha256": "223804dc62b2bc3a080f98f09be2752d15e7b4402b51f8c4d0e43babf276d70f"
+      },
+      {
+        "frame": 123,
+        "read_sha256_ms": 2.0769000984728336,
+        "compensation_ms": 26.79329994134605,
+        "detector_voxel_decode_ms": 28.539099963381886,
+        "world_box_tracker_ms": 20.279099931940436,
+        "box_quality_ms": 16.867100028321147,
+        "total_ms": 77.78950000647455,
+        "tracks": 6,
+        "source_sha256": "f4744152254ff3380f94fa30571206422e2ccfbdba07f5072c130c86251dad6e"
+      },
+      {
+        "frame": 124,
+        "read_sha256_ms": 2.0124000729992986,
+        "compensation_ms": 24.71879997756332,
+        "detector_voxel_decode_ms": 28.551299939863384,
+        "world_box_tracker_ms": 20.375599968247116,
+        "box_quality_ms": 16.959200031124055,
+        "total_ms": 75.78710000962019,
+        "tracks": 6,
+        "source_sha256": "44721a4e75248e9d8d9700b6841bad4dc9eaf394512c76c9a53cbab2ca52a583"
+      },
+      {
+        "frame": 125,
+        "read_sha256_ms": 1.9736000103875995,
+        "compensation_ms": 23.673699935898185,
+        "detector_voxel_decode_ms": 29.69849994406104,
+        "world_box_tracker_ms": 19.002199987880886,
+        "box_quality_ms": 15.397400013171136,
+        "total_ms": 74.45880002342165,
+        "tracks": 6,
+        "source_sha256": "90154d381b9154b7793a910feb18117f3881c01cf5795f9ad3e3abf22e5172ac"
+      },
+      {
+        "frame": 126,
+        "read_sha256_ms": 1.994399935938418,
+        "compensation_ms": 24.100500042550266,
+        "detector_voxel_decode_ms": 29.390799929387867,
+        "world_box_tracker_ms": 21.516900043934584,
+        "box_quality_ms": 17.750600003637373,
+        "total_ms": 77.11539999581873,
+        "tracks": 6,
+        "source_sha256": "a16c023d9721d5fe52dce4b89658cda445864c3e21823d0840aeae67cefda443"
+      },
+      {
+        "frame": 127,
+        "read_sha256_ms": 2.077499986626208,
+        "compensation_ms": 23.986199987120926,
+        "detector_voxel_decode_ms": 29.466399922966957,
+        "world_box_tracker_ms": 20.36009996663779,
+        "box_quality_ms": 16.839099931530654,
+        "total_ms": 76.00559992715716,
+        "tracks": 6,
+        "source_sha256": "2ad8804598b50fbf8ce9a30ed1b6785f1383729764e6cf0bdc7743b30c1462bc"
+      },
+      {
+        "frame": 128,
+        "read_sha256_ms": 2.00159999076277,
+        "compensation_ms": 24.53529997728765,
+        "detector_voxel_decode_ms": 28.03759998641908,
+        "world_box_tracker_ms": 19.689700100570917,
+        "box_quality_ms": 16.822499921545386,
+        "total_ms": 74.36079997569323,
+        "tracks": 6,
+        "source_sha256": "7acb144c36f09f65f2d877f4dcd6c5c39d8c3c2bdf5074349c88cb2b30bdb96c"
+      },
+      {
+        "frame": 129,
+        "read_sha256_ms": 1.9892000127583742,
+        "compensation_ms": 24.81860003899783,
+        "detector_voxel_decode_ms": 30.016599921509624,
+        "world_box_tracker_ms": 22.326000034809113,
+        "box_quality_ms": 18.394600017927587,
+        "total_ms": 79.26490006502718,
+        "tracks": 6,
+        "source_sha256": "d58f148a93fd26f9e40fb7eb2a06072f837bbdddba64273689529a58b75c4812"
+      },
+      {
+        "frame": 130,
+        "read_sha256_ms": 2.0855999318882823,
+        "compensation_ms": 24.92360002361238,
+        "detector_voxel_decode_ms": 32.63660008087754,
+        "world_box_tracker_ms": 24.26409989129752,
+        "box_quality_ms": 20.279500051401556,
+        "total_ms": 84.0313999215141,
+        "tracks": 8,
+        "source_sha256": "1b3218716f1dcb8e060c565f0eb33ba738035ad582f3728a17760f3eea5a0e80"
+      },
+      {
+        "frame": 131,
+        "read_sha256_ms": 1.981800072826445,
+        "compensation_ms": 24.6329999063164,
+        "detector_voxel_decode_ms": 28.99489994160831,
+        "world_box_tracker_ms": 25.274400017224252,
+        "box_quality_ms": 20.6658000824973,
+        "total_ms": 80.98880003672093,
+        "tracks": 7,
+        "source_sha256": "66a5f7f67d6f3d8bdec6feb29162dc27cd2c123658acd411f6953e94144d98cd"
+      },
+      {
+        "frame": 132,
+        "read_sha256_ms": 2.235200023278594,
+        "compensation_ms": 25.953999953344464,
+        "detector_voxel_decode_ms": 33.13610004261136,
+        "world_box_tracker_ms": 26.454799924977124,
+        "box_quality_ms": 22.259299992583692,
+        "total_ms": 87.88589993491769,
+        "tracks": 7,
+        "source_sha256": "d3ee3e06fdac6c3dd724e5ebf8c2e3088735f66c75d85557dd05f3020c074ab6"
+      },
+      {
+        "frame": 133,
+        "read_sha256_ms": 2.3669999791309237,
+        "compensation_ms": 31.11700003501028,
+        "detector_voxel_decode_ms": 34.91529996972531,
+        "world_box_tracker_ms": 24.479600018821657,
+        "box_quality_ms": 20.218700054101646,
+        "total_ms": 93.02500006742775,
+        "tracks": 7,
+        "source_sha256": "9352457f137a540ace7bc9915e747f28b8c43f72c7dc50a7a5160f3faf6997cb"
+      },
+      {
+        "frame": 134,
+        "read_sha256_ms": 2.387999906204641,
+        "compensation_ms": 26.49710001423955,
+        "detector_voxel_decode_ms": 31.569500104524195,
+        "world_box_tracker_ms": 24.23290000297129,
+        "box_quality_ms": 19.864700036123395,
+        "total_ms": 84.80979991145432,
+        "tracks": 6,
+        "source_sha256": "786c318222c35fc88a50b0e3f46bba11bcb992d320e802118984f8b781374678"
+      },
+      {
+        "frame": 135,
+        "read_sha256_ms": 1.954499981366098,
+        "compensation_ms": 24.46420001797378,
+        "detector_voxel_decode_ms": 40.50509992521256,
+        "world_box_tracker_ms": 25.371500058099627,
+        "box_quality_ms": 20.866099977865815,
+        "total_ms": 92.41540008224547,
+        "tracks": 6,
+        "source_sha256": "44bb98d9a0b37860be7ce8fd862b627b066fcdb261c1a82e3600355b694dd8aa"
+      },
+      {
+        "frame": 136,
+        "read_sha256_ms": 2.0713000558316708,
+        "compensation_ms": 24.663800024427474,
+        "detector_voxel_decode_ms": 30.222300090827048,
+        "world_box_tracker_ms": 27.667099959217012,
+        "box_quality_ms": 22.903600009158254,
+        "total_ms": 84.72320006694645,
+        "tracks": 7,
+        "source_sha256": "1690375521b577f75ffc9065a75bcf445a2df64ad8e1f74c2bf5dfadfe0672e6"
+      },
+      {
+        "frame": 137,
+        "read_sha256_ms": 1.9332999363541603,
+        "compensation_ms": 27.73560001514852,
+        "detector_voxel_decode_ms": 34.34459993150085,
+        "world_box_tracker_ms": 29.50020006392151,
+        "box_quality_ms": 24.53529997728765,
+        "total_ms": 93.66359992418438,
+        "tracks": 7,
+        "source_sha256": "6ba2bf341b329a2aa7a7e096cb6d6f2811cedb153635b14c2b2bf1e79a3e3793"
+      },
+      {
+        "frame": 138,
+        "read_sha256_ms": 2.3092000046744943,
+        "compensation_ms": 28.632299974560738,
+        "detector_voxel_decode_ms": 35.04039999097586,
+        "world_box_tracker_ms": 28.16099999472499,
+        "box_quality_ms": 23.66420009639114,
+        "total_ms": 94.36210000421852,
+        "tracks": 7,
+        "source_sha256": "d202b89429a7089ea1f1a107f4f6cffb6f77e2603bcc9b4ae9349cc2e290a5e5"
+      },
+      {
+        "frame": 139,
+        "read_sha256_ms": 2.1606000373139977,
+        "compensation_ms": 27.109700022265315,
+        "detector_voxel_decode_ms": 33.57760002836585,
+        "world_box_tracker_ms": 27.81400003004819,
+        "box_quality_ms": 23.187800077721477,
+        "total_ms": 90.76910000294447,
+        "tracks": 7,
+        "source_sha256": "2ad0af5eed5e8b94645461a378f4bd41dbe2cf8bc82639122ffa0ba9cfca2031"
+      },
+      {
+        "frame": 140,
+        "read_sha256_ms": 2.0314999856054783,
+        "compensation_ms": 24.98890005517751,
+        "detector_voxel_decode_ms": 29.33279995340854,
+        "world_box_tracker_ms": 27.04800001811236,
+        "box_quality_ms": 22.09110010880977,
+        "total_ms": 83.52820004802197,
+        "tracks": 7,
+        "source_sha256": "e85d120cbdc02e4e9676af255519ed2eaad7ffa529fc7437b202cb726acf1943"
+      },
+      {
+        "frame": 141,
+        "read_sha256_ms": 2.1190999541431665,
+        "compensation_ms": 26.785099995322526,
+        "detector_voxel_decode_ms": 29.99810001347214,
+        "world_box_tracker_ms": 26.696000015363097,
+        "box_quality_ms": 22.10399997420609,
+        "total_ms": 85.69899993017316,
+        "tracks": 7,
+        "source_sha256": "a6782c550d4c97564033bdc0e54b60870e9ea2e68e853ff4ebf852385a2686c4"
+      },
+      {
+        "frame": 142,
+        "read_sha256_ms": 2.074899966828525,
+        "compensation_ms": 25.464100064709783,
+        "detector_voxel_decode_ms": 29.327700030989945,
+        "world_box_tracker_ms": 30.157399945892394,
+        "box_quality_ms": 25.100600090809166,
+        "total_ms": 87.1398999588564,
+        "tracks": 7,
+        "source_sha256": "7bb5ff9c509b2ac64e1a1385eb1f1edcd63c34eefd9bb4c3953c422d25cb3383"
+      },
+      {
+        "frame": 143,
+        "read_sha256_ms": 2.0135000813752413,
+        "compensation_ms": 24.759700056165457,
+        "detector_voxel_decode_ms": 30.162899987772107,
+        "world_box_tracker_ms": 27.45389996562153,
+        "box_quality_ms": 22.531199967488647,
+        "total_ms": 84.50350002385676,
+        "tracks": 7,
+        "source_sha256": "614e2c8dea22d4c97269e823e75bcecabe0e27ccc0a725d8d84545dd9d7fce01"
+      },
+      {
+        "frame": 144,
+        "read_sha256_ms": 2.093199989758432,
+        "compensation_ms": 25.793000007979572,
+        "detector_voxel_decode_ms": 30.221400083974004,
+        "world_box_tracker_ms": 27.714800089597702,
+        "box_quality_ms": 22.925899946130812,
+        "total_ms": 85.97210003063083,
+        "tracks": 8,
+        "source_sha256": "b3363aa1717ae5a4ab83044b6dcfc2060ea14671c7ab784354070c917b8d69fe"
+      },
+      {
+        "frame": 145,
+        "read_sha256_ms": 2.085499931126833,
+        "compensation_ms": 25.122500024735928,
+        "detector_voxel_decode_ms": 29.426699969917536,
+        "world_box_tracker_ms": 25.859700050204992,
+        "box_quality_ms": 21.226300043053925,
+        "total_ms": 82.61689997743815,
+        "tracks": 8,
+        "source_sha256": "54baaceccc8d27c7f6187c4124af96584c460a85b8c910679e82ac4c9536e004"
+      },
+      {
+        "frame": 146,
+        "read_sha256_ms": 1.9793999381363392,
+        "compensation_ms": 24.057799950242043,
+        "detector_voxel_decode_ms": 29.89160001743585,
+        "world_box_tracker_ms": 27.62890001758933,
+        "box_quality_ms": 23.78130005672574,
+        "total_ms": 83.67600000929087,
+        "tracks": 8,
+        "source_sha256": "32b645b78e9aff5f95f80f6d9a0cae40a2b27f7792f460f61d54b99a887299ce"
+      },
+      {
+        "frame": 147,
+        "read_sha256_ms": 2.0692000398412347,
+        "compensation_ms": 24.48230003938079,
+        "detector_voxel_decode_ms": 28.76839996315539,
+        "world_box_tracker_ms": 24.76639999076724,
+        "box_quality_ms": 20.14089992735535,
+        "total_ms": 80.211800057441,
+        "tracks": 8,
+        "source_sha256": "1cb2bbd827ab8eb9edecf1904a9284f035d76afbd03cd4d2459dd8597bff3af7"
+      },
+      {
+        "frame": 148,
+        "read_sha256_ms": 2.071599941700697,
+        "compensation_ms": 23.940199986100197,
+        "detector_voxel_decode_ms": 28.487099916674197,
+        "world_box_tracker_ms": 25.69280005991459,
+        "box_quality_ms": 20.95859998371452,
+        "total_ms": 80.31320001464337,
+        "tracks": 8,
+        "source_sha256": "f2e240d596659efdee405fa6dd3998a4553ec7b753016c061b1a29b612a2e9b8"
+      },
+      {
+        "frame": 149,
+        "read_sha256_ms": 2.20320001244545,
+        "compensation_ms": 25.921800057403743,
+        "detector_voxel_decode_ms": 29.048900003544986,
+        "world_box_tracker_ms": 24.1339000640437,
+        "box_quality_ms": 19.679900025948882,
+        "total_ms": 81.42429997678846,
+        "tracks": 9,
+        "source_sha256": "14e5c1a7272ac0fad863c77678e8ceef7f38c56ad7c6aa283a1c90423e281c88"
+      },
+      {
+        "frame": 150,
+        "read_sha256_ms": 2.0669000223279,
+        "compensation_ms": 23.982500075362623,
+        "detector_voxel_decode_ms": 30.676799942739308,
+        "world_box_tracker_ms": 24.119900073856115,
+        "box_quality_ms": 19.784800009801984,
+        "total_ms": 80.93980001285672,
+        "tracks": 9,
+        "source_sha256": "304295904b42beae46b32e0d517d33dd9963ff3f50c2035c5cce276f1755df18"
+      },
+      {
+        "frame": 151,
+        "read_sha256_ms": 2.0291999680921435,
+        "compensation_ms": 25.44230001512915,
+        "detector_voxel_decode_ms": 32.0631000213325,
+        "world_box_tracker_ms": 26.989800040610135,
+        "box_quality_ms": 22.146399947814643,
+        "total_ms": 86.64109988603741,
+        "tracks": 9,
+        "source_sha256": "408c2f74a802f4e1c93bed73039bc80dd57881a2c494e01ecfcc2f7de185eb90"
+      },
+      {
+        "frame": 152,
+        "read_sha256_ms": 2.297300030477345,
+        "compensation_ms": 25.547900004312396,
+        "detector_voxel_decode_ms": 28.797299950383604,
+        "world_box_tracker_ms": 21.855999948456883,
+        "box_quality_ms": 18.378300010226667,
+        "total_ms": 78.61600001342595,
+        "tracks": 9,
+        "source_sha256": "013b61249bad9654dc39cfaf0d3abf5a75c89fbb8b9cdee2e621a8bafd8e3744"
+      },
+      {
+        "frame": 153,
+        "read_sha256_ms": 2.033199998550117,
+        "compensation_ms": 24.33389995712787,
+        "detector_voxel_decode_ms": 30.84689995739609,
+        "world_box_tracker_ms": 24.546800064854324,
+        "box_quality_ms": 20.068100071512163,
+        "total_ms": 81.86130004469305,
+        "tracks": 8,
+        "source_sha256": "a8bf34ab9ea7c09859a5ab143a033210ad868af55a3c3ef11c5023d048e7b158"
+      },
+      {
+        "frame": 154,
+        "read_sha256_ms": 1.9786999328061938,
+        "compensation_ms": 27.315099956467748,
+        "detector_voxel_decode_ms": 30.508399941027164,
+        "world_box_tracker_ms": 23.691600072197616,
+        "box_quality_ms": 19.239199929870665,
+        "total_ms": 83.59910000581294,
+        "tracks": 8,
+        "source_sha256": "855112544a27c5d0f99216a54fba882a6457cede417edfcd4a475c1c6baa28ce"
+      },
+      {
+        "frame": 155,
+        "read_sha256_ms": 1.9873999990522861,
+        "compensation_ms": 25.6674000993371,
+        "detector_voxel_decode_ms": 31.620899913832545,
+        "world_box_tracker_ms": 24.116700049489737,
+        "box_quality_ms": 19.750199979171157,
+        "total_ms": 83.48530007060617,
+        "tracks": 7,
+        "source_sha256": "a2b8b8781d0db9a5239262c1be2859167aa6a5dd4d6a2198533a44229792500c"
+      },
+      {
+        "frame": 156,
+        "read_sha256_ms": 2.008599927648902,
+        "compensation_ms": 24.59919999819249,
+        "detector_voxel_decode_ms": 29.60270002949983,
+        "world_box_tracker_ms": 25.24820005055517,
+        "box_quality_ms": 20.83579997997731,
+        "total_ms": 81.55270002316684,
+        "tracks": 7,
+        "source_sha256": "02646dbc894211de1513c2e4b4a199e4967521a264a3030d7615ce5c8637e57e"
+      },
+      {
+        "frame": 157,
+        "read_sha256_ms": 2.135500079020858,
+        "compensation_ms": 24.572599912062287,
+        "detector_voxel_decode_ms": 45.010200003162026,
+        "world_box_tracker_ms": 26.706699980422854,
+        "box_quality_ms": 22.109700017608702,
+        "total_ms": 98.52740005590022,
+        "tracks": 8,
+        "source_sha256": "3804a609f6a156b2014150cef82c973e0e0443c348d62383157e0250652af04d"
+      },
+      {
+        "frame": 158,
+        "read_sha256_ms": 2.158900024369359,
+        "compensation_ms": 25.31149995047599,
+        "detector_voxel_decode_ms": 44.12469989620149,
+        "world_box_tracker_ms": 23.999600089155138,
+        "box_quality_ms": 19.811399979516864,
+        "total_ms": 95.7118000369519,
+        "tracks": 8,
+        "source_sha256": "d7313f5939bc5ca54d5b7ccc4ac2da31ed9eae30a0d0db4784d030dc7227365e"
+      },
+      {
+        "frame": 159,
+        "read_sha256_ms": 2.0352000137791038,
+        "compensation_ms": 25.31619998626411,
+        "detector_voxel_decode_ms": 44.13020005449653,
+        "world_box_tracker_ms": 25.425200001336634,
+        "box_quality_ms": 21.052900003269315,
+        "total_ms": 97.00430009979755,
+        "tracks": 8,
+        "source_sha256": "ba1d84e4ba58297267628e59fcd9009a9c6f2971d10a92890e4afa0aae7c3d51"
+      },
+      {
+        "frame": 160,
+        "read_sha256_ms": 2.135500079020858,
+        "compensation_ms": 25.071299984119833,
+        "detector_voxel_decode_ms": 44.57110003568232,
+        "world_box_tracker_ms": 26.780599961057305,
+        "box_quality_ms": 22.36499998252839,
+        "total_ms": 98.6534000840038,
+        "tracks": 8,
+        "source_sha256": "076ca8f592d84456cbac57edf2765a5c94bc0f1ae6d604f9e722c9ed42ce3468"
+      },
+      {
+        "frame": 161,
+        "read_sha256_ms": 2.0666999043896794,
+        "compensation_ms": 24.749200092628598,
+        "detector_voxel_decode_ms": 41.7054999852553,
+        "world_box_tracker_ms": 26.061000069603324,
+        "box_quality_ms": 21.915000048466027,
+        "total_ms": 94.70069990493357,
+        "tracks": 8,
+        "source_sha256": "48b5d68d0e659dd32fbc4cc865589d33541e82ea055323ca80b82ce73d6d3697"
+      },
+      {
+        "frame": 162,
+        "read_sha256_ms": 2.0682000322267413,
+        "compensation_ms": 24.533199961297214,
+        "detector_voxel_decode_ms": 44.23749994020909,
+        "world_box_tracker_ms": 27.222099946811795,
+        "box_quality_ms": 22.431899909861386,
+        "total_ms": 98.18380000069737,
+        "tracks": 7,
+        "source_sha256": "6d1b949b193b889d5e6500ecfebb627cb244e877909e3951076780b4b018f370"
+      },
+      {
+        "frame": 163,
+        "read_sha256_ms": 2.046199981123209,
+        "compensation_ms": 24.63630004785955,
+        "detector_voxel_decode_ms": 41.04889999143779,
+        "world_box_tracker_ms": 28.861899976618588,
+        "box_quality_ms": 24.272700073197484,
+        "total_ms": 96.70080000068992,
+        "tracks": 7,
+        "source_sha256": "13a0e91b9865179600551a1377d4d5330f32ef1d5dbdf9b744a71134b1b3f0dd"
+      },
+      {
+        "frame": 164,
+        "read_sha256_ms": 2.028499962761998,
+        "compensation_ms": 24.628999992273748,
+        "detector_voxel_decode_ms": 41.66560003068298,
+        "world_box_tracker_ms": 26.240400038659573,
+        "box_quality_ms": 21.847399999387562,
+        "total_ms": 94.66100006829947,
+        "tracks": 7,
+        "source_sha256": "0c9490882a1f53c474acdda541786ea9a63478c69e3fbf7e8816343dba0c40c4"
+      },
+      {
+        "frame": 165,
+        "read_sha256_ms": 2.0022999960929155,
+        "compensation_ms": 25.912199984304607,
+        "detector_voxel_decode_ms": 42.00769995804876,
+        "world_box_tracker_ms": 26.607700041495264,
+        "box_quality_ms": 22.1454999409616,
+        "total_ms": 96.63620009087026,
+        "tracks": 7,
+        "source_sha256": "5c93617ae344bdfda9343f5179ae836fd75a13cec27bba102b6e3e719d583ba0"
+      },
+      {
+        "frame": 166,
+        "read_sha256_ms": 2.0599999697878957,
+        "compensation_ms": 24.96339997742325,
+        "detector_voxel_decode_ms": 41.28220002166927,
+        "world_box_tracker_ms": 26.661799987778068,
+        "box_quality_ms": 22.109200013801455,
+        "total_ms": 95.07129993289709,
+        "tracks": 8,
+        "source_sha256": "a08ffcd4625371d47681a52fe03655d98fceb6e0f55605948bcdfb8490794cdb"
+      },
+      {
+        "frame": 167,
+        "read_sha256_ms": 2.4262999650090933,
+        "compensation_ms": 24.946400080807507,
+        "detector_voxel_decode_ms": 41.417600004933774,
+        "world_box_tracker_ms": 24.906200007535517,
+        "box_quality_ms": 20.52429993636906,
+        "total_ms": 93.79900002386421,
+        "tracks": 8,
+        "source_sha256": "a3b7f8c4a508a22cb6b8077b023a90903e0b61d82803c72773e03076afc1d284"
+      },
+      {
+        "frame": 168,
+        "read_sha256_ms": 2.0650000078603625,
+        "compensation_ms": 24.968199897557497,
+        "detector_voxel_decode_ms": 41.46159999072552,
+        "world_box_tracker_ms": 26.614399976097047,
+        "box_quality_ms": 21.82089991401881,
+        "total_ms": 95.21099994890392,
+        "tracks": 9,
+        "source_sha256": "714a9dd63e430ee3af780a7b33ec035222415bc26dae7180466127aa2bdb2552"
+      },
+      {
+        "frame": 169,
+        "read_sha256_ms": 2.158600022085011,
+        "compensation_ms": 26.155399973504245,
+        "detector_voxel_decode_ms": 42.110800044611096,
+        "world_box_tracker_ms": 26.21839998755604,
+        "box_quality_ms": 21.221500006504357,
+        "total_ms": 96.7481000116095,
+        "tracks": 8,
+        "source_sha256": "eadc00ca9853dcacc807934445fa35a1cd3c95334252a023c24e94586faeedfa"
+      },
+      {
+        "frame": 170,
+        "read_sha256_ms": 2.3308999370783567,
+        "compensation_ms": 30.261100037023425,
+        "detector_voxel_decode_ms": 42.95439994893968,
+        "world_box_tracker_ms": 27.72410004399717,
+        "box_quality_ms": 22.67310000024736,
+        "total_ms": 103.39699999894947,
+        "tracks": 8,
+        "source_sha256": "530aabb65582a593648ea18c84f4a403539a213038fa144ce669c9890a44040f"
+      },
+      {
+        "frame": 171,
+        "read_sha256_ms": 2.1407000022009015,
+        "compensation_ms": 25.202599936164916,
+        "detector_voxel_decode_ms": 42.210200102999806,
+        "world_box_tracker_ms": 27.72250003181398,
+        "box_quality_ms": 22.66719995532185,
+        "total_ms": 97.36819996032864,
+        "tracks": 8,
+        "source_sha256": "74f13839f16b84469fe45b049a787a9ff7ed0f439956c41c5c9c00a1a2c0c94c"
+      },
+      {
+        "frame": 172,
+        "read_sha256_ms": 2.2884999634698033,
+        "compensation_ms": 25.795600027777255,
+        "detector_voxel_decode_ms": 41.48369992617518,
+        "world_box_tracker_ms": 24.238800047896802,
+        "box_quality_ms": 20.857000024989247,
+        "total_ms": 93.92090002074838,
+        "tracks": 8,
+        "source_sha256": "a55c11edfa0b508a1cb951624e21c0618f7029b779bea58e5ca2ef56083f15e4"
+      },
+      {
+        "frame": 173,
+        "read_sha256_ms": 1.981999957934022,
+        "compensation_ms": 26.087100035510957,
+        "detector_voxel_decode_ms": 41.150800068862736,
+        "world_box_tracker_ms": 27.09850005339831,
+        "box_quality_ms": 22.423700080253184,
+        "total_ms": 96.42219997476786,
+        "tracks": 8,
+        "source_sha256": "e2207e4ebc85be08eeb9d5773bffda62bc19de8ad9a799c8540cbc2bb30730c9"
+      },
+      {
+        "frame": 174,
+        "read_sha256_ms": 2.000699983909726,
+        "compensation_ms": 26.073899934999645,
+        "detector_voxel_decode_ms": 41.68629995547235,
+        "world_box_tracker_ms": 27.853699983097613,
+        "box_quality_ms": 23.14259996637702,
+        "total_ms": 97.73789998143911,
+        "tracks": 7,
+        "source_sha256": "626e5f78b4f9df48ee9afffc57c1789a5881d91a15235c1c445ee26cb0ea6c97"
+      },
+      {
+        "frame": 175,
+        "read_sha256_ms": 2.1229999838396907,
+        "compensation_ms": 26.131600025109947,
+        "detector_voxel_decode_ms": 41.46570002194494,
+        "world_box_tracker_ms": 26.68090001679957,
+        "box_quality_ms": 22.02719997148961,
+        "total_ms": 96.51750000193715,
+        "tracks": 7,
+        "source_sha256": "8eca7632839a292d5cab60e4b92d87746ed1a81d647704b052ccae0ef77dde65"
+      },
+      {
+        "frame": 176,
+        "read_sha256_ms": 1.9699999829754233,
+        "compensation_ms": 25.579600012861192,
+        "detector_voxel_decode_ms": 41.827899985946715,
+        "world_box_tracker_ms": 28.06279994547367,
+        "box_quality_ms": 23.17239996045828,
+        "total_ms": 97.56299993023276,
+        "tracks": 7,
+        "source_sha256": "c6249ad06528df67a399b544cbc7ad161c76b5640be8f2098ff8906c2b2dadbf"
+      },
+      {
+        "frame": 177,
+        "read_sha256_ms": 2.0186000037938356,
+        "compensation_ms": 24.565799976699054,
+        "detector_voxel_decode_ms": 41.39939998276532,
+        "world_box_tracker_ms": 26.86999994330108,
+        "box_quality_ms": 22.12179999332875,
+        "total_ms": 94.97630002442747,
+        "tracks": 8,
+        "source_sha256": "e2e0584263f47d954101639464f7b46a62e36fd5838847b729fd8eb76fdc8711"
+      },
+      {
+        "frame": 178,
+        "read_sha256_ms": 2.124899998307228,
+        "compensation_ms": 24.12189997266978,
+        "detector_voxel_decode_ms": 41.96229996159673,
+        "world_box_tracker_ms": 27.841700008139014,
+        "box_quality_ms": 22.571600042283535,
+        "total_ms": 96.16439999081194,
+        "tracks": 8,
+        "source_sha256": "9580906d3acd01f1862d36600cd68997afbb302dfdeaf96e6c3f67146ee13baf"
+      },
+      {
+        "frame": 179,
+        "read_sha256_ms": 2.1814999636262655,
+        "compensation_ms": 24.147000047378242,
+        "detector_voxel_decode_ms": 42.295999941416085,
+        "world_box_tracker_ms": 26.25250001437962,
+        "box_quality_ms": 21.77200000733137,
+        "total_ms": 95.00670002307743,
+        "tracks": 8,
+        "source_sha256": "f228d8b217b7df1feb8f229fa9343c08ad91b1d72c884ca1e5c9543c692e87e8"
+      },
+      {
+        "frame": 180,
+        "read_sha256_ms": 1.998299965634942,
+        "compensation_ms": 24.461900000460446,
+        "detector_voxel_decode_ms": 41.90620000008494,
+        "world_box_tracker_ms": 28.838400030508637,
+        "box_quality_ms": 24.083200027234852,
+        "total_ms": 97.32519998215139,
+        "tracks": 8,
+        "source_sha256": "9f477f7a86bec103f92108331cc0bc9ed7508bd9edeb98cfa80a7d1fe9a6a442"
+      },
+      {
+        "frame": 181,
+        "read_sha256_ms": 2.0158999832347035,
+        "compensation_ms": 24.576399940997362,
+        "detector_voxel_decode_ms": 42.11909999139607,
+        "world_box_tracker_ms": 28.93559995573014,
+        "box_quality_ms": 24.169899988919497,
+        "total_ms": 97.74819994345307,
+        "tracks": 8,
+        "source_sha256": "fb98e5eff56fcd3a3cbd9e6d0e41f64ce6ef57b6d9cd8b4c139cd358724ce399"
+      },
+      {
+        "frame": 182,
+        "read_sha256_ms": 2.034400007687509,
+        "compensation_ms": 24.780199979431927,
+        "detector_voxel_decode_ms": 41.65409994311631,
+        "world_box_tracker_ms": 29.55640002619475,
+        "box_quality_ms": 25.12659993954003,
+        "total_ms": 98.14290003851056,
+        "tracks": 8,
+        "source_sha256": "770d82c3e2a3c69f707de1f345f4ff3bb08b0a095139edf0bc9a672717bbb53c"
+      },
+      {
+        "frame": 183,
+        "read_sha256_ms": 1.960099907591939,
+        "compensation_ms": 23.881500004790723,
+        "detector_voxel_decode_ms": 43.150900048203766,
+        "world_box_tracker_ms": 27.578999986872077,
+        "box_quality_ms": 23.0403000023216,
+        "total_ms": 96.69809998013079,
+        "tracks": 8,
+        "source_sha256": "7836fe70114f4c2e8d79dff07a934cdc879075e7337b43ba80def5c134de83ac"
+      },
+      {
+        "frame": 184,
+        "read_sha256_ms": 2.0183000015094876,
+        "compensation_ms": 24.03589989989996,
+        "detector_voxel_decode_ms": 45.7462000194937,
+        "world_box_tracker_ms": 30.069999978877604,
+        "box_quality_ms": 24.913499946705997,
+        "total_ms": 101.97499999776483,
+        "tracks": 7,
+        "source_sha256": "1ef985e9937efbed5a4db8715cdf3965f1daa454325949c4e651c0166c88a45b"
+      },
+      {
+        "frame": 185,
+        "read_sha256_ms": 2.0441999658942223,
+        "compensation_ms": 23.994699935428798,
+        "detector_voxel_decode_ms": 45.13879993464798,
+        "world_box_tracker_ms": 29.07530008815229,
+        "box_quality_ms": 24.044299963861704,
+        "total_ms": 100.37020000163466,
+        "tracks": 8,
+        "source_sha256": "ee4ba854e73fc3749798f28ff35f0e99ab48c26f44576e818d9bee4199b4031b"
+      },
+      {
+        "frame": 186,
+        "read_sha256_ms": 2.028800081461668,
+        "compensation_ms": 25.254599982872605,
+        "detector_voxel_decode_ms": 42.47689992189407,
+        "world_box_tracker_ms": 27.98320003785193,
+        "box_quality_ms": 23.135000024922192,
+        "total_ms": 97.84000006038696,
+        "tracks": 9,
+        "source_sha256": "6c85457221fb206fb14adbffc8daf42937c56b7b7e5741b39f5f8816eb58e95d"
+      },
+      {
+        "frame": 187,
+        "read_sha256_ms": 2.0704999333247542,
+        "compensation_ms": 26.684700045734644,
+        "detector_voxel_decode_ms": 45.75509997084737,
+        "world_box_tracker_ms": 30.088900006376207,
+        "box_quality_ms": 25.205699959769845,
+        "total_ms": 104.71440001856536,
+        "tracks": 9,
+        "source_sha256": "770bec2ef05a691759acab2b0eac9b02ca20db9d810bb1293ce14e10217de384"
+      },
+      {
+        "frame": 188,
+        "read_sha256_ms": 2.0078999223187566,
+        "compensation_ms": 24.415699997916818,
+        "detector_voxel_decode_ms": 44.60509994532913,
+        "world_box_tracker_ms": 29.135099961422384,
+        "box_quality_ms": 24.373099906370044,
+        "total_ms": 100.28369992505759,
+        "tracks": 9,
+        "source_sha256": "331720a36802a83ac74e8bbb73e7977712fa8d413ce5f37a9e5188d383848e48"
+      },
+      {
+        "frame": 189,
+        "read_sha256_ms": 2.0389000419527292,
+        "compensation_ms": 24.681599927134812,
+        "detector_voxel_decode_ms": 45.9019000409171,
+        "world_box_tracker_ms": 28.56540004722774,
+        "box_quality_ms": 23.86429999023676,
+        "total_ms": 101.2899000197649,
+        "tracks": 9,
+        "source_sha256": "2b21d7a2a23a2b13483b948337992ad41ee82c0bf23db88d86a8779469468b7e"
+      },
+      {
+        "frame": 190,
+        "read_sha256_ms": 2.018099999986589,
+        "compensation_ms": 24.71899997908622,
+        "detector_voxel_decode_ms": 43.25550002977252,
+        "world_box_tracker_ms": 26.960000046528876,
+        "box_quality_ms": 22.297800052911043,
+        "total_ms": 97.0507999882102,
+        "tracks": 9,
+        "source_sha256": "08d8b42690e89af10a04f61a54dfdb747429bf54124592528af3a7dad6734718"
+      },
+      {
+        "frame": 191,
+        "read_sha256_ms": 2.0267999498173594,
+        "compensation_ms": 24.535699980333447,
+        "detector_voxel_decode_ms": 43.94000000320375,
+        "world_box_tracker_ms": 30.79840005375445,
+        "box_quality_ms": 26.210800046101213,
+        "total_ms": 101.4153000432998,
+        "tracks": 8,
+        "source_sha256": "f07953911c866085591856fff3ff3f3914c429b0729885fbdccd6a516cea8007"
+      },
+      {
+        "frame": 192,
+        "read_sha256_ms": 2.1967000793665648,
+        "compensation_ms": 25.05249995738268,
+        "detector_voxel_decode_ms": 45.24629993829876,
+        "world_box_tracker_ms": 27.41139999125153,
+        "box_quality_ms": 22.69520005211234,
+        "total_ms": 100.00840004067868,
+        "tracks": 8,
+        "source_sha256": "5b399a241f02db4f34ddb7dc7ce1d88af27117d1e73b3dae43062ef59308ae4d"
+      },
+      {
+        "frame": 193,
+        "read_sha256_ms": 2.023100038059056,
+        "compensation_ms": 24.941900046542287,
+        "detector_voxel_decode_ms": 43.8419000711292,
+        "world_box_tracker_ms": 28.319000033661723,
+        "box_quality_ms": 23.426200030371547,
+        "total_ms": 99.25129998009652,
+        "tracks": 9,
+        "source_sha256": "d83a57b33702297bff16c9159ba12e65422809ae1177ce61a91d88a7c578aec1"
+      },
+      {
+        "frame": 194,
+        "read_sha256_ms": 2.020800020545721,
+        "compensation_ms": 24.483999935910106,
+        "detector_voxel_decode_ms": 47.32979997061193,
+        "world_box_tracker_ms": 28.391700005158782,
+        "box_quality_ms": 23.299200111068785,
+        "total_ms": 102.32199996244162,
+        "tracks": 9,
+        "source_sha256": "2b2bbc135731554135da57a56ace870ff776aac8922d1d3182964ac83c5c2411"
+      },
+      {
+        "frame": 195,
+        "read_sha256_ms": 2.092099981382489,
+        "compensation_ms": 23.872700054198503,
+        "detector_voxel_decode_ms": 47.146799974143505,
+        "world_box_tracker_ms": 26.927200029604137,
+        "box_quality_ms": 22.189500043168664,
+        "total_ms": 100.14610004145652,
+        "tracks": 9,
+        "source_sha256": "355e9d187ac7ac0a02cbed2de204550949f73d8f8ece46ad9ae64f448614ff00"
+      },
+      {
+        "frame": 196,
+        "read_sha256_ms": 1.8927999772131443,
+        "compensation_ms": 23.645699955523014,
+        "detector_voxel_decode_ms": 44.841399998404086,
+        "world_box_tracker_ms": 27.99510001204908,
+        "box_quality_ms": 23.657700046896935,
+        "total_ms": 98.49649993702769,
+        "tracks": 9,
+        "source_sha256": "64ae7144df6c09f4cda38b0343b04f67491912d8153268666264d26f052c0dff"
+      },
+      {
+        "frame": 197,
+        "read_sha256_ms": 2.029099967330694,
+        "compensation_ms": 23.472800035960972,
+        "detector_voxel_decode_ms": 47.98139992635697,
+        "world_box_tracker_ms": 30.485900002531707,
+        "box_quality_ms": 25.546599994413555,
+        "total_ms": 104.08830002415925,
+        "tracks": 9,
+        "source_sha256": "d60b87bbf7f8a46a57a1f2f5500b47256d6319ac420afbdbb45c76994295ab83"
+      },
+      {
+        "frame": 198,
+        "read_sha256_ms": 2.040299936197698,
+        "compensation_ms": 23.83170009125024,
+        "detector_voxel_decode_ms": 45.72639998514205,
+        "world_box_tracker_ms": 27.87640003953129,
+        "box_quality_ms": 23.042500019073486,
+        "total_ms": 99.57840002607554,
+        "tracks": 9,
+        "source_sha256": "519e1cf98fd212448a198f2ac5fdde54bc220050bd5b9c4909a32d3c6f3571a5"
+      },
+      {
+        "frame": 199,
+        "read_sha256_ms": 2.0897999638691545,
+        "compensation_ms": 24.43330001551658,
+        "detector_voxel_decode_ms": 45.51089997403324,
+        "world_box_tracker_ms": 30.006600078195333,
+        "box_quality_ms": 24.11620004568249,
+        "total_ms": 102.14179998729378,
+        "tracks": 11,
+        "source_sha256": "b5c5425a5e5fc2d4e956b32800b6da75bb6cbcfc6ddc70e587703868ff2fba96"
+      }
+    ]
+  }
+}

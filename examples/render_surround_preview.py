@@ -21,7 +21,7 @@ def main():
     p.add_argument('--run-root',type=Path,required=True)
     p.add_argument('--sequence',default='0001');p.add_argument('--frame',type=int,default=120)
     p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--comparison',choices=('detector','input'),default='detector')
+    p.add_argument('--comparison',choices=('detector','input','quality'),default='detector')
     p.add_argument('--show-errors',action='store_true',help='offline front-ROI truth and TP/FP/missed coloring')
     args=p.parse_args();args.output.parent.mkdir(parents=True,exist_ok=True)
     os.environ.setdefault('MPLCONFIGDIR',str(args.output.parent.resolve()/'.mplconfig'))
@@ -42,6 +42,7 @@ def main():
     fig,axes=plt.subplots(1,2,figsize=(15,8),layout='constrained',facecolor='#101821')
     evidence=[]
     titles=('CenterPoint original input','CenterPoint adapted input (experimental)') if args.comparison=='input' else ('Published PointRCNN + tracker','Raw CenterPoint + tracker (experimental)')
+    if args.comparison=='quality':titles=('CenterPoint original scores','Current-scan box quality (experimental)')
     for ax,profile,title in zip(axes,('baseline','candidate'),titles):
         ax.set_facecolor('#172330');ax.axvspan(-51.2,0,color='#25314d',alpha=.5)
         ax.scatter(displayed[:,0],displayed[:,1],s=.15,c='#7a91a5',alpha=.45,rasterized=True)
@@ -79,6 +80,7 @@ def main():
                 confidence=track.confidence,lidar_center=center[:3].tolist(),raw_points_in_box=int(inside.sum()),
                 rear=bool(center[0]<0),predicted_only=track.predicted_only,diagnostic_status=status))
         if args.show_errors:
+            missed=[]
             for truth in detail['truth']:
                 box=BoxDetection(**{k:v for k,v in truth.items() if k!='gt_id'})
                 corners=np.column_stack([corners_xy(box),np.full(4,box.z),np.ones(4)])
@@ -86,7 +88,12 @@ def main():
                 ax.add_patch(Polygon(xy,closed=True,fill=False,edgecolor='#ffe08a',linewidth=1,linestyle=':'))
                 if truth['gt_id'] not in matched:
                     center=inverse @ [box.x,box.y,box.z,1.]
-                    ax.text(*center[:2],f'MISS G{truth["gt_id"]}',color='#ffe08a',fontsize=8)
+                    missed.append((truth['gt_id'],center))
+            for number,(gt_id,center) in enumerate(missed):
+                # Place missed-target labels in separate rows so nearby GT remain readable.
+                ax.annotate(f'MISS G{gt_id}',center[:2],xytext=(5,-33-number*3),
+                    color='#ffe08a',fontsize=8,
+                    arrowprops=dict(arrowstyle='-',color='#ffe08a',alpha=.6,lw=.6))
         # Limit labels only; every saved in-range track box is still drawn.
         for rear_side in (True,False):
             selected=sorted([item for item in annotations if bool(item[1][0]<0)==rear_side],
