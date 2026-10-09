@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "radar-id-tracker"
 version = "0.1.0"
-description = "Online 10 Hz radar multi-object tracking with stable IDs"
+description = "Online radar and 3D LiDAR box tracking with stable IDs"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -14,6 +14,10 @@ dependencies = ["numpy>=1.26,<3"]
 
 [project.scripts]
 radar-id-track = "radar_id_tracker.cli:main"
+lidar-id-track = "radar_id_tracker.lidar_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+radar_id_tracker = ["lidar_review.js", "lidar_review.html"]

@@ -1,12 +1,44 @@
-# Radar ID Tracker：10 Hz 雷达动态目标稳定编号
+# Radar ID Tracker：10 Hz 雷达／激光雷达稳定编号
+
+车载速腾激光雷达使用新增的 **3D 检测框跟踪器 `LidarTracker`**，输入固定坐标系下的
+中心、类别、尺寸和方向，不需要多普勒。已实现车辆位姿补偿、短时预测、4 秒身份保留、
+保守恢复及独立 KITTI 数据集评分。复现命令、实测结果和已发现的问题见
+[激光雷达数据集测试](docs/lidar-kitti.md)。
+
+```powershell
+conda run --no-capture-output -n radar-id-tracker python examples/download_kitti_tracking.py
+conda run --no-capture-output -n radar-id-tracker python examples/benchmark_kitti.py --stress-grid --output-dir outputs/kitti_final
+```
+
+结果在 `outputs/kitti_final/review.html`。本轮使用公开 PointRCNN 激光检测框，
+尚未验证原始点云检测、实机时间同步和全链路延迟。以下原有 `RadarTracker` 文档说明
+二维毫米波雷达接口；激光雷达请按上面的专门文档接入。
+
+新增原始点云可视化：894 帧真实点云与三维框、ID、类别和预测状态同步叠加；
+支持俯视／三维斜视、旋转、缩放和全量点显示。准备命令如下，生成后打开同一个 `review.html`：
+
+```powershell
+conda run --no-capture-output -n radar-id-tracker python examples/download_kitti_pointclouds.py
+conda run --no-capture-output -n radar-id-tracker python -m radar_id_tracker.pointcloud_review
+```
+
+点云按帧加载，请保留 HTML 同目录下的 `pointclouds/` 文件夹。
+
+本机完整 KITTI Tracking 数据集已接入 `C:\Projects\hx\Datasets\kitti`，
+对应重测与点云叠图在 `outputs/kitti_local/review.html`；外部数据地址和检测预测目录
+可分别配置，命令见 [本机完整数据集说明](docs/lidar-kitti.md#本机完整数据集2026-10-09)。
+
+本机 Git 同步与 Conda 运行方式见 [本机工作流程](docs/local-workflow.md)。
+`outputs/` 首轮效果审查、新实验档和多序列复验结果见
+[2026-09-30 迭代报告](docs/iteration-2026-09-30.md)。
 
 本仓库是一个在线多目标跟踪器。每收到一帧雷达**检测结果**，它预测已有目标的位置，用位置与多普勒速度进行匹配，并输出持续使用的 `track_id`。标称输入频率为 10 Hz，即约每 0.1 秒处理一帧；程序无需等待凑齐 10 帧。
 
-核心方法：直行/加速双模型 IMM 滤波、位置与多普勒门控、分级 Hungarian 匹配、轨迹确认、短时漏检预测和休眠恢复。跟踪器在 CPU 上运行。RTX 4080 可以运行上游检测模型，但仓库**没有**训练好的 CenterPoint、TensorRT 引擎或真实雷达数据；也没有经过真实场景的精度与全链路延迟验收。
+二维雷达核心方法：直行/加速双模型 IMM 滤波、位置与多普勒门控、分级 Hungarian 匹配、轨迹确认、短时漏检预测和休眠恢复。跟踪器在 CPU 上运行。RTX 4080 可以运行上游检测模型，仓库尚未包含训练好的 CenterPoint 或 TensorRT 引擎。
 
 ## 1. 在另一台电脑上准备环境
 
-以下安装步骤面向 Linux、macOS、Windows；建议使用 Python 3.11 的 Conda 环境。本项目只需 NumPy，不要求 CUDA、PyTorch 或 NVIDIA 驱动就能运行示例跟踪器。当前自动化测试运行于 Linux，其他系统请按下文在目标电脑上执行测试确认。
+以下安装步骤面向 Linux、macOS、Windows；建议使用 Python 3.11 的 Conda 环境。本项目只需 NumPy，不要求 CUDA、PyTorch 或 NVIDIA 驱动就能运行示例跟踪器。自动化测试已在 Linux CI 和本机 Windows Conda 环境运行，其他目标电脑仍需按下文测试确认。
 
 先准备：
 

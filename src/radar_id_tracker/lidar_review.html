@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8">
+<title>KITTI 原始点云与稳定 ID 标注</title>
+<style>body{font:15px system-ui;background:#101821;color:#e6edf3;margin:22px}h1{font-size:23px}h2{font-size:19px}button,select,input{font:inherit}button,select{padding:6px;margin:4px}label{display:inline-block;margin:5px 12px 5px 0}.panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}.scene{position:relative;border:1px solid #536371}.scene canvas{display:block;width:100%;height:auto}.scene canvas.overlay{position:absolute;top:0;left:0;background:transparent}.scene canvas.cloud{background:#172330}.metrics{white-space:pre-line;line-height:1.6}#frame{width:70%}.note{color:#b1becb;max-width:1200px;line-height:1.6}.controls{border:1px solid #425666;padding:10px;margin:12px 0}input[type=range]{vertical-align:middle}.view-slider{width:140px}#cloudInfo{color:#a9d4ef;min-height:22px}@media(max-width:900px){.panels{grid-template-columns:1fr}}</style>
+<h1>KITTI：原始点云与稳定 ID 标注</h1>
+<p class="note">同一帧真实激光点云与 3D 跟踪框叠加；左侧保留身份 1.5 秒，右侧保留 4 秒。点云仅加入可视化，跟踪仍使用公开 PointRCNN 检测框。本地评分为 3D IoU ≥ 0.25，非 KITTI 官方结果。</p>
+STRESS_NOTE
+<select id="case"></select><button id="play">播放</button><button id="jump">跳到中断结束</button>
+<div><input id="frame" type="range" min="0" value="0"><span id="time"></span></div>
+<div class="controls">
+<label><input id="points" type="checkbox">原始点云</label>
+<label><input id="fullPoints" type="checkbox">全量点（关闭时采样预览）</label>
+<label><input id="gt" type="checkbox">离线真值框</label>
+<label><input id="det" type="checkbox">输入检测框</label>
+<label>点云着色 <select id="pointColor"><option value="2">框内点按跟踪 ID</option><option value="0">相对雷达高度</option><option value="1">反射强度</option></select></label>
+<label>点大小 <input id="pointSize" class="view-slider" type="range" min="1" max="4" step="0.5" value="1.5"></label>
+<br><button id="topView">俯视</button><button id="obliqueView">3D 斜视</button>
+<label>俯仰 <input id="elevation" class="view-slider" type="range" min="15" max="90" value="55"></label>
+<label>旋转 <input id="azimuth" class="view-slider" type="range" min="-180" max="180" value="0"></label>
+<label>视野 <input id="extent" class="view-slider" type="range" min="30" max="240" value="120"></label>
+<span id="viewInfo"></span><p id="cloudInfo"></p>
+</div>
+<p class="note">彩色框显示 ID 与类别，虚线框标明“预测”；黄色 G 编号是真值，可单独开启。框内点着色是几何范围叠色，不是点级真值。白色三角表示本车和朝向。人工 30 帧检测中断期间仍显示真实点云，便于区分检测丢失和目标离开。</p>
+<div class="panels"><div><h2>身份保留 1.5 秒</h2><div class="metrics" id="leftInfo"></div><div class="scene"><canvas class="cloud" id="leftCloud" width="900" height="700"></canvas><canvas class="overlay" id="left" width="900" height="700"></canvas></div></div><div><h2>身份保留 4 秒</h2><div class="metrics" id="rightInfo"></div><div class="scene"><canvas class="cloud" id="rightCloud" width="900" height="700"></canvas><canvas class="overlay" id="right" width="900" height="700"></canvas></div></div></div>
+<p class="note">原始 float32 点云文件保持完整；浏览器显示坐标量化到 1 cm。采样预览约 3 万点／帧，WebGL 模式可切换全量；兼容模式最多显示 3 万点。框和尾迹始终画在点云上方，便于审查身份，不能据此判断物理遮挡。请保留 HTML 同目录下的 pointclouds 文件夹。0001 的 177–180 帧在官方点云包中缺失，会明确显示缺帧提示。</p>
+<script id="data" type="application/json">PAYLOAD</script>
+<script id="cloudMeta" type="application/json">CLOUD_PAYLOAD</script><script>MAIN_JS</script>
+</html>

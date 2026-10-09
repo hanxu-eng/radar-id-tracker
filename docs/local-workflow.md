@@ -1,0 +1,45 @@
+# 本机开发与 Git 同步
+
+2026-09-30 已核对本机仓库：`C:\Projects\hx\code\radar-id-tracker`，远程为
+`https://github.com/hanxu-eng/radar-id-tracker.git`，`main` 跟踪 `origin/main`。
+已通过 Git Credential Manager 登录，`git fetch origin` 与
+`git push --dry-run origin main` 成功。提交身份在本仓库内按既有提交作者配置；
+`pull.ff=only` 防止拉取时自动生成合并提交。未推送本次代码修改。
+
+在 PowerShell 中：
+
+```powershell
+cd C:\Projects\hx\code\radar-id-tracker
+git status
+git pull --ff-only
+conda activate radar-id-tracker
+python -m unittest discover -s tests -v
+```
+
+本机已有 `radar-id-tracker` 环境和可编辑安装，修改 `src/` 后立即生效。
+未激活环境的终端可运行：
+
+```powershell
+conda run --no-capture-output -n radar-id-tracker python -m unittest discover -s tests -v
+```
+
+不要在 `base` 环境直接运行项目，也不要只调用其他环境的 `python.exe`
+而跳过激活：本机实验发现后者会让 NumPy 线性求解无法正常结束，
+正确激活或 `conda run` 后测试通过。
+
+提交前先查看差异，选择要提交的源码、测试和文档，随后执行：
+
+```powershell
+git diff
+git diff --check
+git add src tests docs examples .gitignore README.md pyproject.toml
+git commit -m "描述本次修改"
+git push origin main
+```
+
+先确认没有其他尚未保存的修改再拉取；快进失败时应查看分支差异。
+`outputs/` 和根目录示例 `tracks.jsonl` 已加入忽略列表，保留本机结果且避免将
+大量 SVG、相机图和实验输出带入 Git。`datasets/` 同样被忽略；本轮小型 KITTI
+测试数据保存在 `datasets/kitti_tracking`，原 RadarScenes 数据位于仓库外。
+
+效果审查与复现命令见 [本轮迭代报告](iteration-2026-09-30.md)。
