@@ -156,7 +156,9 @@ def replay(root: Path,sequence: str,output_dir: Path,config: LidarTrackerConfig 
     tracker = LidarTracker(config)
     output_dir.mkdir(parents=True,exist_ok=True)
     timings = []; ids = set(); published = predicted = input_count = 0
-    totals = dict(recovered=0,ambiguous_recoveries=0,capacity_drops=0,expired=0)
+    totals = dict(recovered=0,ambiguous_recoveries=0,capacity_drops=0,expired=0,
+                  confirmed_strong=0,confirmed_medium=0,tentative_created=0,tentative_expired=0)
+    class_totals = {}
     with (output_dir/'detections.jsonl').open('w',encoding='utf-8') as df, \
          (output_dir/'tracks.jsonl').open('w',encoding='utf-8') as tf:
         for frame in frames:
@@ -169,12 +171,17 @@ def replay(root: Path,sequence: str,output_dir: Path,config: LidarTrackerConfig 
             published += len(tracks); predicted += sum(t.predicted_only for t in tracks)
             for key in totals:
                 totals[key] += tracker.diagnostics[key]
+            for label,counts in tracker.class_diagnostics.items():
+                target=class_totals.setdefault(label,{})
+                for key,value in counts.items():target[key]=target.get(key,0)+value
             df.write(json.dumps(dict(frame_index=frame.frame_index,timestamp_s=frame.timestamp_s,
                                      coordinate_frame='sequence_enu_z_up',sensor_xyz=frame.sensor_xyz,
                                      synthetic_detector_dropout=hidden,
                                      detections=[asdict(d) for d in ds]),allow_nan=False)+'\n')
             tf.write(json.dumps(dict(frame_index=frame.frame_index,timestamp_s=frame.timestamp_s,
                                      tracks=[asdict(t) for t in tracks],
+                                     tentative=tracker.tentative_outputs,
+                                     class_diagnostics=tracker.class_diagnostics,
                                      diagnostics=tracker.diagnostics),allow_nan=False)+'\n')
     summary = dict(dataset='KITTI tracking',sequence=sequence,frames=len(frames),
                    dataset_root=str(root.resolve()),
@@ -191,7 +198,7 @@ def replay(root: Path,sequence: str,output_dir: Path,config: LidarTrackerConfig 
                                          kind='all_detection_dropout') if hide_start is not None else None),
                    unique_published_ids=len(ids),published_outputs=published,predicted_outputs=predicted,
                    median_tracker_ms=median(timings),p99_tracker_ms=float(np.quantile(timings,.99)),
-                   diagnostics=totals)
+                   diagnostics=totals,class_diagnostics=class_totals)
     (output_dir/'summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     return summary
 
@@ -202,20 +209,25 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument('--detections-root',type=Path,help='directory containing Car/Pedestrian/Cyclist prediction files; default: DATASET_ROOT/detections')
     p.add_argument('--sequence',required=True)
     p.add_argument('--output-dir',type=Path,required=True)
+    p.add_argument('--config',type=Path,help='JSON LidarTrackerConfig; overrides scalar defaults')
     p.add_argument('--period-s',type=float,default=.1)
-    p.add_argument('--retention-seconds',type=float,default=4.)
-    p.add_argument('--high-confidence',type=float,default=.98)
-    p.add_argument('--low-confidence',type=float,default=.8)
+    p.add_argument('--retention-seconds',type=float)
+    p.add_argument('--high-confidence',type=float)
+    p.add_argument('--low-confidence',type=float)
     p.add_argument('--hide-start',type=int)
     p.add_argument('--hide-frames',type=int,default=30)
     args = p.parse_args(argv)
+    if args.config and any(v is not None for v in (args.retention_seconds,args.high_confidence,args.low_confidence)):
+        p.error('--config cannot be combined with --retention-seconds/--high-confidence/--low-confidence')
     try:
+        config=(LidarTrackerConfig.from_dict(json.loads(args.config.read_text())) if args.config else
+                LidarTrackerConfig(retention_seconds=args.retention_seconds if args.retention_seconds is not None else 4.,
+                                   high_confidence=args.high_confidence if args.high_confidence is not None else .98,
+                                   low_confidence=args.low_confidence if args.low_confidence is not None else .8))
         report = replay(args.dataset_root,args.sequence,args.output_dir,
-                        LidarTrackerConfig(retention_seconds=args.retention_seconds,
-                                           high_confidence=args.high_confidence,
-                                           low_confidence=args.low_confidence),
+                        config,
                         args.period_s,args.hide_start,args.hide_frames,args.detections_root)
-    except (OSError,ValueError,KeyError) as error:
+    except (OSError,ValueError,KeyError,TypeError) as error:
         p.exit(2,f'KITTI replay error: {error}\n')
     print(json.dumps(report,indent=2))
     return 0

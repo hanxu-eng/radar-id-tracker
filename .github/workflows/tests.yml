@@ -21,3 +21,4 @@ jobs:
       - run: python -m radar_id_tracker examples/detections.jsonl
       - run: python examples/csv_to_jsonl.py examples/detections.csv converted.jsonl
       - run: python -m radar_id_tracker converted.jsonl
+      - run: python -m radar_id_tracker.lidar_cli examples/lidar_boxes.jsonl --config configs/lidar_medium_confirmation.example.json

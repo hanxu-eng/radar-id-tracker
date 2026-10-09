@@ -90,7 +90,8 @@ def main(argv=None):
     args=parser.parse_args(argv)
     manifest=prepare_clouds(args.dataset_root,args.output_dir,args.sequences)
     from .lidar_visualization import add_stress_reviews,build_review
-    rows=json.loads((args.output_dir/'benchmark.json').read_text())
+    cases=args.output_dir/'review_cases.json'
+    rows=json.loads((cases if cases.exists() else args.output_dir/'benchmark.json').read_text())
     if (args.output_dir/'stress_grid.json').exists():add_stress_reviews(args.output_dir,rows)
     else:build_review(args.output_dir,rows)
     print(json.dumps(dict(scans=sum(len(v) for v in manifest['frames'].values()),

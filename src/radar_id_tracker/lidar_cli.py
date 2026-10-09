@@ -14,17 +14,22 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('input',type=Path)
     p.add_argument('--output',type=Path)
-    p.add_argument('--retention-seconds',type=float,default=4.)
-    p.add_argument('--high-confidence',type=float,default=.6)
-    p.add_argument('--low-confidence',type=float,default=.2)
+    p.add_argument('--config',type=Path,help='JSON LidarTrackerConfig; overrides scalar defaults')
+    p.add_argument('--retention-seconds',type=float)
+    p.add_argument('--high-confidence',type=float)
+    p.add_argument('--low-confidence',type=float)
     args = p.parse_args(argv)
+    if args.config and any(v is not None for v in (args.retention_seconds,args.high_confidence,args.low_confidence)):
+        p.error('--config cannot be combined with --retention-seconds/--high-confidence/--low-confidence')
     if args.output and args.input.resolve() == args.output.resolve():
         p.exit(2,'input and output must be different files\n')
     try:
-        tracker = LidarTracker(LidarTrackerConfig(retention_seconds=args.retention_seconds,
-                                                 high_confidence=args.high_confidence,
-                                                 low_confidence=args.low_confidence))
-    except ValueError as error:
+        config=(LidarTrackerConfig.from_dict(json.loads(args.config.read_text())) if args.config else
+                LidarTrackerConfig(retention_seconds=args.retention_seconds if args.retention_seconds is not None else 4.,
+                                  high_confidence=args.high_confidence if args.high_confidence is not None else .6,
+                                  low_confidence=args.low_confidence if args.low_confidence is not None else .2))
+        tracker=LidarTracker(config)
+    except (OSError,ValueError,TypeError) as error:
         p.exit(2,f'invalid tracker configuration: {error}\n')
     temporary = None
     if args.output:
@@ -44,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
                                             [BoxDetection(**d) for d in frame['detections']])
                     destination.write(json.dumps(dict(timestamp_s=frame['timestamp_s'],
                                                       tracks=[asdict(t) for t in tracks],
+                                                      tentative=tracker.tentative_outputs,
+                                                      class_diagnostics=tracker.class_diagnostics,
                                                       diagnostics=tracker.diagnostics),allow_nan=False)+'\n')
                 except (KeyError,TypeError,ValueError,ArithmeticError) as error:
                     p.exit(2,f'input line {index}: {error}\n')

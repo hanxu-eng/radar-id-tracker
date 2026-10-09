@@ -11,7 +11,7 @@ from pathlib import Path
 from .assignment import assign
 from .box_geometry import iou3d
 from .kitti_adapter import calibration_transforms, camera_box_to_world, load_poses
-from .lidar_tracker import BoxDetection, BoxTrack
+from .lidar_tracker import BoxDetection, BoxTrack, LidarTrackerConfig
 
 
 @dataclass(frozen=True)
@@ -124,7 +124,7 @@ def dropout_recovery(details, interval, period):
     for row in details[max(0,start-window):start]:
         before.update(row['observed_tracks']['matches'])
     for row in details[end:end+window]:
-        detectable_after.update(row['birth_eligible_detections']['matched_gt_ids'])
+        detectable_after.update(row.get('recovery_eligible_detections',row['birth_eligible_detections'])['matched_gt_ids'])
         for gid,pid in row['observed_tracks']['matches'].items():
             after.setdefault(gid,(pid,row['frame_index']))
     eligible = sorted(before.keys() & detectable_after)
@@ -138,7 +138,7 @@ def dropout_recovery(details, interval, period):
         record['wrong_retained_identity'] = (not record['same_id'] and
                                              record['previous_owner_gt_id'] is not None)
     return dict(kind=f'{interval["frames"]}-frame all-detection dropout, not natural occlusion',
-                eligibility='pre observed GT match; post strong input detection GT match within 0.5 s',
+                eligibility='pre observed GT match; post recovery-eligible input detection GT match within 0.5 s',
                 eligible=len(eligible),same_id=sum(r['same_id'] for r in records),
                 changed_id=sum(not r['same_id'] and r['after_id'] is not None for r in records),
                 no_track_after_return=sum(r['after_id'] is None for r in records),
@@ -160,7 +160,9 @@ def evaluate(root: Path, run_dir: Path, threshold=.25, write=True):
     if len(ds) != len(ts) or len(ts) != len(truth) or len(ts) != summary['frames']:
         raise ValueError('frame counts do not align')
     scores = dict(observed_tracks=BoxScore(),published_tracks=BoxScore(),all_input_detections=BoxScore(False),
-                  birth_eligible_detections=BoxScore(False))
+                  birth_eligible_detections=BoxScore(False),recovery_eligible_detections=BoxScore(False))
+    config=LidarTrackerConfig.from_dict(summary['tracker_config'])
+    missed={label:Counter() for label in ('Car','Pedestrian','Cyclist')}
     classes = {label:BoxScore() for label in ('Car','Pedestrian','Cyclist')}
     details = []
     for i,(d,t,gt,ig) in enumerate(zip(ds,ts,truth,ignored)):
@@ -174,10 +176,23 @@ def evaluate(root: Path, run_dir: Path, threshold=.25, write=True):
             raise ValueError('duplicate output ID in a frame')
         observed = [p for p in tracks if not p.predicted_only]
         proposals = dict(observed_tracks=observed,published_tracks=tracks,all_input_detections=detections,
-                         birth_eligible_detections=[p for p in detections if p.confidence >= summary['tracker_config']['high_confidence']])
+                         birth_eligible_detections=[p for p in detections if p.confidence >= config.score_policy(p.label).birth_confidence],
+                         recovery_eligible_detections=[p for p in detections if p.confidence >= config.score_policy(p.label).recovery_confidence])
         row = dict(frame_index=i,timestamp_s=expected,truth=[dict(gt_id=g.object_id,**asdict(g.box)) for g in gt])
         for name,score in scores.items():
             row[name] = score.update(gt,proposals[name],ig,threshold)
+        pending=[BoxDetection(**{k:p[k] for k in BoxDetection.__dataclass_fields__}) for p in t.get('tentative',[]) if p['observed']]
+        pending_matches={gt[i].object_id for i,_ in match_boxes(gt,pending,threshold)[0]}
+        matched=set(row['observed_tracks']['matched_gt_ids'])
+        detected=set(row['all_input_detections']['matched_gt_ids'])
+        eligible=set(row['birth_eligible_detections']['matched_gt_ids'])
+        row['miss_reasons']={}
+        for g in gt:
+            if g.object_id in matched:continue
+            reason=('no_matching_input' if g.object_id not in detected else
+                    'score_filtered' if g.object_id not in eligible else
+                    'awaiting_confirmation' if g.object_id in pending_matches else 'association_or_expiry')
+            row['miss_reasons'][g.object_id]=reason;missed[g.box.label][reason]+=1
         for label,score in classes.items():
             score.update([g for g in gt if g.box.label == label],
                          [p for p in observed if p.label == label],
@@ -188,6 +203,7 @@ def evaluate(root: Path, run_dir: Path, threshold=.25, write=True):
                   official_kitti_score=False,dontcare_2d_regions_handled=False,
                   all_valid_3d_truth_included=True,**{k:v.result() for k,v in scores.items()},
                   per_class_observed={k:v.result() for k,v in classes.items()},
+                  miss_reasons_by_class={k:dict(v) for k,v in missed.items()},
                   dropout_recovery=dropout_recovery(details,summary['hidden_interval'],summary['period_s']))
     if write:
         (run_dir/'evaluation.json').write_text(json.dumps(result,indent=2)+'\n')

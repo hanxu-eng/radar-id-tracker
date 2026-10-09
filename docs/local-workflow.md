@@ -42,4 +42,9 @@ git push origin main
 大量 SVG、相机图和实验输出带入 Git。`datasets/` 同样被忽略；本轮小型 KITTI
 测试数据保存在 `datasets/kitti_tracking`，原 RadarScenes 数据位于仓库外。
 
+2026-10-09 的分数策略迭代使用 `codex/lidar-score-confirmation` 功能分支，经 PR 审核再
+合并到 `main`。已有 LiDAR 基础和本轮策略分别提交，其他二维 RadarScenes 实验仍在
+工作区，不进入本轮发布。最新完整 KITTI 原始目录为 `C:\Projects\hx\Datasets\kitti`，
+原始数据只读，生成文件保留在仓库忽略目录中。
+
 效果审查与复现命令见 [本轮迭代报告](iteration-2026-09-30.md)。

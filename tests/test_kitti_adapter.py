@@ -100,6 +100,20 @@ class KittiAdapterTests(unittest.TestCase):
             self.assertFalse(summary['ground_truth_used_as_input'])
             self.assertEqual(evaluate(root,root/'out')['observed_tracks']['tp'],1)
 
+    def test_miss_reason_diagnostics_and_recovery_threshold_are_separate(self):
+        from radar_id_tracker import ClassScorePolicy,LidarTrackerConfig
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);self.fixture(root)
+            path=root/'detections/Car/0000.txt'
+            path.write_text(path.read_text().replace(',8,2,2,4',',1.4,2,2,4'))
+            cfg=LidarTrackerConfig(high_confidence=.98,low_confidence=.5,
+                                   score_policies=(ClassScorePolicy('Car',.5,.7,.98,.98),))
+            replay(root,'0000',root/'out',cfg);score=evaluate(root,root/'out')
+            self.assertEqual(score['birth_eligible_detections']['tp'],2)
+            self.assertEqual(score['recovery_eligible_detections']['tp'],0)
+            self.assertEqual(score['miss_reasons_by_class']['Car']['awaiting_confirmation'],2)
+            self.assertEqual(score['miss_reasons_by_class']['Car']['no_matching_input'],1)
+
     def test_cli_preserves_files_on_bad_input_and_rejects_truth_id(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);self.fixture(root);replay(root,'0000',root/'out')

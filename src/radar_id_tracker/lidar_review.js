@@ -189,13 +189,16 @@ function drawOverlay(id,f,history,index,basis,cloud){
   ctx.closePath();ctx.fill();
   if(el('det').checked)f.detections.forEach(b=>drawBox(ctx,b,projection,'#b4bcc4',false,''));
   if(el('gt').checked)f.truth.forEach(b=>drawBox(ctx,b,projection,'#ffe08a',false,'G'+b.gt_id+' '+b.label));
+  if(el('tentative').checked)(f.tentative||[]).filter(b=>b.observed).forEach(b=>
+    drawBox(ctx,b,projection,'#ffb45c',true,'待确认 C'+b.candidate_id+' '+b.label+' '+b.medium_hits+' 次'));
   for(const t of f.tracks){
     const color=cssColor(idColor(t.track_id));ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();let connected=false;
     for(let k=Math.max(0,index-20);k<=index;k++){
       const old=history[k].tracks.find(o=>o.track_id===t.track_id);if(!old){connected=false;continue;}
       const p=projection.world(old.x,old.y,old.z);connected?ctx.lineTo(...p):ctx.moveTo(...p);connected=true;
     }
-    ctx.stroke();drawBox(ctx,t,projection,color,t.predicted_only,'ID '+t.track_id+' '+t.label+(t.predicted_only?' 预测':''));
+    ctx.stroke();drawBox(ctx,t,projection,color,t.predicted_only,'ID '+t.track_id+' '+t.label+
+      (t.predicted_only?' 预测':t.confirmation_path==='medium'?' 多帧确认':''));
   }
   ctx.fillStyle=f.hidden?'#ffb0a0':'#e6edf3';ctx.font='14px system-ui';
   ctx.fillText(f.hidden?'检测被人工隐藏；真实点云仍正常显示':'观测 '+f.tracks.filter(t=>!t.predicted_only).length+' / 预测 '+f.tracks.filter(t=>t.predicted_only).length,14,24);
@@ -203,7 +206,7 @@ function drawOverlay(id,f,history,index,basis,cloud){
   ctx.fillStyle='#d0d8df';ctx.fillText('10 m 网格 · 框内点着色不等于点级真值',14,H-16);
 }
 async function render(){
-  const version=++renderVersion,c=cases[+el('case').value],a=c.profiles.short_memory,b=c.profiles.stable;
+  const version=++renderVersion,c=cases[+el('case').value],a=c.profiles[c.left_profile],b=c.profiles[c.right_profile];
   const n=a.frames.length,i=Math.min(+el('frame').value,n-1),basis=viewBasis();
   el('frame').max=n-1;el('frame').value=i;
   el('time').textContent='帧 '+i+' / '+(n-1)+' · '+(i*.1).toFixed(1)+' s';
@@ -229,7 +232,7 @@ async function render(){
 }
 cases.forEach((c,i)=>{
   const o=document.createElement('option');o.value=i;
-  const interval=c.profiles.stable.hidden_interval;
+  const interval=c.profiles[c.right_profile].hidden_interval;
   o.textContent=c.sequence+' / '+(c.scenario==='natural'?'自然检测':
     c.scenario.startsWith('stress_start_')?'失败案例：中断起始帧 '+c.scenario.slice(13):'3 秒中断：起始帧 '+interval.start_frame);
   el('case').append(o);
@@ -243,13 +246,13 @@ async function advance(token){
   if(timer!==null&&token===playVersion)timer=setTimeout(()=>advance(token),Math.max(1,100-(performance.now()-start)));
 }
 el('play').onclick=()=>{if(timer!==null)stop();else{el('play').textContent='暂停';const token=++playVersion;timer=setTimeout(()=>advance(token),100);}};
-el('jump').onclick=()=>{stop();const frames=cases[+el('case').value].profiles.stable.frames;
+el('jump').onclick=()=>{stop();const c=cases[+el('case').value],frames=c.profiles[c.right_profile].frames;
   const first=frames.findIndex(f=>f.hidden);let end=first<0?0:first;while(end<frames.length&&frames[end].hidden)end++;
   el('frame').value=Math.min(end,frames.length-1);render();};
 el('topView').onclick=()=>{el('elevation').value=90;el('azimuth').value=0;render();};
 el('obliqueView').onclick=()=>{el('elevation').value=55;el('azimuth').value=0;render();};
 el('case').onchange=()=>{stop();el('frame').value=0;render();};
-for(const id of ['frame','gt','det','points','fullPoints','pointColor','pointSize','elevation','azimuth','extent'])
+for(const id of ['frame','gt','det','tentative','points','fullPoints','pointColor','pointSize','elevation','azimuth','extent'])
   el(id).addEventListener('input',()=>render());
 el('points').checked=!!cloudMeta;el('elevation').value=cloudMeta?55:90;
 render();

@@ -1,6 +1,7 @@
 """Reproduce label-free replay, independent scoring, and 3-second dropout tests."""
 import argparse
 import json
+from dataclasses import replace
 from pathlib import Path
 
 from radar_id_tracker.kitti_adapter import load_sequence, replay
@@ -13,17 +14,21 @@ def main():
     p.add_argument('--dataset-root',type=Path,default=Path('datasets/kitti_tracking'))
     p.add_argument('--detections-root',type=Path,help='directory containing Car/Pedestrian/Cyclist prediction files')
     p.add_argument('--output-dir',type=Path,default=Path('outputs/kitti_benchmark'))
+    p.add_argument('--config',type=Path,help='JSON LidarTrackerConfig; overrides scalar defaults')
     p.add_argument('--sequences',nargs='+',default=['0000','0001','0005'])
-    p.add_argument('--high-confidence',type=float,default=.98)
-    p.add_argument('--low-confidence',type=float,default=.8)
+    p.add_argument('--high-confidence',type=float)
+    p.add_argument('--low-confidence',type=float)
     p.add_argument('--hide-start',type=int,default=50)
     p.add_argument('--tuning',action='store_true',help='0000-only confidence sweep, no dropout tests')
     p.add_argument('--stress-grid',action='store_true',help='extra 30-frame dropouts at fixed 30-frame intervals')
     args = p.parse_args()
-    configs = dict(short_memory=LidarTrackerConfig(high_confidence=args.high_confidence,
-                                                   low_confidence=args.low_confidence,retention_seconds=1.5),
-                   stable=LidarTrackerConfig(high_confidence=args.high_confidence,
-                                              low_confidence=args.low_confidence,retention_seconds=4.))
+    if args.config and any(v is not None for v in (args.high_confidence,args.low_confidence)):
+        p.error('--config cannot be combined with scalar confidence flags')
+    config=(LidarTrackerConfig.from_dict(json.loads(args.config.read_text())) if args.config else
+            LidarTrackerConfig(high_confidence=args.high_confidence if args.high_confidence is not None else .98,
+                               low_confidence=args.low_confidence if args.low_confidence is not None else .8))
+    configs=dict(short_memory=replace(config,retention_seconds=1.5),stable=replace(config,retention_seconds=4.))
+    if args.config and args.tuning:p.error('--config and --tuning cannot be combined')
     if args.tuning:
         configs = {f'high_{h}_low_{l}':LidarTrackerConfig(high_confidence=h,low_confidence=l)
                    for h,l in ((.6,.2),(.9,.6),(.95,.6),(.98,.8))}

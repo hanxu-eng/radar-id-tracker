@@ -4,7 +4,8 @@ from pathlib import Path
 
 
 def build_review(root: Path, rows: list[dict]) -> Path:
-    box_keys=('x','y','z','length','width','height','yaw','label','track_id','predicted_only','gt_id')
+    box_keys=('x','y','z','length','width','height','yaw','label','track_id','predicted_only','gt_id',
+              'candidate_id','strong_hits','medium_hits','observed','confirmation_path')
     # Display precision only; scoring JSONL preserves full numeric precision.
     def display_box(box):
         return {k:round(v,4) if isinstance(v,float) else v for k,v in box.items() if k in box_keys}
@@ -20,12 +21,16 @@ def build_review(root: Path, rows: list[dict]) -> Path:
             frames = [dict(sensor_xyz=[round(v,4) for v in d['sensor_xyz']],
                            detections=[display_box(b) for b in d['detections']],
                            tracks=[display_box(b) for b in t['tracks']],diagnostics=t['diagnostics'],
+                           tentative=[display_box(b) for b in t.get('tentative',[])],
                            truth=[display_box(b) for b in e['truth']],
                            matches=e['observed_tracks']['matches'],hidden=d['synthetic_detector_dropout'])
                       for d,t,e in zip(detections,tracks,details)]
             profiles[row['profile']] = dict(frames=frames,score=row['evaluation'],timing=row['run']['p99_tracker_ms'],
                                            hidden_interval=row['run']['hidden_interval'])
-        cases.append(dict(sequence=sequence,scenario=scenario,profiles=profiles))
+        comparison='baseline' in profiles and 'candidate' in profiles
+        cases.append(dict(sequence=sequence,scenario=scenario,profiles=profiles,
+                          left_profile='baseline' if comparison else 'short_memory',
+                          right_profile='candidate' if comparison else 'stable'))
     payload = json.dumps(cases,ensure_ascii=False,allow_nan=False).replace('<','\\u003c')
     stress_note = ''
     if (root/'stress_grid.json').exists():
@@ -45,6 +50,11 @@ def build_review(root: Path, rows: list[dict]) -> Path:
     html=Path(__file__).with_name('lidar_review.html').read_text(encoding='utf-8')
     html=html.replace('CLOUD_PAYLOAD',cloud_payload).replace('PAYLOAD',payload)
     html=html.replace('STRESS_NOTE',stress_note).replace('MAIN_JS',script)
+    if any(c['left_profile']=='baseline' for c in cases):
+        html=html.replace('左侧保留身份 1.5 秒，右侧保留 4 秒',
+                          '左侧为原分数策略，右侧为按类别候选确认策略；两侧身份均保留 4 秒')
+        html=html.replace('<h2>身份保留 1.5 秒</h2>','<h2 id="leftTitle">原分数策略</h2>')
+        html=html.replace('<h2>身份保留 4 秒</h2>','<h2 id="rightTitle">候选确认策略（实验）</h2>')
     path = root/'review.html'; path.write_text(html,encoding='utf-8')
     return path
 

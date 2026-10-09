@@ -28,6 +28,10 @@ conda run --no-capture-output -n radar-id-tracker python -m radar_id_tracker.poi
 对应重测与点云叠图在 `outputs/kitti_local/review.html`；外部数据地址和检测预测目录
 可分别配置，命令见 [本机完整数据集说明](docs/lidar-kitti.md#本机完整数据集2026-10-09)。
 
+按类别分数门槛与连续中分检测确认现已支持显式 `--config`，待确认框独立显示，旧身份
+恢复门槛独立控制。[实现、复现与验收报告](docs/lidar-score-policy.md)记录六序列对比和
+固定恢复测试。实验参数未通过总体精度、召回及 ID 切换验收，**旧默认策略保留**。
+
 本机 Git 同步与 Conda 运行方式见 [本机工作流程](docs/local-workflow.md)。
 `outputs/` 首轮效果审查、新实验档和多序列复验结果见
 [2026-09-30 迭代报告](docs/iteration-2026-09-30.md)。
