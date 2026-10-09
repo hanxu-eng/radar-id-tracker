@@ -10,8 +10,9 @@ conda run --no-capture-output -n radar-id-tracker python examples/download_kitti
 conda run --no-capture-output -n radar-id-tracker python examples/benchmark_kitti.py --stress-grid --output-dir outputs/kitti_final
 ```
 
-结果在 `outputs/kitti_final/review.html`。本轮使用公开 PointRCNN 激光检测框，
-尚未验证原始点云检测、实机时间同步和全链路延迟。以下原有 `RadarTracker` 文档说明
+结果在 `outputs/kitti_final/review.html`。上面的回放使用公开 PointRCNN 激光检测框。
+新增 [原始点云全周 CenterPoint 推理实验](docs/lidar-surround.md) 已完成数据集回归与本机
+延迟测量，但精度未通过验收；实机时间同步仍待验证。以下原有 `RadarTracker` 文档说明
 二维毫米波雷达接口；激光雷达请按上面的专门文档接入。
 
 新增原始点云可视化：894 帧真实点云与三维框、ID、类别和预测状态同步叠加；
@@ -243,7 +244,7 @@ VoD 的 `label_2` 框位于相机坐标系，不能直接把其中的 x/y 填给
 
 每帧依次执行：按实际时间差预测现有轨迹；用位置创新距离、最大残差、多普勒残差和可选尺寸变化进行门控；按“已确认轨迹配高分检测 → 未配对的已确认轨迹配低分检测 → 休眠轨迹严格匹配高分检测 → 暂定轨迹配高分检测”四级顺序做确定性 Hungarian 分配；最后新建暂定轨迹或执行漏检保活。IMM 包含低加速度的匀速模型和匀加速模型。
 
-单张 RTX 4080 只在接入上游 GPU 检测器时有用；本仓库本身是检测结果到稳定 ID 的 CPU 跟踪模块，不包含训练、点云预处理、外参标定、检测器权重或 TensorRT 引擎。实际部署建议采集、检测、跟踪分阶段异步运行，以采集时间戳排序，并限制等待队列长度，避免处理过期帧。接入接口为上文 JSONL 格式或 `Detection` 对象。
+核心模块处理检测结果到稳定 ID，另有可选的原始激光点云 CenterPoint 推理路径，见 [全周检测实验与复现](docs/lidar-surround.md)。推理依赖、权重下载与核心跟踪环境分开，当前实验没有通过精度验收。仓库不包含训练、外参标定或 TensorRT 引擎。实际部署建议采集、检测、跟踪分阶段异步运行，以采集时间戳排序，并限制等待队列长度，避免处理过期帧。接入接口为上文 JSONL 格式或 `Detection` 对象。
 
 当前实现有边界：只滤波地面二维运动，未解决多个物体长时间合并为一个检测的身份歧义；缺少多普勒或多个物体多普勒接近时，交叉场景仍可能换 ID。Python 实现可作原型和工程基线，最终是否满足吞吐要求需按实际目标数和硬件实测。
 
@@ -286,4 +287,4 @@ tests/                           单元与场景测试
 
 ## 许可证
 
-MIT，见 [LICENSE](LICENSE)。
+跟踪核心采用 MIT，见 [LICENSE](LICENSE)。CenterPoint 适配代码遵循上游 Apache-2.0，见 [第三方说明](THIRD_PARTY_NOTICES.md)；权重与数据分别遵循提供方条件。

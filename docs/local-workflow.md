@@ -48,3 +48,8 @@ git push origin main
 原始数据只读，生成文件保留在仓库忽略目录中。
 
 效果审查与复现命令见 [本轮迭代报告](iteration-2026-09-30.md)。
+
+2026-10-09 的下一阶段使用 `codex/lidar-surround-detector`，以分数策略功能分支为基线，
+通过独立草稿 PR 审核；没有合并到 `main`。推理环境在项目忽略目录
+`outputs/envs/lidar-detector`，模型和全部输出也在 `outputs/`。本机 Git Credential Manager
+继续用于 fetch/push。该实验验收失败，详见 [全周检测报告](lidar-surround.md)。
