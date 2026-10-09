@@ -14,8 +14,17 @@ from radar_id_tracker.lidar_scoped_evaluate import evaluate_scoped,SCOPE,fixed_r
 from radar_id_tracker.lidar_visualization import build_review
 
 
-def label_review(path):
+def label_review(path,comparison='detector'):
     html=path.read_text(encoding='utf-8')
+    if comparison=='input':
+        html=html.replace('原分数策略','CenterPoint 原输入')
+        html=html.replace('候选确认策略（实验）','CenterPoint 输入适配（实验）')
+        html=html.replace('左侧为CenterPoint 原输入，右侧为按类别候选确认策略；两侧身份均保留 4 秒',
+                          '两侧使用相同 CenterPoint 权重和跟踪门限，比较原输入与开发集冻结后的输入适配；身份保留 4 秒')
+        html=html.replace('点云仅加入可视化，跟踪仍使用公开 PointRCNN 检测框。',
+                          '两侧都从真实点云全周检测；后方无 KITTI 真值。指标只统计前方 ±40°、50m 内 Car/Pedestrian，未达到部署验收。')
+        path.write_text(html,encoding='utf-8')
+        return
     html=html.replace('原分数策略','公开 PointRCNN 检测')
     html=html.replace('候选确认策略（实验）','原始点云 CenterPoint（实验）')
     html=html.replace('左侧为公开 PointRCNN 检测，右侧为按类别候选确认策略；两侧身份均保留 4 秒',

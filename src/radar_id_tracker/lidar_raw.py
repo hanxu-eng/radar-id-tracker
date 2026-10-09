@@ -16,6 +16,7 @@ from .centerpoint_geometry import KITTI_TO_MODEL, transform_points, box_to_world
 from .kitti_adapter import calibration_transforms,load_poses
 from .lidar_tracker import BoxDetection,LidarTracker,LidarTrackerConfig
 from .pointcloud_review import read_scan
+from .lidar_inference_config import RawLidarConfig
 
 
 def causal_cloud(history,current_transform,frame,period_s,intensity_scale):
@@ -24,10 +25,15 @@ def causal_cloud(history,current_transform,frame,period_s,intensity_scale):
     The fifth channel records actual nominal frame gaps, including missing scans.
     Current scan retains close points; past scans remove the 1m close square.
     """
+    if not np.isfinite([period_s,intensity_scale]).all() or min(period_s,intensity_scale)<=0:
+        raise ValueError('period and intensity scale must be positive and finite')
+    if any(history[i][0]>=history[i+1][0] for i in range(len(history)-1)):
+        raise ValueError('history frame indices must strictly increase')
     blocks=[]
     current_inverse=np.linalg.inv(current_transform)
     for index,points,world_from_lidar in reversed(history):
         if index>frame:raise ValueError('future scan is forbidden')
+        if points.ndim!=2 or points.shape[1]!=4:raise ValueError('raw scans must be Nx4')
         if index<frame:
             points=points[~((np.abs(points[:,0])<1)&(np.abs(points[:,1])<1))]
         p=transform_points(points,KITTI_TO_MODEL @ current_inverse @ world_from_lidar)
@@ -38,11 +44,9 @@ def causal_cloud(history,current_transform,frame,period_s,intensity_scale):
 
 def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
                    period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba'):
-    from .centerpoint_model import CenterPointDetector,CHECKPOINT_SHA256,CHECKPOINT_URL
+    inference_config=RawLidarConfig(sweeps,period_s,intensity_scale,score_threshold,voxel_backend)
     if len(sequence)!=4 or not sequence.isdecimal():raise ValueError('invalid sequence ID')
-    if not 1<=sweeps<=10:raise ValueError('sweeps must be between 1 and 10')
-    if not np.isfinite([period_s,intensity_scale]).all() or min(period_s,intensity_scale)<=0:
-        raise ValueError('period and intensity scale must be positive and finite')
+    from .centerpoint_model import CenterPointDetector,CHECKPOINT_SHA256,CHECKPOINT_URL
     poses=load_poses(root/'training/oxts'/f'{sequence}.txt')
     _,lidar_to_imu=calibration_transforms(root/'training/calib'/f'{sequence}.txt')
     transforms=[pose @ lidar_to_imu for pose in poses]
@@ -101,6 +105,7 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
         implementation_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
             for name in ('centerpoint_model.py','centerpoint_geometry.py','centerpoint_voxel_numba.py','lidar_raw.py')},
         voxel_backend=voxel_backend,
+        inference_config=asdict(inference_config),
         detector_score_threshold=score_threshold,confidence_is_calibrated=False,
         class_counts=class_counts,rear_detection_instances=rear_count,
         rear_detection_definition='current KITTI LiDAR x < 0',missing_scan_frames=missing,
@@ -171,20 +176,27 @@ def main(argv=None):
     p.add_argument('--output-dir',type=Path,required=True)
     p.add_argument('--checkpoint',type=Path,required=True)
     p.add_argument('--device',choices=('cuda','cpu'),default='cuda')
-    p.add_argument('--sweeps',type=int,default=5)
-    p.add_argument('--voxel-backend',choices=('numpy','numba'),default='numba')
-    p.add_argument('--intensity-scale',type=float,default=255.)
+    p.add_argument('--inference-config',type=Path,help='explicit raw-scan JSON; cannot be mixed with inference flags')
+    p.add_argument('--sweeps',type=int)
+    p.add_argument('--voxel-backend',choices=('numpy','numba'))
+    p.add_argument('--intensity-scale',type=float)
+    p.add_argument('--period-s',type=float)
+    p.add_argument('--score-threshold',type=float)
     p.add_argument('--track-output-dir',type=Path,help='optionally replay inference into a separate tracking directory')
     p.add_argument('--tracker-config',type=Path,help='explicit tracker JSON; required with --track-output-dir')
     args=p.parse_args(argv)
     if bool(args.track_output_dir)!=bool(args.tracker_config):
         p.error('--track-output-dir and --tracker-config must be provided together')
+    overrides={key:getattr(args,key) for key in RawLidarConfig.__dataclass_fields__ if getattr(args,key) is not None}
+    if args.inference_config and overrides:
+        p.error('--inference-config cannot be mixed with inference flags')
     try:
+        inference=RawLidarConfig.from_dict(json.loads(args.inference_config.read_text()) if args.inference_config else overrides)
         config=LidarTrackerConfig.from_dict(json.loads(args.tracker_config.read_text())) if args.tracker_config else None
         if args.track_output_dir and args.track_output_dir.resolve()==args.output_dir.resolve():
             raise ValueError('cache and tracking output directories must differ')
         summary=infer_sequence(args.dataset_root,args.sequence,args.output_dir,args.checkpoint,
-            args.device,args.sweeps,intensity_scale=args.intensity_scale,voxel_backend=args.voxel_backend)
+            device=args.device,**asdict(inference))
         if args.track_output_dir:
             summary['tracking_run']=replay_cache(args.output_dir,args.track_output_dir,config)
     except (OSError,ValueError,ImportError,KeyError,TypeError) as error:p.exit(2,f'raw LiDAR inference error: {error}\n')

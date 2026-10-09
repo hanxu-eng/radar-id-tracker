@@ -1,0 +1,7 @@
+{
+  "sweeps": 5,
+  "period_s": 0.1,
+  "intensity_scale": 64.0,
+  "score_threshold": 0.1,
+  "voxel_backend": "numba"
+}

@@ -4,13 +4,31 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
+from contextlib import redirect_stdout,redirect_stderr
+import io
 import numpy as np
-from radar_id_tracker.lidar_raw import replay_cache
+from radar_id_tracker.lidar_raw import replay_cache,main
 from radar_id_tracker.lidar_scoped_evaluate import in_scope,fixed_recovery
 from radar_id_tracker.lidar_tracker import BoxDetection,LidarTrackerConfig
 
 
 class RawLidarTests(unittest.TestCase):
+    def test_cli_replays_frozen_inference_settings_and_rejects_silent_override(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'input.json'
+            path.write_text(json.dumps(dict(sweeps=3,intensity_scale=64,period_s=.2,score_threshold=.15)))
+            argv=['--dataset-root',directory,'--sequence','0000','--output-dir',directory,
+                  '--checkpoint','unused.pth','--inference-config',str(path)]
+            with patch('radar_id_tracker.lidar_raw.infer_sequence',return_value={}) as infer,redirect_stdout(io.StringIO()):
+                self.assertEqual(main(argv),0)
+            self.assertEqual(infer.call_args.kwargs['intensity_scale'],64)
+            self.assertEqual(infer.call_args.kwargs['sweeps'],3)
+            self.assertEqual(infer.call_args.kwargs['period_s'],.2)
+            with patch('radar_id_tracker.lidar_raw.infer_sequence') as infer,redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):main(argv+['--intensity-scale','255'])
+                infer.assert_not_called()
+
     def test_common_scope_follows_current_sensor_and_excludes_other_classes(self):
         inverse=np.eye(4);inverse[0,3]=-100
         make=lambda x,y,label='Car':BoxDetection(x,y,0,4,2,1.5,0,.8,label)

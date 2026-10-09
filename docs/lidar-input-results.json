@@ -1,0 +1,2667 @@
+{
+  "experiment": "raw LiDAR input adaptation, sequence-grouped development + frozen validation",
+  "protocol": {
+    "development_sequences": [
+      "0000",
+      "0001",
+      "0005"
+    ],
+    "validation_sequences": [
+      "0002",
+      "0006"
+    ],
+    "scope": {
+      "labels": [
+        "Car",
+        "Pedestrian"
+      ],
+      "range_m": 50.0,
+      "half_angle_degrees": 40.0,
+      "coordinates": "current KITTI LiDAR x-forward/y-left",
+      "gate": "box center planar distance <= 50m and |atan2(y,x)| <= 40deg",
+      "rear_scored": false,
+      "cyclist_scored": false,
+      "note": "Bicycle/Motorcycle are not mapped to KITTI rider+bike Cyclist"
+    },
+    "grouped_selection": {
+      "development_sequences": [
+        "0000",
+        "0001",
+        "0005"
+      ],
+      "selected_inference_config": {
+        "intensity_scale": 64,
+        "sweeps": 5
+      },
+      "development_acceptance_passed": false,
+      "folds": [
+        {
+          "training_sequences": [
+            "0001",
+            "0005"
+          ],
+          "held_out_sequence": "0000",
+          "selected_scale": 64,
+          "selected_sweeps": 5,
+          "training_acceptance_passed": false,
+          "held_out_observed": {
+            "tp": 239,
+            "fp": 102,
+            "fn": 10,
+            "precision": 0.7008797653958945,
+            "recall": 0.9598393574297188,
+            "f1": 0.8101694915254237,
+            "ignored_outputs": 177,
+            "idtp": 239,
+            "idfn": 10,
+            "idfp": 102,
+            "idf1": 0.8101694915254237,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 13,
+            "unique_gt_ids": 11
+          }
+        },
+        {
+          "training_sequences": [
+            "0000",
+            "0005"
+          ],
+          "held_out_sequence": "0001",
+          "selected_scale": 64,
+          "selected_sweeps": 5,
+          "training_acceptance_passed": false,
+          "held_out_observed": {
+            "tp": 1773,
+            "fp": 181,
+            "fn": 690,
+            "precision": 0.9073694984646878,
+            "recall": 0.7198538367844093,
+            "f1": 0.8028073352954495,
+            "ignored_outputs": 79,
+            "idtp": 1762,
+            "idfn": 701,
+            "idfp": 192,
+            "idf1": 0.7978265791261037,
+            "id_changes": 2,
+            "fragmentations": 4,
+            "unique_predicted_ids": 94,
+            "unique_gt_ids": 90
+          }
+        },
+        {
+          "training_sequences": [
+            "0000",
+            "0001"
+          ],
+          "held_out_sequence": "0005",
+          "selected_scale": 64,
+          "selected_sweeps": 5,
+          "training_acceptance_passed": false,
+          "held_out_observed": {
+            "tp": 407,
+            "fp": 6,
+            "fn": 396,
+            "precision": 0.9854721549636803,
+            "recall": 0.5068493150684932,
+            "f1": 0.6694078947368421,
+            "ignored_outputs": 0,
+            "idtp": 407,
+            "idfn": 396,
+            "idfp": 6,
+            "idf1": 0.6694078947368421,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 15,
+            "unique_gt_ids": 33
+          }
+        }
+      ],
+      "fold_selection_agrees_with_final": true,
+      "selection": "joint P/R guard on every training sequence; else maximize worst sequence F1, then equally weighted mean F1"
+    },
+    "development_acceptance_passed": false,
+    "acceptance_precision": 0.96,
+    "acceptance_recall": 0.85,
+    "frozen_config": {
+      "high_confidence": 0.7,
+      "low_confidence": 0.1,
+      "confirmation_hits": 2,
+      "confirmation_window_s": 0.4,
+      "prediction_seconds": 0.5,
+      "retention_seconds": 4.0,
+      "position_sigma_m": 0.45,
+      "vertical_sigma_m": 0.3,
+      "acceleration_sigma_mps2": 2.0,
+      "position_gate_squared": 16.3,
+      "active_residual_m": 4.0,
+      "recovery_residual_m": 9.0,
+      "maximum_height_residual_m": 1.5,
+      "maximum_size_ratio": 2.0,
+      "recovery_size_ratio": 1.6,
+      "recovery_yaw_gate_rad": 1.0471975511965976,
+      "recovery_ambiguity_margin": 0.08,
+      "confidence_decay_s": 0.6,
+      "maximum_tracks": 256,
+      "score_policies": [],
+      "medium_confirmation_hits": 3,
+      "medium_confirmation_window_s": 0.4,
+      "maximum_confirmation_gap_s": 0.2,
+      "maximum_tentative_tracks": 128,
+      "duplicate_birth_iou": 0.85
+    },
+    "frozen_inference_config": {
+      "sweeps": 5,
+      "period_s": 0.1,
+      "intensity_scale": 64,
+      "score_threshold": 0.1,
+      "voxel_backend": "numba"
+    },
+    "baseline_inference_config": {
+      "sweeps": 5,
+      "period_s": 0.1,
+      "intensity_scale": 255.0,
+      "score_threshold": 0.1,
+      "voxel_backend": "numba"
+    },
+    "development_ablation_sha256": "605f57e3482e5c496c578c6a3245a44f7450db4298e1af8bf7c588b0aa36c18d",
+    "implementation_sha256": {
+      "benchmark_surround_inputs.py": "faf571269ad023a8197cb873aa72e57fd2d1c725cd69635afa32fbae7d795d99",
+      "lidar_raw.py": "870768ce322886ea1e50d2782fbc878953f0333b746dae93d27ab65429a19764",
+      "lidar_input_selection.py": "5039f14c7d2231665dda8fbca996171b7f14b314ea1d18c6477d60f939517c1d"
+    },
+    "ground_truth_used_as_detector_or_tracker_input": false
+  },
+  "scope": {
+    "labels": [
+      "Car",
+      "Pedestrian"
+    ],
+    "range_m": 50.0,
+    "half_angle_degrees": 40.0,
+    "coordinates": "current KITTI LiDAR x-forward/y-left",
+    "gate": "box center planar distance <= 50m and |atan2(y,x)| <= 40deg",
+    "rear_scored": false,
+    "cyclist_scored": false,
+    "note": "Bicycle/Motorcycle are not mapped to KITTI rider+bike Cyclist"
+  },
+  "natural": [
+    {
+      "sequence": "0000",
+      "role": "development",
+      "frames": 154,
+      "scored_frames": 154,
+      "excluded_missing_scan_frames": [],
+      "baseline": {
+        "observed_tracks": {
+          "tp": 184,
+          "fp": 93,
+          "fn": 65,
+          "precision": 0.6642599277978339,
+          "recall": 0.7389558232931727,
+          "f1": 0.6996197718631179,
+          "ignored_outputs": 96,
+          "idtp": 184,
+          "idfn": 65,
+          "idfp": 93,
+          "idf1": 0.6996197718631179,
+          "id_changes": 0,
+          "fragmentations": 4,
+          "unique_predicted_ids": 13,
+          "unique_gt_ids": 11
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 174,
+            "fp": 49,
+            "fn": 56,
+            "precision": 0.7802690582959642,
+            "recall": 0.7565217391304347,
+            "f1": 0.7682119205298014,
+            "ignored_outputs": 96,
+            "idtp": 174,
+            "idfn": 56,
+            "idfp": 49,
+            "idf1": 0.7682119205298014,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 9
+          },
+          "Pedestrian": {
+            "tp": 10,
+            "fp": 44,
+            "fn": 9,
+            "precision": 0.18518518518518517,
+            "recall": 0.5263157894736842,
+            "f1": 0.273972602739726,
+            "ignored_outputs": 0,
+            "idtp": 10,
+            "idfn": 9,
+            "idfp": 44,
+            "idf1": 0.273972602739726,
+            "id_changes": 0,
+            "fragmentations": 4,
+            "unique_predicted_ids": 2,
+            "unique_gt_ids": 2
+          }
+        },
+        "all_input_detections": {
+          "tp": 242,
+          "fp": 2835,
+          "fn": 7,
+          "precision": 0.07864803379915503,
+          "recall": 0.9718875502008032,
+          "f1": 0.1455201443174985,
+          "ignored_outputs": 219
+        }
+      },
+      "candidate": {
+        "observed_tracks": {
+          "tp": 239,
+          "fp": 102,
+          "fn": 10,
+          "precision": 0.7008797653958945,
+          "recall": 0.9598393574297188,
+          "f1": 0.8101694915254237,
+          "ignored_outputs": 177,
+          "idtp": 239,
+          "idfn": 10,
+          "idfp": 102,
+          "idf1": 0.8101694915254237,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 13,
+          "unique_gt_ids": 11
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 224,
+            "fp": 86,
+            "fn": 6,
+            "precision": 0.7225806451612903,
+            "recall": 0.9739130434782609,
+            "f1": 0.8296296296296296,
+            "ignored_outputs": 177,
+            "idtp": 224,
+            "idfn": 6,
+            "idfp": 86,
+            "idf1": 0.8296296296296296,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 9
+          },
+          "Pedestrian": {
+            "tp": 15,
+            "fp": 16,
+            "fn": 4,
+            "precision": 0.4838709677419355,
+            "recall": 0.7894736842105263,
+            "f1": 0.6,
+            "ignored_outputs": 0,
+            "idtp": 15,
+            "idfn": 4,
+            "idfp": 16,
+            "idf1": 0.6,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 2,
+            "unique_gt_ids": 2
+          }
+        },
+        "all_input_detections": {
+          "tp": 249,
+          "fp": 3962,
+          "fn": 0,
+          "precision": 0.059130847779624796,
+          "recall": 1.0,
+          "f1": 0.11165919282511211,
+          "ignored_outputs": 260
+        }
+      }
+    },
+    {
+      "sequence": "0001",
+      "role": "development",
+      "frames": 447,
+      "scored_frames": 443,
+      "excluded_missing_scan_frames": [
+        177,
+        178,
+        179,
+        180
+      ],
+      "baseline": {
+        "observed_tracks": {
+          "tp": 1321,
+          "fp": 145,
+          "fn": 1142,
+          "precision": 0.9010914051841746,
+          "recall": 0.5363377994315875,
+          "f1": 0.6724357342835328,
+          "ignored_outputs": 69,
+          "idtp": 1291,
+          "idfn": 1172,
+          "idfp": 175,
+          "idf1": 0.6571646729447697,
+          "id_changes": 0,
+          "fragmentations": 4,
+          "unique_predicted_ids": 80,
+          "unique_gt_ids": 90
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 1313,
+            "fp": 116,
+            "fn": 1043,
+            "precision": 0.9188243526941917,
+            "recall": 0.5573005093378608,
+            "f1": 0.6937912813738442,
+            "ignored_outputs": 69,
+            "idtp": 1283,
+            "idfn": 1073,
+            "idfp": 146,
+            "idf1": 0.6779392338177015,
+            "id_changes": 0,
+            "fragmentations": 4,
+            "unique_predicted_ids": 79,
+            "unique_gt_ids": 87
+          },
+          "Pedestrian": {
+            "tp": 8,
+            "fp": 29,
+            "fn": 99,
+            "precision": 0.21621621621621623,
+            "recall": 0.07476635514018691,
+            "f1": 0.1111111111111111,
+            "ignored_outputs": 0,
+            "idtp": 8,
+            "idfn": 99,
+            "idfp": 29,
+            "idf1": 0.1111111111111111,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 1,
+            "unique_gt_ids": 3
+          }
+        },
+        "all_input_detections": {
+          "tp": 2355,
+          "fp": 10873,
+          "fn": 108,
+          "precision": 0.1780314484426973,
+          "recall": 0.9561510353227771,
+          "f1": 0.3001720731629597,
+          "ignored_outputs": 90
+        }
+      },
+      "candidate": {
+        "observed_tracks": {
+          "tp": 1773,
+          "fp": 181,
+          "fn": 690,
+          "precision": 0.9073694984646878,
+          "recall": 0.7198538367844093,
+          "f1": 0.8028073352954495,
+          "ignored_outputs": 79,
+          "idtp": 1762,
+          "idfn": 701,
+          "idfp": 192,
+          "idf1": 0.7978265791261037,
+          "id_changes": 2,
+          "fragmentations": 4,
+          "unique_predicted_ids": 94,
+          "unique_gt_ids": 90
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 1739,
+            "fp": 158,
+            "fn": 617,
+            "precision": 0.9167105956773853,
+            "recall": 0.7381154499151104,
+            "f1": 0.8177756877498237,
+            "ignored_outputs": 79,
+            "idtp": 1728,
+            "idfn": 628,
+            "idfp": 169,
+            "idf1": 0.812602868563367,
+            "id_changes": 2,
+            "fragmentations": 4,
+            "unique_predicted_ids": 92,
+            "unique_gt_ids": 87
+          },
+          "Pedestrian": {
+            "tp": 34,
+            "fp": 23,
+            "fn": 73,
+            "precision": 0.5964912280701754,
+            "recall": 0.3177570093457944,
+            "f1": 0.4146341463414634,
+            "ignored_outputs": 0,
+            "idtp": 34,
+            "idfn": 73,
+            "idfp": 23,
+            "idf1": 0.4146341463414634,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 2,
+            "unique_gt_ids": 3
+          }
+        },
+        "all_input_detections": {
+          "tp": 2416,
+          "fp": 10869,
+          "fn": 47,
+          "precision": 0.18185923974407225,
+          "recall": 0.9809175801867641,
+          "f1": 0.30683261366522735,
+          "ignored_outputs": 88
+        }
+      }
+    },
+    {
+      "sequence": "0005",
+      "role": "development",
+      "frames": 297,
+      "scored_frames": 297,
+      "excluded_missing_scan_frames": [],
+      "baseline": {
+        "observed_tracks": {
+          "tp": 268,
+          "fp": 1,
+          "fn": 535,
+          "precision": 0.9962825278810409,
+          "recall": 0.33374844333748444,
+          "f1": 0.5,
+          "ignored_outputs": 0,
+          "idtp": 268,
+          "idfn": 535,
+          "idfp": 1,
+          "idf1": 0.5,
+          "id_changes": 0,
+          "fragmentations": 2,
+          "unique_predicted_ids": 7,
+          "unique_gt_ids": 33
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 268,
+            "fp": 1,
+            "fn": 535,
+            "precision": 0.9962825278810409,
+            "recall": 0.33374844333748444,
+            "f1": 0.5,
+            "ignored_outputs": 0,
+            "idtp": 268,
+            "idfn": 535,
+            "idfp": 1,
+            "idf1": 0.5,
+            "id_changes": 0,
+            "fragmentations": 2,
+            "unique_predicted_ids": 7,
+            "unique_gt_ids": 33
+          },
+          "Pedestrian": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "ignored_outputs": 0,
+            "idtp": 0,
+            "idfn": 0,
+            "idfp": 0,
+            "idf1": null,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 0,
+            "unique_gt_ids": 0
+          }
+        },
+        "all_input_detections": {
+          "tp": 727,
+          "fp": 3624,
+          "fn": 76,
+          "precision": 0.16708802574120893,
+          "recall": 0.9053549190535491,
+          "f1": 0.28211098176173843,
+          "ignored_outputs": 3
+        }
+      },
+      "candidate": {
+        "observed_tracks": {
+          "tp": 407,
+          "fp": 6,
+          "fn": 396,
+          "precision": 0.9854721549636803,
+          "recall": 0.5068493150684932,
+          "f1": 0.6694078947368421,
+          "ignored_outputs": 0,
+          "idtp": 407,
+          "idfn": 396,
+          "idfp": 6,
+          "idf1": 0.6694078947368421,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 15,
+          "unique_gt_ids": 33
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 407,
+            "fp": 2,
+            "fn": 396,
+            "precision": 0.9951100244498777,
+            "recall": 0.5068493150684932,
+            "f1": 0.6716171617161716,
+            "ignored_outputs": 0,
+            "idtp": 407,
+            "idfn": 396,
+            "idfp": 2,
+            "idf1": 0.6716171617161716,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 14,
+            "unique_gt_ids": 33
+          },
+          "Pedestrian": {
+            "tp": 0,
+            "fp": 4,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "ignored_outputs": 0,
+            "idtp": 0,
+            "idfn": 0,
+            "idfp": 4,
+            "idf1": 0.0,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 1,
+            "unique_gt_ids": 0
+          }
+        },
+        "all_input_detections": {
+          "tp": 744,
+          "fp": 3355,
+          "fn": 59,
+          "precision": 0.18150768480117102,
+          "recall": 0.9265255292652553,
+          "f1": 0.30354957160342716,
+          "ignored_outputs": 9
+        }
+      }
+    },
+    {
+      "sequence": "0002",
+      "role": "validation",
+      "frames": 233,
+      "scored_frames": 233,
+      "excluded_missing_scan_frames": [],
+      "baseline": {
+        "observed_tracks": {
+          "tp": 285,
+          "fp": 62,
+          "fn": 282,
+          "precision": 0.8213256484149856,
+          "recall": 0.5026455026455027,
+          "f1": 0.6236323851203501,
+          "ignored_outputs": 68,
+          "idtp": 285,
+          "idfn": 282,
+          "idfp": 62,
+          "idf1": 0.6236323851203501,
+          "id_changes": 0,
+          "fragmentations": 4,
+          "unique_predicted_ids": 9,
+          "unique_gt_ids": 12
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 285,
+            "fp": 62,
+            "fn": 115,
+            "precision": 0.8213256484149856,
+            "recall": 0.7125,
+            "f1": 0.7630522088353414,
+            "ignored_outputs": 68,
+            "idtp": 285,
+            "idfn": 115,
+            "idfp": 62,
+            "idf1": 0.7630522088353414,
+            "id_changes": 0,
+            "fragmentations": 4,
+            "unique_predicted_ids": 9,
+            "unique_gt_ids": 11
+          },
+          "Pedestrian": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 167,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "ignored_outputs": 0,
+            "idtp": 0,
+            "idfn": 167,
+            "idfp": 0,
+            "idf1": 0.0,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 0,
+            "unique_gt_ids": 1
+          }
+        },
+        "all_input_detections": {
+          "tp": 421,
+          "fp": 3577,
+          "fn": 146,
+          "precision": 0.10530265132566283,
+          "recall": 0.7425044091710759,
+          "f1": 0.18444687842278204,
+          "ignored_outputs": 70
+        }
+      },
+      "candidate": {
+        "observed_tracks": {
+          "tp": 293,
+          "fp": 40,
+          "fn": 274,
+          "precision": 0.8798798798798799,
+          "recall": 0.5167548500881834,
+          "f1": 0.6511111111111111,
+          "ignored_outputs": 53,
+          "idtp": 293,
+          "idfn": 274,
+          "idfp": 40,
+          "idf1": 0.6511111111111111,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 10,
+          "unique_gt_ids": 12
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 293,
+            "fp": 40,
+            "fn": 107,
+            "precision": 0.8798798798798799,
+            "recall": 0.7325,
+            "f1": 0.7994542974079127,
+            "ignored_outputs": 53,
+            "idtp": 293,
+            "idfn": 107,
+            "idfp": 40,
+            "idf1": 0.7994542974079127,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 11
+          },
+          "Pedestrian": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 167,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "ignored_outputs": 0,
+            "idtp": 0,
+            "idfn": 167,
+            "idfp": 0,
+            "idf1": 0.0,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 0,
+            "unique_gt_ids": 1
+          }
+        },
+        "all_input_detections": {
+          "tp": 421,
+          "fp": 4526,
+          "fn": 146,
+          "precision": 0.08510208206994138,
+          "recall": 0.7425044091710759,
+          "f1": 0.15270221254987304,
+          "ignored_outputs": 71
+        }
+      }
+    },
+    {
+      "sequence": "0006",
+      "role": "validation",
+      "frames": 270,
+      "scored_frames": 270,
+      "excluded_missing_scan_frames": [],
+      "baseline": {
+        "observed_tracks": {
+          "tp": 345,
+          "fp": 45,
+          "fn": 82,
+          "precision": 0.8846153846153846,
+          "recall": 0.8079625292740047,
+          "f1": 0.8445532435740514,
+          "ignored_outputs": 36,
+          "idtp": 319,
+          "idfn": 108,
+          "idfp": 71,
+          "idf1": 0.780905752753978,
+          "id_changes": 0,
+          "fragmentations": 0,
+          "unique_predicted_ids": 10,
+          "unique_gt_ids": 11
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 345,
+            "fp": 45,
+            "fn": 82,
+            "precision": 0.8846153846153846,
+            "recall": 0.8079625292740047,
+            "f1": 0.8445532435740514,
+            "ignored_outputs": 36,
+            "idtp": 319,
+            "idfn": 108,
+            "idfp": 71,
+            "idf1": 0.780905752753978,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 10,
+            "unique_gt_ids": 11
+          },
+          "Pedestrian": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "ignored_outputs": 0,
+            "idtp": 0,
+            "idfn": 0,
+            "idfp": 0,
+            "idf1": null,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 0,
+            "unique_gt_ids": 0
+          }
+        },
+        "all_input_detections": {
+          "tp": 424,
+          "fp": 2869,
+          "fn": 3,
+          "precision": 0.12875797145460066,
+          "recall": 0.9929742388758782,
+          "f1": 0.22795698924731184,
+          "ignored_outputs": 37
+        }
+      },
+      "candidate": {
+        "observed_tracks": {
+          "tp": 420,
+          "fp": 658,
+          "fn": 7,
+          "precision": 0.38961038961038963,
+          "recall": 0.9836065573770492,
+          "f1": 0.5581395348837209,
+          "ignored_outputs": 36,
+          "idtp": 420,
+          "idfn": 7,
+          "idfp": 658,
+          "idf1": 0.5581395348837209,
+          "id_changes": 1,
+          "fragmentations": 0,
+          "unique_predicted_ids": 20,
+          "unique_gt_ids": 11
+        },
+        "per_class_observed": {
+          "Car": {
+            "tp": 420,
+            "fp": 31,
+            "fn": 7,
+            "precision": 0.9312638580931264,
+            "recall": 0.9836065573770492,
+            "f1": 0.9567198177676538,
+            "ignored_outputs": 36,
+            "idtp": 420,
+            "idfn": 7,
+            "idfp": 31,
+            "idf1": 0.9567198177676538,
+            "id_changes": 1,
+            "fragmentations": 0,
+            "unique_predicted_ids": 11,
+            "unique_gt_ids": 11
+          },
+          "Pedestrian": {
+            "tp": 0,
+            "fp": 627,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "ignored_outputs": 0,
+            "idtp": 0,
+            "idfn": 0,
+            "idfp": 627,
+            "idf1": 0.0,
+            "id_changes": 0,
+            "fragmentations": 0,
+            "unique_predicted_ids": 9,
+            "unique_gt_ids": 0
+          }
+        },
+        "all_input_detections": {
+          "tp": 424,
+          "fp": 6030,
+          "fn": 3,
+          "precision": 0.06569569259374032,
+          "recall": 0.9929742388758782,
+          "f1": 0.12323790146780991,
+          "ignored_outputs": 48
+        }
+      }
+    }
+  ],
+  "fixed_recovery": {
+    "0000": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": []
+    },
+    "0001": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": []
+    },
+    "0005": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": []
+    },
+    "0002": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": []
+    },
+    "0006": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": []
+    }
+  },
+  "prior_pointrcnn_fixed_recovery": {
+    "0000": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 0,
+      "baseline_same_id": 0,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": []
+    },
+    "0001": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 1,
+      "baseline_same_id": 1,
+      "candidate_same_id": 0,
+      "candidate_no_pretrack": 1,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": [
+        {
+          "gt_id": "11",
+          "baseline_same_id": true,
+          "before_id": null,
+          "after_id": 41,
+          "candidate_same_id": false,
+          "candidate_no_pretrack": true,
+          "wrong_retained_identity": false
+        }
+      ]
+    },
+    "0005": {
+      "eligibility": "fixed baseline pretrack + post recovery-input GT match, both in common front ROI",
+      "kind": "3s all-detection dropout, not natural occlusion",
+      "eligible": 1,
+      "baseline_same_id": 1,
+      "candidate_same_id": 1,
+      "candidate_no_pretrack": 0,
+      "candidate_no_return": 0,
+      "candidate_wrong_retained_identity": 0,
+      "targets": [
+        {
+          "gt_id": "31",
+          "baseline_same_id": true,
+          "before_id": 2,
+          "after_id": 2,
+          "candidate_same_id": true,
+          "candidate_no_pretrack": false,
+          "wrong_retained_identity": false
+        }
+      ]
+    }
+  },
+  "development_ablation": [
+    {
+      "sequence": "0000",
+      "scale": 255,
+      "sweeps": 5,
+      "observed": {
+        "tp": 184,
+        "fp": 93,
+        "fn": 65,
+        "precision": 0.6642599277978339,
+        "recall": 0.7389558232931727,
+        "f1": 0.6996197718631179,
+        "ignored_outputs": 96,
+        "idtp": 184,
+        "idfn": 65,
+        "idfp": 93,
+        "idf1": 0.6996197718631179,
+        "id_changes": 0,
+        "fragmentations": 4,
+        "unique_predicted_ids": 13,
+        "unique_gt_ids": 11
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 242,
+          "fp": 2835,
+          "fn": 7,
+          "precision": 0.07864803379915503,
+          "recall": 0.9718875502008032,
+          "f1": 0.1455201443174985,
+          "ignored_outputs": 219
+        },
+        "0.2": {
+          "tp": 241,
+          "fp": 1874,
+          "fn": 8,
+          "precision": 0.11394799054373522,
+          "recall": 0.9678714859437751,
+          "f1": 0.2038917089678511,
+          "ignored_outputs": 181
+        },
+        "0.3": {
+          "tp": 230,
+          "fp": 1021,
+          "fn": 19,
+          "precision": 0.1838529176658673,
+          "recall": 0.9236947791164659,
+          "f1": 0.30666666666666664,
+          "ignored_outputs": 156
+        },
+        "0.4": {
+          "tp": 224,
+          "fp": 501,
+          "fn": 25,
+          "precision": 0.30896551724137933,
+          "recall": 0.8995983935742972,
+          "f1": 0.459958932238193,
+          "ignored_outputs": 139
+        },
+        "0.5": {
+          "tp": 207,
+          "fp": 251,
+          "fn": 42,
+          "precision": 0.4519650655021834,
+          "recall": 0.8313253012048193,
+          "f1": 0.5855728429985856,
+          "ignored_outputs": 112
+        },
+        "0.6": {
+          "tp": 182,
+          "fp": 129,
+          "fn": 67,
+          "precision": 0.5852090032154341,
+          "recall": 0.7309236947791165,
+          "f1": 0.65,
+          "ignored_outputs": 87
+        },
+        "0.7": {
+          "tp": 119,
+          "fp": 40,
+          "fn": 130,
+          "precision": 0.7484276729559748,
+          "recall": 0.4779116465863454,
+          "f1": 0.5833333333333334,
+          "ignored_outputs": 47
+        },
+        "0.8": {
+          "tp": 44,
+          "fp": 5,
+          "fn": 205,
+          "precision": 0.8979591836734694,
+          "recall": 0.17670682730923695,
+          "f1": 0.2953020134228188,
+          "ignored_outputs": 16
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 249,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "6693f3fbbc4bf5bac5bc863998dbd7a36a4f08d3d4f421a90bdf65eee1e06606"
+    },
+    {
+      "sequence": "0000",
+      "scale": 128,
+      "sweeps": 5,
+      "observed": {
+        "tp": 224,
+        "fp": 173,
+        "fn": 25,
+        "precision": 0.5642317380352645,
+        "recall": 0.8995983935742972,
+        "f1": 0.6934984520123839,
+        "ignored_outputs": 172,
+        "idtp": 224,
+        "idfn": 25,
+        "idfp": 173,
+        "idf1": 0.6934984520123839,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 17,
+        "unique_gt_ids": 11
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 249,
+          "fp": 4291,
+          "fn": 0,
+          "precision": 0.05484581497797357,
+          "recall": 1.0,
+          "f1": 0.10398830653581123,
+          "ignored_outputs": 248
+        },
+        "0.2": {
+          "tp": 249,
+          "fp": 3213,
+          "fn": 0,
+          "precision": 0.07192374350086655,
+          "recall": 1.0,
+          "f1": 0.13419563459983833,
+          "ignored_outputs": 213
+        },
+        "0.3": {
+          "tp": 248,
+          "fp": 1764,
+          "fn": 1,
+          "precision": 0.12326043737574553,
+          "recall": 0.9959839357429718,
+          "f1": 0.2193719593100398,
+          "ignored_outputs": 189
+        },
+        "0.4": {
+          "tp": 246,
+          "fp": 923,
+          "fn": 3,
+          "precision": 0.21043627031650983,
+          "recall": 0.9879518072289156,
+          "f1": 0.3469675599435825,
+          "ignored_outputs": 176
+        },
+        "0.5": {
+          "tp": 239,
+          "fp": 481,
+          "fn": 10,
+          "precision": 0.33194444444444443,
+          "recall": 0.9598393574297188,
+          "f1": 0.4932920536635707,
+          "ignored_outputs": 170
+        },
+        "0.6": {
+          "tp": 227,
+          "fp": 227,
+          "fn": 22,
+          "precision": 0.5,
+          "recall": 0.9116465863453815,
+          "f1": 0.6458036984352774,
+          "ignored_outputs": 153
+        },
+        "0.7": {
+          "tp": 186,
+          "fp": 86,
+          "fn": 63,
+          "precision": 0.6838235294117647,
+          "recall": 0.7469879518072289,
+          "f1": 0.7140115163147792,
+          "ignored_outputs": 99
+        },
+        "0.8": {
+          "tp": 105,
+          "fp": 17,
+          "fn": 144,
+          "precision": 0.860655737704918,
+          "recall": 0.42168674698795183,
+          "f1": 0.5660377358490566,
+          "ignored_outputs": 33
+        },
+        "0.9": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 246,
+          "precision": 1.0,
+          "recall": 0.012048192771084338,
+          "f1": 0.023809523809523808,
+          "ignored_outputs": 1
+        }
+      },
+      "output_sha256": "add76e5d20996b2ae950b47c82d1962c01809e8aaab8fffd7684a0f970b9598a"
+    },
+    {
+      "sequence": "0000",
+      "scale": 64,
+      "sweeps": 5,
+      "observed": {
+        "tp": 239,
+        "fp": 102,
+        "fn": 10,
+        "precision": 0.7008797653958945,
+        "recall": 0.9598393574297188,
+        "f1": 0.8101694915254237,
+        "ignored_outputs": 177,
+        "idtp": 239,
+        "idfn": 10,
+        "idfp": 102,
+        "idf1": 0.8101694915254237,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 13,
+        "unique_gt_ids": 11
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 249,
+          "fp": 3962,
+          "fn": 0,
+          "precision": 0.059130847779624796,
+          "recall": 1.0,
+          "f1": 0.11165919282511211,
+          "ignored_outputs": 260
+        },
+        "0.2": {
+          "tp": 249,
+          "fp": 2366,
+          "fn": 0,
+          "precision": 0.09521988527724666,
+          "recall": 1.0,
+          "f1": 0.1738826815642458,
+          "ignored_outputs": 230
+        },
+        "0.3": {
+          "tp": 248,
+          "fp": 1181,
+          "fn": 1,
+          "precision": 0.1735479356193142,
+          "recall": 0.9959839357429718,
+          "f1": 0.29558998808104886,
+          "ignored_outputs": 205
+        },
+        "0.4": {
+          "tp": 247,
+          "fp": 632,
+          "fn": 2,
+          "precision": 0.28100113765642776,
+          "recall": 0.9919678714859438,
+          "f1": 0.4379432624113475,
+          "ignored_outputs": 189
+        },
+        "0.5": {
+          "tp": 240,
+          "fp": 335,
+          "fn": 9,
+          "precision": 0.41739130434782606,
+          "recall": 0.963855421686747,
+          "f1": 0.5825242718446602,
+          "ignored_outputs": 175
+        },
+        "0.6": {
+          "tp": 233,
+          "fp": 186,
+          "fn": 16,
+          "precision": 0.5560859188544153,
+          "recall": 0.9357429718875502,
+          "f1": 0.6976047904191617,
+          "ignored_outputs": 162
+        },
+        "0.7": {
+          "tp": 199,
+          "fp": 80,
+          "fn": 50,
+          "precision": 0.7132616487455197,
+          "recall": 0.7991967871485943,
+          "f1": 0.7537878787878788,
+          "ignored_outputs": 114
+        },
+        "0.8": {
+          "tp": 118,
+          "fp": 19,
+          "fn": 131,
+          "precision": 0.8613138686131386,
+          "recall": 0.4738955823293173,
+          "f1": 0.6113989637305699,
+          "ignored_outputs": 32
+        },
+        "0.9": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 245,
+          "precision": 1.0,
+          "recall": 0.01606425702811245,
+          "f1": 0.03162055335968379,
+          "ignored_outputs": 2
+        }
+      },
+      "output_sha256": "bf5212a4b67407044b12a7620ee53f1325b159d635efc7b2af8195a8fce519db"
+    },
+    {
+      "sequence": "0000",
+      "scale": 16,
+      "sweeps": 5,
+      "observed": {
+        "tp": 226,
+        "fp": 58,
+        "fn": 23,
+        "precision": 0.795774647887324,
+        "recall": 0.9076305220883534,
+        "f1": 0.8480300187617261,
+        "ignored_outputs": 169,
+        "idtp": 226,
+        "idfn": 23,
+        "idfp": 58,
+        "idf1": 0.8480300187617261,
+        "id_changes": 0,
+        "fragmentations": 1,
+        "unique_predicted_ids": 12,
+        "unique_gt_ids": 11
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 246,
+          "fp": 2209,
+          "fn": 3,
+          "precision": 0.10020366598778004,
+          "recall": 0.9879518072289156,
+          "f1": 0.1819526627218935,
+          "ignored_outputs": 267
+        },
+        "0.2": {
+          "tp": 244,
+          "fp": 527,
+          "fn": 5,
+          "precision": 0.3164721141374838,
+          "recall": 0.9799196787148594,
+          "f1": 0.47843137254901963,
+          "ignored_outputs": 249
+        },
+        "0.3": {
+          "tp": 236,
+          "fp": 265,
+          "fn": 13,
+          "precision": 0.47105788423153694,
+          "recall": 0.9477911646586346,
+          "f1": 0.6293333333333333,
+          "ignored_outputs": 234
+        },
+        "0.4": {
+          "tp": 235,
+          "fp": 187,
+          "fn": 14,
+          "precision": 0.556872037914692,
+          "recall": 0.9437751004016064,
+          "f1": 0.7004470938897168,
+          "ignored_outputs": 215
+        },
+        "0.5": {
+          "tp": 233,
+          "fp": 128,
+          "fn": 16,
+          "precision": 0.6454293628808865,
+          "recall": 0.9357429718875502,
+          "f1": 0.7639344262295082,
+          "ignored_outputs": 193
+        },
+        "0.6": {
+          "tp": 225,
+          "fp": 79,
+          "fn": 24,
+          "precision": 0.7401315789473685,
+          "recall": 0.9036144578313253,
+          "f1": 0.8137432188065099,
+          "ignored_outputs": 155
+        },
+        "0.7": {
+          "tp": 194,
+          "fp": 47,
+          "fn": 55,
+          "precision": 0.8049792531120332,
+          "recall": 0.7791164658634538,
+          "f1": 0.7918367346938775,
+          "ignored_outputs": 86
+        },
+        "0.8": {
+          "tp": 98,
+          "fp": 12,
+          "fn": 151,
+          "precision": 0.8909090909090909,
+          "recall": 0.39357429718875503,
+          "f1": 0.5459610027855153,
+          "ignored_outputs": 24
+        },
+        "0.9": {
+          "tp": 2,
+          "fp": 0,
+          "fn": 247,
+          "precision": 1.0,
+          "recall": 0.008032128514056224,
+          "f1": 0.01593625498007968,
+          "ignored_outputs": 1
+        }
+      },
+      "output_sha256": "4bf6aaac94d47a91382d5f5044f96519db0bb379cf06137c95e2993037d73283"
+    },
+    {
+      "sequence": "0000",
+      "scale": 1,
+      "sweeps": 5,
+      "observed": {
+        "tp": 169,
+        "fp": 27,
+        "fn": 80,
+        "precision": 0.8622448979591837,
+        "recall": 0.678714859437751,
+        "f1": 0.7595505617977528,
+        "ignored_outputs": 154,
+        "idtp": 169,
+        "idfn": 80,
+        "idfp": 27,
+        "idf1": 0.7595505617977528,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 10,
+        "unique_gt_ids": 11
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 243,
+          "fp": 2376,
+          "fn": 6,
+          "precision": 0.09278350515463918,
+          "recall": 0.9759036144578314,
+          "f1": 0.1694560669456067,
+          "ignored_outputs": 249
+        },
+        "0.2": {
+          "tp": 233,
+          "fp": 507,
+          "fn": 16,
+          "precision": 0.31486486486486487,
+          "recall": 0.9357429718875502,
+          "f1": 0.4711830131445905,
+          "ignored_outputs": 224
+        },
+        "0.3": {
+          "tp": 232,
+          "fp": 226,
+          "fn": 17,
+          "precision": 0.5065502183406113,
+          "recall": 0.9317269076305221,
+          "f1": 0.6562942008486563,
+          "ignored_outputs": 200
+        },
+        "0.4": {
+          "tp": 224,
+          "fp": 126,
+          "fn": 25,
+          "precision": 0.64,
+          "recall": 0.8995983935742972,
+          "f1": 0.7479131886477463,
+          "ignored_outputs": 173
+        },
+        "0.5": {
+          "tp": 212,
+          "fp": 83,
+          "fn": 37,
+          "precision": 0.7186440677966102,
+          "recall": 0.8514056224899599,
+          "f1": 0.7794117647058824,
+          "ignored_outputs": 137
+        },
+        "0.6": {
+          "tp": 191,
+          "fp": 54,
+          "fn": 58,
+          "precision": 0.7795918367346939,
+          "recall": 0.7670682730923695,
+          "f1": 0.7732793522267206,
+          "ignored_outputs": 93
+        },
+        "0.7": {
+          "tp": 139,
+          "fp": 23,
+          "fn": 110,
+          "precision": 0.8580246913580247,
+          "recall": 0.5582329317269076,
+          "f1": 0.6763990267639902,
+          "ignored_outputs": 43
+        },
+        "0.8": {
+          "tp": 50,
+          "fp": 3,
+          "fn": 199,
+          "precision": 0.9433962264150944,
+          "recall": 0.20080321285140562,
+          "f1": 0.33112582781456956,
+          "ignored_outputs": 8
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 249,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "274cd4dc706da8dd751357eb672479c88769ac451832fd3a9aadd5845e430205"
+    },
+    {
+      "sequence": "0001",
+      "scale": 255,
+      "sweeps": 5,
+      "observed": {
+        "tp": 1321,
+        "fp": 145,
+        "fn": 1142,
+        "precision": 0.9010914051841746,
+        "recall": 0.5363377994315875,
+        "f1": 0.6724357342835328,
+        "ignored_outputs": 69,
+        "idtp": 1291,
+        "idfn": 1172,
+        "idfp": 175,
+        "idf1": 0.6571646729447697,
+        "id_changes": 0,
+        "fragmentations": 4,
+        "unique_predicted_ids": 80,
+        "unique_gt_ids": 90
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 2355,
+          "fp": 10873,
+          "fn": 108,
+          "precision": 0.1780314484426973,
+          "recall": 0.9561510353227771,
+          "f1": 0.3001720731629597,
+          "ignored_outputs": 90
+        },
+        "0.2": {
+          "tp": 2279,
+          "fp": 4566,
+          "fn": 184,
+          "precision": 0.33294375456537617,
+          "recall": 0.9252943564758425,
+          "f1": 0.489686291362269,
+          "ignored_outputs": 85
+        },
+        "0.3": {
+          "tp": 2163,
+          "fp": 1982,
+          "fn": 300,
+          "precision": 0.5218335343787696,
+          "recall": 0.8781973203410475,
+          "f1": 0.6546610169491526,
+          "ignored_outputs": 75
+        },
+        "0.4": {
+          "tp": 2022,
+          "fp": 990,
+          "fn": 441,
+          "precision": 0.6713147410358565,
+          "recall": 0.8209500609013398,
+          "f1": 0.7386301369863014,
+          "ignored_outputs": 72
+        },
+        "0.5": {
+          "tp": 1838,
+          "fp": 529,
+          "fn": 625,
+          "precision": 0.7765103506548373,
+          "recall": 0.7462444173771823,
+          "f1": 0.7610766045548655,
+          "ignored_outputs": 67
+        },
+        "0.6": {
+          "tp": 1515,
+          "fp": 260,
+          "fn": 948,
+          "precision": 0.8535211267605634,
+          "recall": 0.6151035322777101,
+          "f1": 0.7149598867390279,
+          "ignored_outputs": 53
+        },
+        "0.7": {
+          "tp": 972,
+          "fp": 102,
+          "fn": 1491,
+          "precision": 0.9050279329608939,
+          "recall": 0.3946406820950061,
+          "f1": 0.549618320610687,
+          "ignored_outputs": 32
+        },
+        "0.8": {
+          "tp": 339,
+          "fp": 12,
+          "fn": 2124,
+          "precision": 0.9658119658119658,
+          "recall": 0.13763702801461633,
+          "f1": 0.24093816631130063,
+          "ignored_outputs": 8
+        },
+        "0.9": {
+          "tp": 11,
+          "fp": 0,
+          "fn": 2452,
+          "precision": 1.0,
+          "recall": 0.004466098254161592,
+          "f1": 0.00889248181083266,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "0ec9fd3f3d5f6a6c86e56ee63c0e6113c84057acb0c0621131aba715a51907bd"
+    },
+    {
+      "sequence": "0001",
+      "scale": 128,
+      "sweeps": 5,
+      "observed": {
+        "tp": 1732,
+        "fp": 299,
+        "fn": 731,
+        "precision": 0.8527818808468735,
+        "recall": 0.7032074705643524,
+        "f1": 0.7708055184690699,
+        "ignored_outputs": 72,
+        "idtp": 1716,
+        "idfn": 747,
+        "idfp": 315,
+        "idf1": 0.7636849132176236,
+        "id_changes": 2,
+        "fragmentations": 4,
+        "unique_predicted_ids": 97,
+        "unique_gt_ids": 90
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 2428,
+          "fp": 12518,
+          "fn": 35,
+          "precision": 0.1624514920380035,
+          "recall": 0.9857896873731222,
+          "f1": 0.278936182434373,
+          "ignored_outputs": 90
+        },
+        "0.2": {
+          "tp": 2403,
+          "fp": 5790,
+          "fn": 60,
+          "precision": 0.2932991578176492,
+          "recall": 0.9756394640682094,
+          "f1": 0.4510135135135135,
+          "ignored_outputs": 88
+        },
+        "0.3": {
+          "tp": 2349,
+          "fp": 2719,
+          "fn": 114,
+          "precision": 0.4634964483030781,
+          "recall": 0.953714981729598,
+          "f1": 0.6238215376444032,
+          "ignored_outputs": 85
+        },
+        "0.4": {
+          "tp": 2254,
+          "fp": 1465,
+          "fn": 209,
+          "precision": 0.6060769023931164,
+          "recall": 0.9151441331709298,
+          "f1": 0.7292138466515691,
+          "ignored_outputs": 82
+        },
+        "0.5": {
+          "tp": 2125,
+          "fp": 801,
+          "fn": 338,
+          "precision": 0.7262474367737526,
+          "recall": 0.8627689809175801,
+          "f1": 0.7886435331230284,
+          "ignored_outputs": 81
+        },
+        "0.6": {
+          "tp": 1931,
+          "fp": 433,
+          "fn": 532,
+          "precision": 0.8168358714043993,
+          "recall": 0.7840032480714576,
+          "f1": 0.8000828672053035,
+          "ignored_outputs": 69
+        },
+        "0.7": {
+          "tp": 1459,
+          "fp": 181,
+          "fn": 1004,
+          "precision": 0.8896341463414634,
+          "recall": 0.5923670320747056,
+          "f1": 0.7111869363880088,
+          "ignored_outputs": 49
+        },
+        "0.8": {
+          "tp": 681,
+          "fp": 33,
+          "fn": 1782,
+          "precision": 0.9537815126050421,
+          "recall": 0.27649208282582216,
+          "f1": 0.42870632672332387,
+          "ignored_outputs": 15
+        },
+        "0.9": {
+          "tp": 45,
+          "fp": 1,
+          "fn": 2418,
+          "precision": 0.9782608695652174,
+          "recall": 0.018270401948842874,
+          "f1": 0.03587086488640893,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "e2dcf1c1a02b7381c37eb22b4086c053e503ef4ab79ca9f542943998b75c2f76"
+    },
+    {
+      "sequence": "0001",
+      "scale": 64,
+      "sweeps": 5,
+      "observed": {
+        "tp": 1773,
+        "fp": 181,
+        "fn": 690,
+        "precision": 0.9073694984646878,
+        "recall": 0.7198538367844093,
+        "f1": 0.8028073352954495,
+        "ignored_outputs": 79,
+        "idtp": 1762,
+        "idfn": 701,
+        "idfp": 192,
+        "idf1": 0.7978265791261037,
+        "id_changes": 2,
+        "fragmentations": 4,
+        "unique_predicted_ids": 94,
+        "unique_gt_ids": 90
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 2416,
+          "fp": 10869,
+          "fn": 47,
+          "precision": 0.18185923974407225,
+          "recall": 0.9809175801867641,
+          "f1": 0.30683261366522735,
+          "ignored_outputs": 88
+        },
+        "0.2": {
+          "tp": 2388,
+          "fp": 4009,
+          "fn": 75,
+          "precision": 0.37329998436767237,
+          "recall": 0.9695493300852619,
+          "f1": 0.5390519187358916,
+          "ignored_outputs": 85
+        },
+        "0.3": {
+          "tp": 2332,
+          "fp": 1978,
+          "fn": 131,
+          "precision": 0.5410672853828307,
+          "recall": 0.9468128298822575,
+          "f1": 0.6886165657758748,
+          "ignored_outputs": 84
+        },
+        "0.4": {
+          "tp": 2251,
+          "fp": 1097,
+          "fn": 212,
+          "precision": 0.6723416965352449,
+          "recall": 0.9139261063743402,
+          "f1": 0.7747375666838754,
+          "ignored_outputs": 82
+        },
+        "0.5": {
+          "tp": 2141,
+          "fp": 638,
+          "fn": 322,
+          "precision": 0.7704210147535084,
+          "recall": 0.8692651238327244,
+          "f1": 0.8168637924456315,
+          "ignored_outputs": 82
+        },
+        "0.6": {
+          "tp": 1956,
+          "fp": 359,
+          "fn": 507,
+          "precision": 0.8449244060475162,
+          "recall": 0.7941534713763703,
+          "f1": 0.818752616157388,
+          "ignored_outputs": 76
+        },
+        "0.7": {
+          "tp": 1538,
+          "fp": 152,
+          "fn": 925,
+          "precision": 0.9100591715976332,
+          "recall": 0.6244417377182298,
+          "f1": 0.7406693956176258,
+          "ignored_outputs": 60
+        },
+        "0.8": {
+          "tp": 765,
+          "fp": 25,
+          "fn": 1698,
+          "precision": 0.9683544303797469,
+          "recall": 0.3105968331303289,
+          "f1": 0.4703350753150938,
+          "ignored_outputs": 18
+        },
+        "0.9": {
+          "tp": 70,
+          "fp": 1,
+          "fn": 2393,
+          "precision": 0.9859154929577465,
+          "recall": 0.028420625253755584,
+          "f1": 0.055248618784530384,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "c03d426847dcd66c9bf11e5b225eed827cbddad972dc506a2c6c798e4585c7ba"
+    },
+    {
+      "sequence": "0001",
+      "scale": 16,
+      "sweeps": 5,
+      "observed": {
+        "tp": 1535,
+        "fp": 62,
+        "fn": 928,
+        "precision": 0.9611772072636193,
+        "recall": 0.6232237109216403,
+        "f1": 0.7561576354679803,
+        "ignored_outputs": 67,
+        "idtp": 1521,
+        "idfn": 942,
+        "idfp": 76,
+        "idf1": 0.7492610837438424,
+        "id_changes": 2,
+        "fragmentations": 3,
+        "unique_predicted_ids": 79,
+        "unique_gt_ids": 90
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 2330,
+          "fp": 5538,
+          "fn": 133,
+          "precision": 0.29613624809354344,
+          "recall": 0.9460008120178643,
+          "f1": 0.4510695963604685,
+          "ignored_outputs": 83
+        },
+        "0.2": {
+          "tp": 2211,
+          "fp": 1210,
+          "fn": 252,
+          "precision": 0.6463022508038585,
+          "recall": 0.8976857490864799,
+          "f1": 0.7515295717199184,
+          "ignored_outputs": 83
+        },
+        "0.3": {
+          "tp": 2121,
+          "fp": 551,
+          "fn": 342,
+          "precision": 0.7937874251497006,
+          "recall": 0.8611449451887941,
+          "f1": 0.826095423563778,
+          "ignored_outputs": 83
+        },
+        "0.4": {
+          "tp": 2021,
+          "fp": 330,
+          "fn": 442,
+          "precision": 0.8596341982135262,
+          "recall": 0.8205440519691434,
+          "f1": 0.8396343996676361,
+          "ignored_outputs": 80
+        },
+        "0.5": {
+          "tp": 1900,
+          "fp": 217,
+          "fn": 563,
+          "precision": 0.8974964572508266,
+          "recall": 0.7714169711733658,
+          "f1": 0.8296943231441049,
+          "ignored_outputs": 74
+        },
+        "0.6": {
+          "tp": 1709,
+          "fp": 135,
+          "fn": 754,
+          "precision": 0.9267895878524945,
+          "recall": 0.6938692651238327,
+          "f1": 0.7935918272579522,
+          "ignored_outputs": 60
+        },
+        "0.7": {
+          "tp": 1365,
+          "fp": 58,
+          "fn": 1098,
+          "precision": 0.9592410400562192,
+          "recall": 0.5542021924482339,
+          "f1": 0.7025218733916624,
+          "ignored_outputs": 38
+        },
+        "0.8": {
+          "tp": 694,
+          "fp": 12,
+          "fn": 1769,
+          "precision": 0.9830028328611898,
+          "recall": 0.28177019894437677,
+          "f1": 0.4379930577469233,
+          "ignored_outputs": 15
+        },
+        "0.9": {
+          "tp": 56,
+          "fp": 1,
+          "fn": 2407,
+          "precision": 0.9824561403508771,
+          "recall": 0.022736500203004467,
+          "f1": 0.044444444444444446,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "f9dd743c91dbf89ccc3bab9e27ffc95deb4b0d6349ef7c4f73ebd06759966d7d"
+    },
+    {
+      "sequence": "0001",
+      "scale": 1,
+      "sweeps": 5,
+      "observed": {
+        "tp": 1069,
+        "fp": 16,
+        "fn": 1394,
+        "precision": 0.9852534562211982,
+        "recall": 0.4340235485180674,
+        "f1": 0.6025930101465614,
+        "ignored_outputs": 67,
+        "idtp": 1069,
+        "idfn": 1394,
+        "idfp": 16,
+        "idf1": 0.6025930101465614,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 65,
+        "unique_gt_ids": 90
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 2120,
+          "fp": 4916,
+          "fn": 343,
+          "precision": 0.3013075611142695,
+          "recall": 0.8607389362565977,
+          "f1": 0.44636277502895044,
+          "ignored_outputs": 76
+        },
+        "0.2": {
+          "tp": 1920,
+          "fp": 895,
+          "fn": 543,
+          "precision": 0.6820603907637656,
+          "recall": 0.7795371498172959,
+          "f1": 0.7275483137552103,
+          "ignored_outputs": 73
+        },
+        "0.3": {
+          "tp": 1794,
+          "fp": 396,
+          "fn": 669,
+          "precision": 0.8191780821917808,
+          "recall": 0.728380024360536,
+          "f1": 0.7711154094132817,
+          "ignored_outputs": 73
+        },
+        "0.4": {
+          "tp": 1679,
+          "fp": 218,
+          "fn": 784,
+          "precision": 0.8850817079599368,
+          "recall": 0.6816889971579375,
+          "f1": 0.7701834862385321,
+          "ignored_outputs": 69
+        },
+        "0.5": {
+          "tp": 1516,
+          "fp": 134,
+          "fn": 947,
+          "precision": 0.9187878787878788,
+          "recall": 0.6155095412099066,
+          "f1": 0.737174811573061,
+          "ignored_outputs": 62
+        },
+        "0.6": {
+          "tp": 1289,
+          "fp": 68,
+          "fn": 1174,
+          "precision": 0.9498894620486367,
+          "recall": 0.5233455136012992,
+          "f1": 0.6748691099476439,
+          "ignored_outputs": 50
+        },
+        "0.7": {
+          "tp": 913,
+          "fp": 19,
+          "fn": 1550,
+          "precision": 0.9796137339055794,
+          "recall": 0.3706861550954121,
+          "f1": 0.5378497790868925,
+          "ignored_outputs": 33
+        },
+        "0.8": {
+          "tp": 359,
+          "fp": 5,
+          "fn": 2104,
+          "precision": 0.9862637362637363,
+          "recall": 0.1457572066585465,
+          "f1": 0.253979483551468,
+          "ignored_outputs": 9
+        },
+        "0.9": {
+          "tp": 11,
+          "fp": 0,
+          "fn": 2452,
+          "precision": 1.0,
+          "recall": 0.004466098254161592,
+          "f1": 0.00889248181083266,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "b0b169d9c0419357b5e6b3f4e6223d36e307acfbef4f41b1082cd3c601d49556"
+    },
+    {
+      "sequence": "0005",
+      "scale": 255,
+      "sweeps": 5,
+      "observed": {
+        "tp": 268,
+        "fp": 1,
+        "fn": 535,
+        "precision": 0.9962825278810409,
+        "recall": 0.33374844333748444,
+        "f1": 0.5,
+        "ignored_outputs": 0,
+        "idtp": 268,
+        "idfn": 535,
+        "idfp": 1,
+        "idf1": 0.5,
+        "id_changes": 0,
+        "fragmentations": 2,
+        "unique_predicted_ids": 7,
+        "unique_gt_ids": 33
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 727,
+          "fp": 3624,
+          "fn": 76,
+          "precision": 0.16708802574120893,
+          "recall": 0.9053549190535491,
+          "f1": 0.28211098176173843,
+          "ignored_outputs": 3
+        },
+        "0.2": {
+          "tp": 644,
+          "fp": 1224,
+          "fn": 159,
+          "precision": 0.34475374732334046,
+          "recall": 0.8019925280199253,
+          "f1": 0.4822163983526769,
+          "ignored_outputs": 0
+        },
+        "0.3": {
+          "tp": 551,
+          "fp": 358,
+          "fn": 252,
+          "precision": 0.6061606160616062,
+          "recall": 0.6861768368617683,
+          "f1": 0.6436915887850467,
+          "ignored_outputs": 0
+        },
+        "0.4": {
+          "tp": 466,
+          "fp": 121,
+          "fn": 337,
+          "precision": 0.7938671209540034,
+          "recall": 0.5803237858032378,
+          "f1": 0.6705035971223021,
+          "ignored_outputs": 0
+        },
+        "0.5": {
+          "tp": 344,
+          "fp": 40,
+          "fn": 459,
+          "precision": 0.8958333333333334,
+          "recall": 0.42839352428393523,
+          "f1": 0.5796124684077506,
+          "ignored_outputs": 0
+        },
+        "0.6": {
+          "tp": 238,
+          "fp": 15,
+          "fn": 565,
+          "precision": 0.9407114624505929,
+          "recall": 0.29638854296388545,
+          "f1": 0.45075757575757575,
+          "ignored_outputs": 0
+        },
+        "0.7": {
+          "tp": 106,
+          "fp": 3,
+          "fn": 697,
+          "precision": 0.9724770642201835,
+          "recall": 0.1320049813200498,
+          "f1": 0.2324561403508772,
+          "ignored_outputs": 0
+        },
+        "0.8": {
+          "tp": 19,
+          "fp": 0,
+          "fn": 784,
+          "precision": 1.0,
+          "recall": 0.023661270236612703,
+          "f1": 0.046228710462287104,
+          "ignored_outputs": 0
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 803,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "511386a735dd40c9ca198b608d03e0947569f2810ccfe7c1b1f4fe01a9208065"
+    },
+    {
+      "sequence": "0005",
+      "scale": 128,
+      "sweeps": 5,
+      "observed": {
+        "tp": 388,
+        "fp": 2,
+        "fn": 415,
+        "precision": 0.9948717948717949,
+        "recall": 0.48318804483188044,
+        "f1": 0.6504610226320201,
+        "ignored_outputs": 0,
+        "idtp": 388,
+        "idfn": 415,
+        "idfp": 2,
+        "idf1": 0.6504610226320201,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 16,
+        "unique_gt_ids": 33
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 755,
+          "fp": 3408,
+          "fn": 48,
+          "precision": 0.18135959644487148,
+          "recall": 0.9402241594022416,
+          "f1": 0.3040676600886025,
+          "ignored_outputs": 6
+        },
+        "0.2": {
+          "tp": 717,
+          "fp": 1143,
+          "fn": 86,
+          "precision": 0.38548387096774195,
+          "recall": 0.8929016189290162,
+          "f1": 0.5384904243334585,
+          "ignored_outputs": 1
+        },
+        "0.3": {
+          "tp": 664,
+          "fp": 359,
+          "fn": 139,
+          "precision": 0.6490713587487781,
+          "recall": 0.8268991282689913,
+          "f1": 0.7272727272727273,
+          "ignored_outputs": 0
+        },
+        "0.4": {
+          "tp": 600,
+          "fp": 132,
+          "fn": 203,
+          "precision": 0.819672131147541,
+          "recall": 0.7471980074719801,
+          "f1": 0.7817589576547231,
+          "ignored_outputs": 0
+        },
+        "0.5": {
+          "tp": 528,
+          "fp": 47,
+          "fn": 275,
+          "precision": 0.9182608695652174,
+          "recall": 0.6575342465753424,
+          "f1": 0.7663280116110305,
+          "ignored_outputs": 0
+        },
+        "0.6": {
+          "tp": 448,
+          "fp": 15,
+          "fn": 355,
+          "precision": 0.9676025917926566,
+          "recall": 0.5579078455790785,
+          "f1": 0.707740916271722,
+          "ignored_outputs": 0
+        },
+        "0.7": {
+          "tp": 269,
+          "fp": 3,
+          "fn": 534,
+          "precision": 0.9889705882352942,
+          "recall": 0.33499377334993774,
+          "f1": 0.5004651162790698,
+          "ignored_outputs": 0
+        },
+        "0.8": {
+          "tp": 63,
+          "fp": 1,
+          "fn": 740,
+          "precision": 0.984375,
+          "recall": 0.0784557907845579,
+          "f1": 0.1453287197231834,
+          "ignored_outputs": 0
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 803,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "66f0a95483bac7d434469a31f20d5c9d1423a8b01ca0ae2bac795860c3984fc2"
+    },
+    {
+      "sequence": "0005",
+      "scale": 64,
+      "sweeps": 5,
+      "observed": {
+        "tp": 407,
+        "fp": 6,
+        "fn": 396,
+        "precision": 0.9854721549636803,
+        "recall": 0.5068493150684932,
+        "f1": 0.6694078947368421,
+        "ignored_outputs": 0,
+        "idtp": 407,
+        "idfn": 396,
+        "idfp": 6,
+        "idf1": 0.6694078947368421,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 15,
+        "unique_gt_ids": 33
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 744,
+          "fp": 3355,
+          "fn": 59,
+          "precision": 0.18150768480117102,
+          "recall": 0.9265255292652553,
+          "f1": 0.30354957160342716,
+          "ignored_outputs": 9
+        },
+        "0.2": {
+          "tp": 713,
+          "fp": 818,
+          "fn": 90,
+          "precision": 0.46570868713259306,
+          "recall": 0.887920298879203,
+          "f1": 0.610968294772922,
+          "ignored_outputs": 2
+        },
+        "0.3": {
+          "tp": 676,
+          "fp": 246,
+          "fn": 127,
+          "precision": 0.7331887201735358,
+          "recall": 0.8418430884184309,
+          "f1": 0.783768115942029,
+          "ignored_outputs": 1
+        },
+        "0.4": {
+          "tp": 629,
+          "fp": 92,
+          "fn": 174,
+          "precision": 0.8723994452149791,
+          "recall": 0.7833125778331258,
+          "f1": 0.8254593175853019,
+          "ignored_outputs": 0
+        },
+        "0.5": {
+          "tp": 561,
+          "fp": 37,
+          "fn": 242,
+          "precision": 0.9381270903010034,
+          "recall": 0.6986301369863014,
+          "f1": 0.8008565310492506,
+          "ignored_outputs": 0
+        },
+        "0.6": {
+          "tp": 478,
+          "fp": 19,
+          "fn": 325,
+          "precision": 0.9617706237424547,
+          "recall": 0.5952677459526775,
+          "f1": 0.7353846153846154,
+          "ignored_outputs": 0
+        },
+        "0.7": {
+          "tp": 331,
+          "fp": 6,
+          "fn": 472,
+          "precision": 0.9821958456973294,
+          "recall": 0.4122042341220423,
+          "f1": 0.5807017543859649,
+          "ignored_outputs": 0
+        },
+        "0.8": {
+          "tp": 93,
+          "fp": 1,
+          "fn": 710,
+          "precision": 0.9893617021276596,
+          "recall": 0.11581569115815692,
+          "f1": 0.20735785953177258,
+          "ignored_outputs": 0
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 803,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "5ec918e100d5832ea95bdea9013fc065d9708e0c18211b5c8b1e96ab67d22dea"
+    },
+    {
+      "sequence": "0005",
+      "scale": 16,
+      "sweeps": 5,
+      "observed": {
+        "tp": 389,
+        "fp": 2,
+        "fn": 414,
+        "precision": 0.9948849104859335,
+        "recall": 0.48443337484433374,
+        "f1": 0.6515912897822446,
+        "ignored_outputs": 0,
+        "idtp": 389,
+        "idfn": 414,
+        "idfp": 2,
+        "idf1": 0.6515912897822446,
+        "id_changes": 0,
+        "fragmentations": 0,
+        "unique_predicted_ids": 13,
+        "unique_gt_ids": 33
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 691,
+          "fp": 2232,
+          "fn": 112,
+          "precision": 0.23640095791994525,
+          "recall": 0.8605230386052304,
+          "f1": 0.37090713902308103,
+          "ignored_outputs": 9
+        },
+        "0.2": {
+          "tp": 624,
+          "fp": 332,
+          "fn": 179,
+          "precision": 0.6527196652719666,
+          "recall": 0.7770859277708593,
+          "f1": 0.709494030699261,
+          "ignored_outputs": 1
+        },
+        "0.3": {
+          "tp": 572,
+          "fp": 102,
+          "fn": 231,
+          "precision": 0.8486646884272997,
+          "recall": 0.7123287671232876,
+          "f1": 0.7745429925524713,
+          "ignored_outputs": 0
+        },
+        "0.4": {
+          "tp": 524,
+          "fp": 37,
+          "fn": 279,
+          "precision": 0.9340463458110517,
+          "recall": 0.6525529265255293,
+          "f1": 0.7683284457478006,
+          "ignored_outputs": 0
+        },
+        "0.5": {
+          "tp": 474,
+          "fp": 17,
+          "fn": 329,
+          "precision": 0.9653767820773931,
+          "recall": 0.5902864259028643,
+          "f1": 0.732612055641422,
+          "ignored_outputs": 0
+        },
+        "0.6": {
+          "tp": 428,
+          "fp": 10,
+          "fn": 375,
+          "precision": 0.9771689497716894,
+          "recall": 0.5330012453300125,
+          "f1": 0.6897663174858985,
+          "ignored_outputs": 0
+        },
+        "0.7": {
+          "tp": 309,
+          "fp": 3,
+          "fn": 494,
+          "precision": 0.9903846153846154,
+          "recall": 0.3848069738480697,
+          "f1": 0.5542600896860986,
+          "ignored_outputs": 0
+        },
+        "0.8": {
+          "tp": 89,
+          "fp": 1,
+          "fn": 714,
+          "precision": 0.9888888888888889,
+          "recall": 0.11083437110834371,
+          "f1": 0.19932810750279956,
+          "ignored_outputs": 0
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 803,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "b985291eb4b462c5ddab8bb59eab406600685f031f062d67791c5f4fd7d0b82e"
+    },
+    {
+      "sequence": "0005",
+      "scale": 1,
+      "sweeps": 5,
+      "observed": {
+        "tp": 360,
+        "fp": 1,
+        "fn": 443,
+        "precision": 0.997229916897507,
+        "recall": 0.44831880448318806,
+        "f1": 0.6185567010309279,
+        "ignored_outputs": 0,
+        "idtp": 360,
+        "idfn": 443,
+        "idfp": 1,
+        "idf1": 0.6185567010309279,
+        "id_changes": 0,
+        "fragmentations": 1,
+        "unique_predicted_ids": 10,
+        "unique_gt_ids": 33
+      },
+      "raw_scores": {
+        "0.1": {
+          "tp": 611,
+          "fp": 2322,
+          "fn": 192,
+          "precision": 0.20831912717354245,
+          "recall": 0.7608966376089664,
+          "f1": 0.3270877944325482,
+          "ignored_outputs": 3
+        },
+        "0.2": {
+          "tp": 531,
+          "fp": 281,
+          "fn": 272,
+          "precision": 0.6539408866995073,
+          "recall": 0.6612702366127023,
+          "f1": 0.6575851393188854,
+          "ignored_outputs": 0
+        },
+        "0.3": {
+          "tp": 476,
+          "fp": 60,
+          "fn": 327,
+          "precision": 0.8880597014925373,
+          "recall": 0.5927770859277709,
+          "f1": 0.7109783420463032,
+          "ignored_outputs": 0
+        },
+        "0.4": {
+          "tp": 440,
+          "fp": 24,
+          "fn": 363,
+          "precision": 0.9482758620689655,
+          "recall": 0.547945205479452,
+          "f1": 0.6945540647198106,
+          "ignored_outputs": 0
+        },
+        "0.5": {
+          "tp": 417,
+          "fp": 12,
+          "fn": 386,
+          "precision": 0.972027972027972,
+          "recall": 0.5193026151930261,
+          "f1": 0.676948051948052,
+          "ignored_outputs": 0
+        },
+        "0.6": {
+          "tp": 368,
+          "fp": 7,
+          "fn": 435,
+          "precision": 0.9813333333333333,
+          "recall": 0.45828144458281445,
+          "f1": 0.6247877758913413,
+          "ignored_outputs": 0
+        },
+        "0.7": {
+          "tp": 204,
+          "fp": 4,
+          "fn": 599,
+          "precision": 0.9807692307692307,
+          "recall": 0.25404732254047324,
+          "f1": 0.4035608308605341,
+          "ignored_outputs": 0
+        },
+        "0.8": {
+          "tp": 21,
+          "fp": 1,
+          "fn": 782,
+          "precision": 0.9545454545454546,
+          "recall": 0.026151930261519303,
+          "f1": 0.05090909090909091,
+          "ignored_outputs": 0
+        },
+        "0.9": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 803,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ignored_outputs": 0
+        }
+      },
+      "output_sha256": "0e03fc88c0005f22e14a272282fdb6b51f27f667bc1ebd14ce0ed8d2a9133cbe"
+    }
+  ],
+  "acceptance": {
+    "passed": false,
+    "failures": [
+      {
+        "sequence": "0000",
+        "reason": "overall precision/recall guard failed"
+      },
+      {
+        "sequence": "0000",
+        "label": "Car",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0000",
+        "label": "Pedestrian",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0001",
+        "reason": "overall precision/recall guard failed"
+      },
+      {
+        "sequence": "0001",
+        "reason": "identity switches increased"
+      },
+      {
+        "sequence": "0001",
+        "label": "Car",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0001",
+        "label": "Pedestrian",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0005",
+        "reason": "overall precision/recall guard failed"
+      },
+      {
+        "sequence": "0005",
+        "label": "Car",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0005",
+        "label": "Pedestrian",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0002",
+        "reason": "overall precision/recall guard failed"
+      },
+      {
+        "sequence": "0002",
+        "label": "Car",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0002",
+        "label": "Pedestrian",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0006",
+        "reason": "overall precision/recall guard failed"
+      },
+      {
+        "sequence": "0006",
+        "reason": "identity switches increased"
+      },
+      {
+        "sequence": "0006",
+        "label": "Car",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "sequence": "0006",
+        "label": "Pedestrian",
+        "reason": "class precision/recall guard failed"
+      },
+      {
+        "reason": "no fixed-denominator 3s recovery opportunity"
+      }
+    ],
+    "default_changed": false,
+    "real_vehicle_ready": false,
+    "limitations": [
+      "local front-only 3D IoU diagnostic, not official KITTI tracking",
+      "KITTI sensor-domain validation does not certify RoboSense or rear accuracy",
+      "one artificial all-detection dropout per sequence, not natural occlusion validation"
+    ]
+  }
+}
