@@ -53,3 +53,7 @@ git push origin main
 通过独立草稿 PR 审核；没有合并到 `main`。推理环境在项目忽略目录
 `outputs/envs/lidar-detector`，模型和全部输出也在 `outputs/`。本机 Git Credential Manager
 继续用于 fetch/push。该实验验收失败，详见 [全周检测报告](lidar-surround.md)。
+
+后续跨序列输入验证使用 `codex/lidar-input-validation`，基于全周检测功能分支，仍通过
+草稿 PR 审核，不合并主分支。实验输出在 `outputs/kitti_surround_generalization`，配置
+与结果见 [泛化检查报告](lidar-input-validation.md)。单序列阶段结果不是最终参数依据。

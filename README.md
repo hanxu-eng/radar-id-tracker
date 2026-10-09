@@ -15,6 +15,10 @@ conda run --no-capture-output -n radar-id-tracker python examples/benchmark_kitt
 延迟测量，但精度未通过验收；实机时间同步仍待验证。以下原有 `RadarTracker` 文档说明
 二维毫米波雷达接口；激光雷达请按上面的专门文档接入。
 
+后续 [输入适配与跨序列泛化检查](docs/lidar-input-validation.md) 已完成三个开发序列的
+留一检查和两条冻结验证序列。候选在 0006 出现明显精度退化，继续保留默认；报告和
+点云对照包含失败案例，不按单条序列继续调门限。
+
 新增原始点云可视化：894 帧真实点云与三维框、ID、类别和预测状态同步叠加；
 支持俯视／三维斜视、旋转、缩放和全量点显示。准备命令如下，生成后打开同一个 `review.html`：
 

@@ -52,5 +52,15 @@ class CenterPointGeometryTests(unittest.TestCase):
         invalid=np.eye(4);invalid[0,0]=2
         with self.assertRaises(ValueError):transform_points(p,invalid)
 
+    def test_causal_input_validation_and_source_is_not_modified(self):
+        points=np.array([[10,2,-1,.5]],np.float32);original=points.copy()
+        pose=np.eye(4)
+        result=causal_cloud([(0,points,pose)],pose,0,.1,16.)
+        self.assertEqual(result[0,3],8.)
+        np.testing.assert_array_equal(points,original)
+        for period,scale in [(0,16),(.1,0),(.1,np.nan)]:
+            with self.assertRaises(ValueError):causal_cloud([(0,points,pose)],pose,0,period,scale)
+        with self.assertRaises(ValueError):causal_cloud([(0,points,pose),(0,points,pose)],pose,0,.1,16.)
+
 
 if __name__=='__main__':unittest.main()
