@@ -53,7 +53,8 @@ def in_scope(box,lidar_from_world):
             abs(atan2(p[1],p[0]))<=radians(SCOPE['half_angle_degrees']))
 
 
-def evaluate_scoped(root: Path,run_dir: Path):
+def evaluate_scoped(root: Path,run_dir: Path,threshold=.25,write=True):
+    if not np.isfinite(threshold) or not 0<threshold<=1:raise ValueError('IoU threshold must be within (0, 1]')
     summary=json.loads((run_dir/'summary.json').read_text())
     if summary.get('ground_truth_used_as_input') is not False:raise ValueError('label-free replay required')
     sequence=summary['sequence']
@@ -89,18 +90,19 @@ def evaluate_scoped(root: Path,run_dir: Path):
                  truth=[dict(gt_id=g.object_id,**asdict(g.box)) for g in gt])
         if not available:excluded_frames.append(index)
         for name,score in scores.items():
-            row[name]=score.update(gt,proposals[name],ig,.25) if available else dict(matches={},matched_gt_ids=[],id_change_gt_ids=[],tp=0,fp=0,fn=0)
+            row[name]=score.update(gt,proposals[name],ig,threshold) if available else dict(matches={},matched_gt_ids=[],id_change_gt_ids=[],tp=0,fp=0,fn=0)
         if available:
             for label,score in classes.items():
                 score.update([g for g in gt if g.box.label==label],[p for p in observed if p.label==label],
-                             [b for b in ig if b.label==label],.25)
+                             [b for b in ig if b.label==label],threshold)
         details.append(row)
     result=dict(sequence=sequence,frames=len(ds),scored_frames=len(ds)-len(excluded_frames),
-                excluded_missing_scan_frames=excluded_frames,scope=SCOPE,iou3d_threshold=.25,
+                excluded_missing_scan_frames=excluded_frames,scope=SCOPE,iou3d_threshold=threshold,
                 official_kitti_score=False,dontcare_2d_regions_handled=False,
                 **{name:score.result() for name,score in scores.items()},
                 per_class_observed={name:score.result() for name,score in classes.items()},
                 dropout_recovery=dropout_recovery(details,summary['hidden_interval'],summary['period_s']))
-    (run_dir/'evaluation.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
-    (run_dir/'evaluation_frames.jsonl').write_text(''.join(json.dumps(row)+'\n' for row in details),encoding='utf-8')
+    if write:
+        (run_dir/'evaluation.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+        (run_dir/'evaluation_frames.jsonl').write_text(''.join(json.dumps(row)+'\n' for row in details),encoding='utf-8')
     return result

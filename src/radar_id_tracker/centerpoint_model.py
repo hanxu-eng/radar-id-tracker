@@ -104,13 +104,16 @@ class CenterPointNetwork(nn.Module):
         self.pts_bbox_head=nn.Module()
         self.pts_bbox_head.shared_conv=ConvModule(384,64)
         self.pts_bbox_head.task_heads=nn.ModuleList([TaskHead(len(task)) for task in TASK_CLASSES])
-    def forward(self,features,coors):
+    def extract_features(self,features,coors):
         pillars=self.pts_voxel_encoder.pfn_layers[0](features)
         canvas=features.new_zeros((64,512*512))
         canvas[:,coors[:,2]*512+coors[:,3]]=pillars.T
         x=canvas.reshape(1,64,512,512)
         x=self.pts_neck(self.pts_backbone(x))
         x=self.pts_bbox_head.shared_conv(x)
+        return x
+    def forward(self,features,coors):
+        x=self.extract_features(features,coors)
         return [head(x) for head in self.pts_bbox_head.task_heads]
 
 
@@ -142,7 +145,7 @@ def decode_task(head,task_id,score_threshold=.1):
 
 
 class CenterPointDetector:
-    def __init__(self,checkpoint: Path,device='cuda',score_threshold=.1,voxel_backend='numpy'):
+    def __init__(self,checkpoint: Path,device='cuda',score_threshold=.1,voxel_backend='numpy',head_model=None):
         if not .1<=score_threshold<1:
             raise ValueError('score_threshold must be in [0.1,1)')
         if hashlib.sha256(checkpoint.read_bytes()).hexdigest()!=CHECKPOINT_SHA256:
@@ -163,6 +166,10 @@ class CenterPointDetector:
         self.network.load_state_dict(checkpoint_data['state_dict'],strict=True)
         self.weight_tensors=len(checkpoint_data['state_dict'])
         self.network.to(self.device).eval()
+        self.head_adapter=None
+        if head_model is not None:
+            from .centerpoint_head_adapter import HeadAdapter
+            self.head_adapter=HeadAdapter(head_model,self.network,self.device)
     def synchronize(self):
         if self.device.type=='cuda':torch.cuda.synchronize(self.device)
     @torch.inference_mode()
@@ -172,9 +179,12 @@ class CenterPointDetector:
         coordinates=torch.from_numpy(coors).to(self.device)
         features=decorate_torch(torch.from_numpy(voxels).to(self.device),
                                 torch.from_numpy(counts).to(self.device),coordinates)
-        heads=self.network(features,coordinates)
+        shared=self.network.extract_features(features,coordinates)
+        heads=[head(shared) for head in self.network.pts_bbox_head.task_heads]
         results=[]
         for task_id,head in enumerate(heads):
             boxes,scores,labels=decode_task(head,task_id,self.score_threshold)
             results.extend((box,float(score),int(label)) for box,score,label in zip(boxes,scores,labels))
+        if self.head_adapter is not None:
+            results=self.head_adapter.replace_front(results,shared,self.score_threshold)
         return results,dict(voxels=len(counts),points=len(points),retained_voxel_points=int(counts.sum()))

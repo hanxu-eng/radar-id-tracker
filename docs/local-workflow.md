@@ -62,3 +62,8 @@ git push origin main
 增加当前点云框质量评分、整序列五折训练与三条新序列验证；默认配置不变，实验仍未
 通过部署验收。结果与复现命令见 [框质量报告](lidar-box-quality.md)，本机输出在
 `outputs/kitti_box_quality`。其他未提交 RadarScenes 改动继续留在工作区。
+
+当前下一轮使用 `codex/lidar-head-adaptation`，基于框质量分支，以独立草稿 PR 发布。
+增加漏检分层诊断、可选检测头微调及三条新序列冻结验证。候选泛化和延迟验收失败，
+默认配置不变；结果及复现见 [检测头报告](lidar-head-adaptation.md)，输出在
+`outputs/kitti_head_adaptation`。原始数据和学习权重不上传，其他 RadarScenes 改动不发布。
