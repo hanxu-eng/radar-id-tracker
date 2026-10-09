@@ -9,11 +9,36 @@ from contextlib import redirect_stdout,redirect_stderr
 import io
 import numpy as np
 from radar_id_tracker.lidar_raw import replay_cache,main
-from radar_id_tracker.lidar_scoped_evaluate import in_scope,fixed_recovery
+from radar_id_tracker.lidar_scoped_evaluate import in_scope,fixed_recovery,evaluate_scoped
 from radar_id_tracker.lidar_tracker import BoxDetection,LidarTrackerConfig
 
 
 class RawLidarTests(unittest.TestCase):
+    def test_strict_scoring_changes_matching_without_overwriting_baseline(self):
+        from radar_id_tracker.kitti_evaluate import TruthBox
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run=root/'run';run.mkdir()
+            scan=root/'training/velodyne/0000/000000.bin';scan.parent.mkdir(parents=True);scan.write_bytes(b'')
+            target=BoxDetection(10,0,0,4,2,1.5,0,1,'Car')
+            proposal=BoxDetection(12,0,0,4,2,1.5,0,.9,'Car')
+            (run/'summary.json').write_text(json.dumps(dict(sequence='0000',ground_truth_used_as_input=False,
+                period_s=.1,tracker_config={},hidden_interval=None)))
+            (run/'detections.jsonl').write_text(json.dumps(dict(frame_index=0,timestamp_s=0,detections=[asdict(proposal)]))+'\n')
+            (run/'tracks.jsonl').write_text(json.dumps(dict(frame_index=0,timestamp_s=0,tracks=[]))+'\n')
+            prefix='radar_id_tracker.lidar_scoped_evaluate.'
+            with patch(prefix+'load_truth',return_value=([[TruthBox('one',target)]],[[]])), \
+                 patch(prefix+'load_poses',return_value=[np.eye(4)]), \
+                 patch(prefix+'calibration_transforms',return_value=(np.eye(4),np.eye(4))):
+                original=evaluate_scoped(root,run)
+                saved={n:(run/n).read_bytes() for n in ('evaluation.json','evaluation_frames.jsonl')}
+                strict=evaluate_scoped(root,run,.5,write=False)
+            self.assertEqual(original['all_input_detections']['tp'],1)
+            self.assertEqual(strict['all_input_detections']['tp'],0)
+            self.assertEqual(strict['all_input_detections']['fn'],1)
+            for name,data in saved.items():self.assertEqual((run/name).read_bytes(),data)
+            for threshold in (0,1.1,float('nan')):
+                with self.assertRaises(ValueError):evaluate_scoped(root,run,threshold)
+
     def test_cli_replays_frozen_inference_settings_and_rejects_silent_override(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'input.json'
@@ -26,9 +51,16 @@ class RawLidarTests(unittest.TestCase):
             self.assertEqual(infer.call_args.kwargs['sweeps'],3)
             self.assertEqual(infer.call_args.kwargs['period_s'],.2)
             self.assertIsNone(infer.call_args.kwargs['quality_model'])
+            self.assertIsNone(infer.call_args.kwargs['head_model'])
             with patch('radar_id_tracker.lidar_raw.infer_sequence',return_value={}) as infer,redirect_stdout(io.StringIO()):
                 self.assertEqual(main(argv+['--quality-model',str(Path(directory)/'quality.json')]),0)
             self.assertEqual(infer.call_args.kwargs['quality_model'],Path(directory)/'quality.json')
+            with patch('radar_id_tracker.lidar_raw.infer_sequence',return_value={}) as infer,redirect_stdout(io.StringIO()):
+                self.assertEqual(main(argv+['--head-model',str(Path(directory)/'head.json')]),0)
+            self.assertEqual(infer.call_args.kwargs['head_model'],Path(directory)/'head.json')
+            with patch('radar_id_tracker.lidar_raw.infer_sequence') as infer,redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):main(argv+['--head-model','head.json','--quality-model','quality.json'])
+                infer.assert_not_called()
             with patch('radar_id_tracker.lidar_raw.infer_sequence') as infer,redirect_stderr(io.StringIO()):
                 with self.assertRaises(SystemExit):main(argv+['--intensity-scale','255'])
                 infer.assert_not_called()

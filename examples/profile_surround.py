@@ -30,16 +30,23 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--voxel-backend',choices=('numpy','numba'))
     p.add_argument('--quality-model',type=Path)
+    p.add_argument('--head-model',type=Path)
     args=p.parse_args();torch.set_num_threads(4)
     protocol=json.loads(args.config.read_text())
     inference=RawLidarConfig.from_dict(protocol.get('frozen_inference_config',{}))
     backend=args.voxel_backend or inference.voxel_backend
     quality=BoxQualityModel.load(args.quality_model) if args.quality_model else None
+    if args.head_model:
+        from radar_id_tracker.lidar_head_targets import load_head_manifest
+        head_metadata,_=load_head_manifest(args.head_model)
+        if quality:raise ValueError('old quality model cannot be combined with adapted heads')
+        if any(asdict(inference).get(k)!=v for k,v in head_metadata['inference_config'].items() if k!='voxel_backend'):
+            raise ValueError('head model detector input domain differs')
     if quality:quality.validate_detector_inputs(CHECKPOINT_SHA256,asdict(inference))
     poses=load_poses(args.dataset_root/'training/oxts'/f'{args.sequence}.txt')
     _,lidar_to_imu=calibration_transforms(args.dataset_root/'training/calib'/f'{args.sequence}.txt')
     transforms=[pose @ lidar_to_imu for pose in poses]
-    detector=CenterPointDetector(args.checkpoint,score_threshold=inference.score_threshold,voxel_backend=backend)
+    detector=CenterPointDetector(args.checkpoint,score_threshold=inference.score_threshold,voxel_backend=backend,head_model=args.head_model)
     config=LidarTrackerConfig.from_dict(protocol['frozen_config'])
     tracker=LidarTracker(config);history=deque(maxlen=inference.sweeps);records=[]
     if args.start<0 or args.frames<1 or args.start>=len(poses):p.error('invalid latency frame range')
@@ -74,6 +81,7 @@ def main():
     result=dict(sequence=args.sequence,requested_frames=args.frames,measured_frames=len(records),voxel_backend=backend,
         inference_config={**asdict(inference),'voxel_backend':backend},
         box_quality_model_sha256=hashlib.sha256(args.quality_model.read_bytes()).hexdigest() if quality else None,
+        head_model_sha256=hashlib.sha256(args.head_model.read_bytes()).hexdigest() if args.head_model else None,
         period_budget_ms=inference.period_s*1000,gpu=torch.cuda.get_device_name(),torch_version=torch.__version__,
         stages={key:dict(median=float(np.median([r[key] for r in records])),p99=float(np.quantile([r[key] for r in records],.99)))
             for key in ('read_sha256_ms','compensation_ms','detector_voxel_decode_ms','world_box_tracker_ms','box_quality_ms','total_ms')},

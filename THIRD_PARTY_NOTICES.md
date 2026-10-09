@@ -9,6 +9,11 @@ PillarFeatureNet/PFNLayer, SECOND, SECONDFPN, SeparateHead/CenterHead,
 CenterPointBBoxCoder and circle_nms. The local port removes framework registries,
 training code and compiled operators, fixes one checkpoint architecture, and uses
 NumPy hard voxelization. It retains checkpoint parameter names and loads strictly.
+The optional front-head adapter and training examples reuse that fixed model's
+head architecture. Front-scoped Gaussian heatmap and center/size/rotation targets
+follow the CenterPoint representation; the local offline target generation and
+frozen-backbone training loop are independent additions, not an upstream training
+recipe or benchmark reproduction. No learned model files are shipped in Git.
 It is an experimental port, not an official OpenMMLab runtime or verified benchmark
 reproduction. Tensor parity checks are documented in `docs/lidar-surround.md`.
 

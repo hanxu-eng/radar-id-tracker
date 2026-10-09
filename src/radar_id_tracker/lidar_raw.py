@@ -43,9 +43,15 @@ def causal_cloud(history,current_transform,frame,period_s,intensity_scale):
 
 
 def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
-                   period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba',quality_model=None):
+                   period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba',quality_model=None,head_model=None):
     inference_config=RawLidarConfig(sweeps,period_s,intensity_scale,score_threshold,voxel_backend)
     if len(sequence)!=4 or not sequence.isdecimal():raise ValueError('invalid sequence ID')
+    if head_model is not None:
+        from .lidar_head_targets import load_head_manifest
+        head_metadata,_=load_head_manifest(head_model)
+        if quality_model is not None:raise ValueError('old quality model cannot be combined with adapted detector heads')
+        if any(asdict(inference_config).get(k)!=v for k,v in head_metadata['inference_config'].items() if k!='voxel_backend'):
+            raise ValueError('head model detector input domain differs')
     from .centerpoint_model import CenterPointDetector,CHECKPOINT_SHA256,CHECKPOINT_URL
     quality=None
     if quality_model is not None:
@@ -56,7 +62,7 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
     poses=load_poses(root/'training/oxts'/f'{sequence}.txt')
     _,lidar_to_imu=calibration_transforms(root/'training/calib'/f'{sequence}.txt')
     transforms=[pose @ lidar_to_imu for pose in poses]
-    detector=CenterPointDetector(checkpoint,device,score_threshold,voxel_backend)
+    detector=CenterPointDetector(checkpoint,device,score_threshold,voxel_backend,head_model=head_model)
     import torch
     torch.set_num_threads(4)
     # Exclude explicit startup/warm-up from measured replay latency.
@@ -135,6 +141,12 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
             box_quality_score_is_calibrated=False,
             quality_implementation_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
                 for name in ('lidar_box_features.py','lidar_box_quality.py')})
+    if head_model is not None:
+        summary.update(head_model_sha256=hashlib.sha256(head_model.read_bytes()).hexdigest(),
+            head_weights_sha256=head_metadata['weights_sha256'],head_training_sequences=head_metadata['training_sequences'],
+            head_front_only=True,head_inference_ground_truth_used=False,
+            head_implementation_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
+                for name in ('centerpoint_head_adapter.py','lidar_head_targets.py')})
     (output_dir/'inference_summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     return summary
 
@@ -199,9 +211,12 @@ def main(argv=None):
     p.add_argument('--period-s',type=float)
     p.add_argument('--score-threshold',type=float)
     p.add_argument('--quality-model',type=Path,help='optional frozen JSON box quality model; explicit input config must match training domain')
+    p.add_argument('--head-model',type=Path,help='optional frozen front-head manifest; incompatible with old quality models')
     p.add_argument('--track-output-dir',type=Path,help='optionally replay inference into a separate tracking directory')
     p.add_argument('--tracker-config',type=Path,help='explicit tracker JSON; required with --track-output-dir')
     args=p.parse_args(argv)
+    if args.head_model and args.quality_model:
+        p.error('--head-model cannot be combined with an old --quality-model')
     if bool(args.track_output_dir)!=bool(args.tracker_config):
         p.error('--track-output-dir and --tracker-config must be provided together')
     overrides={key:getattr(args,key) for key in RawLidarConfig.__dataclass_fields__ if getattr(args,key) is not None}
@@ -213,7 +228,7 @@ def main(argv=None):
         if args.track_output_dir and args.track_output_dir.resolve()==args.output_dir.resolve():
             raise ValueError('cache and tracking output directories must differ')
         summary=infer_sequence(args.dataset_root,args.sequence,args.output_dir,args.checkpoint,
-            device=args.device,quality_model=args.quality_model,**asdict(inference))
+            device=args.device,quality_model=args.quality_model,head_model=args.head_model,**asdict(inference))
         if args.track_output_dir:
             summary['tracking_run']=replay_cache(args.output_dir,args.track_output_dir,config)
     except (OSError,ValueError,ImportError,KeyError,TypeError) as error:p.exit(2,f'raw LiDAR inference error: {error}\n')

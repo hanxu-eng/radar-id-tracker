@@ -14,7 +14,7 @@ def main():
     p.add_argument('--dataset-root',type=Path,required=True)
     p.add_argument('--run-root',type=Path,required=True)
     p.add_argument('--reuse-assets',type=Path,help='existing pointclouds directory, source hashes checked')
-    p.add_argument('--comparison',choices=('detector','input','quality'),default='detector')
+    p.add_argument('--comparison',choices=('detector','input','quality','heads'),default='detector')
     args=p.parse_args()
     rows=json.loads((args.run_root/'benchmark.json').read_text())
     sequences=sorted({r['sequence'] for r in rows})
