@@ -40,6 +40,7 @@ def main():
     if (out/'model.json').exists():raise ValueError('frozen head model exists; choose a new directory')
     manifest_path=args.features_dir/'manifest.json';meta=json.loads(manifest_path.read_text())
     if set(meta['training_sequences'])&set(meta['validation_sequences']):raise ValueError('training/validation overlap')
+    if meta.get('training_parameters',PARAMETERS)!=PARAMETERS:raise ValueError('frozen training parameters differ')
     torch.manual_seed(17);torch.cuda.manual_seed_all(17);rng=np.random.default_rng(17);torch.set_num_threads(4)
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark=False
@@ -54,13 +55,15 @@ def main():
             path=args.features_dir/record[kind]
             if hashlib.sha256(path.read_bytes()).hexdigest()!=record[kind+'_sha256']:raise ValueError('training artifact checksum differs')
         groups[record['sequence']].append(record)
+    if any(not group for group in groups.values()):raise ValueError('empty training sequence')
     out.mkdir(parents=True,exist_ok=True)
     protocol=dict(**PARAMETERS,training_sequences=meta['training_sequences'],validation_sequences=meta['validation_sequences'],
         feature_manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
         inference_config=meta['inference_config'],tracker_config=dict(high_confidence=.7,low_confidence=.1,maximum_tentative_tracks=128,duplicate_birth_iou=.85),
         deterministic_algorithms=True,torch_version=torch.__version__,
         source_sha256={name:hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in
-            ['examples/train_lidar_heads.py','src/radar_id_tracker/lidar_head_targets.py','src/radar_id_tracker/centerpoint_head_adapter.py']})
+            ['examples/train_lidar_heads.py','src/radar_id_tracker/lidar_head_targets.py','src/radar_id_tracker/centerpoint_head_adapter.py']},
+        **{k:meta[k] for k in ('split_plan_sha256','reserved_sequences','split_input_audit_sha256') if k in meta})
     # Write protocol before optimization and before opening any validation labels.
     (out/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
     log=[]
@@ -86,7 +89,8 @@ def main():
         base_checkpoint_sha256=meta['base_checkpoint_sha256'],inference_config=meta['inference_config'],
         training_sequences=meta['training_sequences'],validation_sequences=meta['validation_sequences'],
         feature_dtype='float16',weights_file=weights.name,weights_sha256=hashlib.sha256(weights.read_bytes()).hexdigest(),
-        parameters=PARAMETERS,labels_sha256=meta['labels_sha256'],feature_manifest_sha256=protocol['feature_manifest_sha256'])
+        parameters=PARAMETERS,labels_sha256=meta['labels_sha256'],feature_manifest_sha256=protocol['feature_manifest_sha256'],
+        **{k:meta[k] for k in ('split_plan_sha256','reserved_sequences','split_input_audit_sha256') if k in meta})
     (out/'model.json').write_text(json.dumps(model,indent=2)+'\n')
     print(json.dumps(dict(model_sha256=hashlib.sha256((out/'model.json').read_bytes()).hexdigest(),weights_sha256=model['weights_sha256'])),flush=True)
 

@@ -14,7 +14,7 @@ def main():
     p.add_argument('--dataset-root',type=Path,required=True)
     p.add_argument('--run-root',type=Path,required=True)
     p.add_argument('--reuse-assets',type=Path,help='existing pointclouds directory, source hashes checked')
-    p.add_argument('--comparison',choices=('detector','input','quality','heads'),default='detector')
+    p.add_argument('--comparison',choices=('detector','input','quality','heads','coverage'),default='detector')
     args=p.parse_args()
     rows=json.loads((args.run_root/'benchmark.json').read_text())
     sequences=sorted({r['sequence'] for r in rows})
@@ -39,7 +39,8 @@ def main():
                 if not destination.exists():os.link(source,destination)
         (target/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     else:prepare_clouds(args.dataset_root,args.run_root,sequences)
-    build_review(args.run_root,rows);label_review(args.run_root/'review.html',args.comparison)
+    validation=json.loads((args.run_root/'evaluation_protocol.json').read_text())['validation_sequences'] if args.comparison=='coverage' else None
+    build_review(args.run_root,rows);label_review(args.run_root/'review.html',args.comparison,validation)
     print(args.run_root/'review.html')
 
 

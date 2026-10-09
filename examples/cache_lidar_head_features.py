@@ -4,6 +4,7 @@ from collections import deque
 from dataclasses import replace
 import hashlib
 import json
+import os
 from pathlib import Path
 import numpy as np
 import torch
@@ -34,13 +35,57 @@ def main():
     p.add_argument('--dataset-root',type=Path,required=True)
     p.add_argument('--checkpoint',type=Path,required=True)
     p.add_argument('--output-dir',type=Path,required=True)
+    p.add_argument('--split-plan',type=Path)
+    p.add_argument('--split-input-audit',type=Path)
+    p.add_argument('--reuse-features',type=Path,help='checksum-verified previous frozen feature cache')
     args=p.parse_args();out=args.output_dir
     if (out/'manifest.json').exists():raise ValueError('feature manifest exists; choose a new directory')
+    training,validation=TRAIN,VALIDATION;extra={};audit=None
+    if args.split_plan:
+        from radar_id_tracker.lidar_training_protocol import load_training_plan
+        plan,digest=load_training_plan(args.split_plan)
+        if plan['inference_config']!=INPUT:raise ValueError('training plan input differs from frozen extractor')
+        if args.split_input_audit is None:raise ValueError('label-free split audit required with split plan')
+        audit=json.loads(args.split_input_audit.read_text())
+        if audit['split_plan_sha256']!=digest or audit['exact_scan_overlap_count']!=0 or audit['ground_truth_labels_opened'] is not False:
+            raise ValueError('split input audit differs')
+        training,validation=plan['training_sequences'],plan['validation_sequences']
+        extra=dict(split_plan_sha256=digest,reserved_sequences=plan['reserved_sequences'],training_parameters=plan['training_parameters'],
+            split_input_audit_sha256=hashlib.sha256(args.split_input_audit.read_bytes()).hexdigest())
+    elif args.split_input_audit or args.reuse_features:
+        raise ValueError('split plan required with audit or reuse')
+    reuse=json.loads((args.reuse_features/'manifest.json').read_text()) if args.reuse_features else None
+    if reuse and (reuse['inference_config']!=INPUT or reuse['base_checkpoint_sha256']!=CHECKPOINT_SHA256):
+        raise ValueError('reused feature input domain differs')
     out.mkdir(parents=True,exist_ok=True);torch.set_num_threads(4)
     detector=CenterPointDetector(args.checkpoint,'cuda',.1,'numba')
     records=[];source=[];target_counts=dict(Car=0,Pedestrian=0)
     with torch.inference_mode():
-        for sequence in TRAIN:
+        for sequence in training:
+            audited_scans={r['frame_index']:r['sha256'] for r in audit['scan_hashes'][sequence]} if audit else {}
+            if audit:
+                checked=next(r for r in audit['sequences'] if r['sequence']==sequence)
+                for kind in ('oxts','calib'):
+                    if hashlib.sha256((args.dataset_root/'training'/kind/f'{sequence}.txt').read_bytes()).hexdigest()!=checked[kind+'_sha256']:
+                        raise ValueError('calibration/pose differs from input audit')
+            if reuse and sequence in reuse['training_sequences']:
+                label=args.dataset_root/'training/label_02'/f'{sequence}.txt'
+                if hashlib.sha256(label.read_bytes()).hexdigest()!=reuse['labels_sha256'][sequence]:raise ValueError('reused training labels differ')
+                prior_scans=[r for r in reuse['source_scans'] if r['sequence']==sequence]
+                expected=audit['scan_hashes'][sequence]
+                if [{k:r[k] for k in ('frame_index','sha256')} for r in prior_scans]!=expected:
+                    raise ValueError('reused raw scan hashes differ')
+                source.extend(prior_scans);(out/sequence).mkdir(exist_ok=True)
+                for record in (r for r in reuse['records'] if r['sequence']==sequence):
+                    for kind in ('feature','targets'):
+                        original=args.reuse_features/record[kind]
+                        if hashlib.sha256(original.read_bytes()).hexdigest()!=record[kind+'_sha256']:raise ValueError('reused artifact checksum differs')
+                        os.link(original,out/record[kind])
+                    records.append(record)
+                    with np.load(out/record['targets'],allow_pickle=False) as targets:
+                        for c,label in enumerate(('Car','Pedestrian')):target_counts[label]+=int(targets['valid'][c].sum())
+                print(json.dumps(dict(sequence=sequence,reused=True,cached=len(records))),flush=True)
+                continue
             poses=load_poses(args.dataset_root/'training/oxts'/f'{sequence}.txt')
             _,extrinsic=calibration_transforms(args.dataset_root/'training/calib'/f'{sequence}.txt')
             transforms=[pose@extrinsic for pose in poses]
@@ -53,6 +98,8 @@ def main():
                 path=args.dataset_root/'training/velodyne'/sequence/f'{i:06d}.bin'
                 if not path.exists():continue
                 data=path.read_bytes();points=read_scan(path);history.append((i,points,matrix))
+                if audit and hashlib.sha256(data).hexdigest()!=audited_scans.get(i):
+                    raise ValueError('training scan differs from input audit')
                 source.append(dict(sequence=sequence,frame_index=i,sha256=hashlib.sha256(data).hexdigest()))
                 inverse=np.linalg.inv(matrix)
                 truth=[g.box for g in gt[i] if in_scope(g.box,inverse)]
@@ -86,13 +133,13 @@ def main():
                     targets_sha256=hashlib.sha256((out/(name+'.npz')).read_bytes()).hexdigest()))
                 for c,label in enumerate(('Car','Pedestrian')):target_counts[label]+=int(targets['valid'][c].sum())
                 if i%50==0:print(json.dumps(dict(sequence=sequence,frame=i,cached=len(records))),flush=True)
-    result=dict(training_sequences=TRAIN,validation_sequences=VALIDATION,base_checkpoint_sha256=CHECKPOINT_SHA256,
+    result=dict(training_sequences=training,validation_sequences=validation,base_checkpoint_sha256=CHECKPOINT_SHA256,
         inference_config=INPUT,feature_dtype='float16',feature_shape=[64,128,128],
         feature_values_label_free=True,training_frame_selection_uses_pedestrian_labels=True,
         targets_offline_only=True,targets=target_counts,records=records,source_scans=source,
-        labels_sha256={s:hashlib.sha256((args.dataset_root/'training/label_02'/f'{s}.txt').read_bytes()).hexdigest() for s in TRAIN},
+        labels_sha256={s:hashlib.sha256((args.dataset_root/'training/label_02'/f'{s}.txt').read_bytes()).hexdigest() for s in training},
         source_sha256={name:hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in
-            ['examples/cache_lidar_head_features.py','src/radar_id_tracker/lidar_head_targets.py','src/radar_id_tracker/centerpoint_model.py']})
+            ['examples/cache_lidar_head_features.py','src/radar_id_tracker/lidar_head_targets.py','src/radar_id_tracker/centerpoint_model.py']},**extra)
     (out/'manifest.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(dict(samples=len(records),targets=target_counts)),flush=True)
 

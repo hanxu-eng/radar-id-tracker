@@ -21,7 +21,7 @@ def main():
     p.add_argument('--run-root',type=Path,required=True)
     p.add_argument('--sequence',default='0001');p.add_argument('--frame',type=int,default=120)
     p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--comparison',choices=('detector','input','quality','heads'),default='detector')
+    p.add_argument('--comparison',choices=('detector','input','quality','heads','coverage'),default='detector')
     p.add_argument('--show-errors',action='store_true',help='offline front-ROI truth and TP/FP/missed coloring')
     args=p.parse_args();args.output.parent.mkdir(parents=True,exist_ok=True)
     os.environ.setdefault('MPLCONFIGDIR',str(args.output.parent.resolve()/'.mplconfig'))
@@ -44,10 +44,13 @@ def main():
     titles=('CenterPoint original input','CenterPoint adapted input (experimental)') if args.comparison=='input' else ('Published PointRCNN + tracker','Raw CenterPoint + tracker (experimental)')
     if args.comparison=='quality':titles=('CenterPoint original scores','Current-scan box quality (experimental)')
     if args.comparison=='heads':titles=('CenterPoint original heads','Front head adaptation (experimental)')
+    if args.comparison=='coverage':titles=('CenterPoint original heads','Expanded training coverage (experimental)')
+    rows=json.loads((args.run_root/'benchmark.json').read_text())
     for ax,profile,title in zip(axes,('baseline','candidate'),titles):
         ax.set_facecolor('#172330');ax.axvspan(-51.2,0,color='#25314d',alpha=.5)
         ax.scatter(displayed[:,0],displayed[:,1],s=.15,c='#7a91a5',alpha=.45,rasterized=True)
-        run=args.run_root/args.sequence/'natural'/profile
+        metadata=next(r for r in rows if r['sequence']==args.sequence and r['scenario']=='natural' and r['profile']==profile)
+        run=Path(metadata.get('run_dir',args.run_root/args.sequence/'natural'/profile))
         frame=json.loads((run/'tracks.jsonl').read_text().splitlines()[args.frame])
         row=json.loads((run/'detections.jsonl').read_text().splitlines()[args.frame])
         score=json.loads((run/'evaluation.json').read_text())['observed_tracks']
@@ -112,13 +115,13 @@ def main():
         ax.set(xlim=(-51.2,51.2),ylim=(-51.2,51.2),aspect='equal',xlabel='KITTI LiDAR X / forward (m)',ylabel='KITTI LiDAR Y / left (m)')
         ax.grid(alpha=.12);ax.set_title(title+f'\nSequence front P {score["precision"]:.1%} / R {score["recall"]:.1%}; rear displayed tracks: {rear}',pad=10)
     role_note=''
-    if args.comparison=='heads':
+    if args.comparison in ('heads','coverage'):
         role=next(r['role'] for r in json.loads((args.run_root/'benchmark.json').read_text()) if r['sequence']==args.sequence)
         role_note=' | TRAINING REPLAY' if role=='training_replay' else ' | HELD-OUT VALIDATION'
     fig.suptitle(f'Original KITTI pointcloud + stable IDs | sequence {args.sequence}, frame {args.frame}{role_note}\n'+
         ('Front 3D IoU >= 0.25: green TP / red FP / yellow truth and MISS / gray ignored; rear unscored' if args.show_errors else
          'Front scores: Car/Pedestrian, +/-40 deg and 50m, local 3D IoU >= 0.25; rear boxes need independent verification'),fontsize=12)
-    fig.savefig(args.output,dpi=150,facecolor=fig.get_facecolor())
+    fig.savefig(args.output,dpi=150,facecolor=fig.get_facecolor(),bbox_inches='tight',pad_inches=.12)
     args.output.with_suffix('.json').write_text(json.dumps(dict(sequence=args.sequence,frame=args.frame,
         raw_points=len(points),displayed_points=len(displayed),boxes=evidence),indent=2)+'\n')
     print(args.output)
