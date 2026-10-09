@@ -14,13 +14,14 @@ from radar_id_tracker.lidar_scoped_evaluate import evaluate_scoped,SCOPE,fixed_r
 from radar_id_tracker.lidar_visualization import build_review
 
 
-def label_review(path,comparison='detector'):
+def label_review(path,comparison='detector',validation_sequences=None):
     html=path.read_text(encoding='utf-8')
-    if comparison=='heads':
+    if comparison in ('heads','coverage'):
         html=html.replace('原分数策略','CenterPoint 原检测头')
-        html=html.replace('候选确认策略（实验）','前向检测头微调（实验）')
+        html=html.replace('候选确认策略（实验）','扩充训练覆盖的检测头（实验）' if comparison=='coverage' else '前向检测头微调（实验）')
+        validation='/'.join(validation_sequences or ['0009','0013','0017'])
         html=html.replace('左侧为CenterPoint 原检测头，右侧为按类别候选确认策略；两侧身份均保留 4 秒',
-            '两侧采用相同输入和跟踪门限；右侧仅替换前向车辆/行人检测头。训练序列回放只作诊断；0009/0013/0017 为冻结后验证')
+            f'两侧采用相同输入和跟踪门限；右侧仅替换前向车辆/行人检测头。训练序列回放只作诊断；{validation} 为冻结后验证')
         html=html.replace('点云仅加入可视化，跟踪仍使用公开 PointRCNN 检测框。',
             '两侧都使用真实点云；后方保持原检测头，KITTI 无后方真值。指标只统计前方 ±40°、50m 内 Car/Pedestrian，未通过部署验收。')
         path.write_text(html,encoding='utf-8');return

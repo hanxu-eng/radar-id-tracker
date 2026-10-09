@@ -34,6 +34,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dataset-root', type=Path, required=True)
     parser.add_argument('--run-root', type=Path, required=True)
+    parser.add_argument('--training-only', action='store_true', help='audit training diversity before opening validation labels')
     args = parser.parse_args(); root = args.run_root
     meta = json.loads((root / 'features/manifest.json').read_text())
     counts = {label: 0 for label in ('Car', 'Pedestrian')}
@@ -57,6 +58,8 @@ def main():
     diversity = dict(target_instances=counts, unique_annotated_objects={k: len(v) for k, v in objects.items()},
                      ids_used_only_for_offline_diversity_audit=True)
     (root / 'training_diversity.json').write_text(json.dumps(diversity, indent=2) + '\n')
+    if args.training_only:
+        print(json.dumps(diversity)); return
     rows = json.loads((root / 'benchmark.json').read_text()); parity = []
     for sequence in sorted({r['sequence'] for r in rows}):
         pair = {r['profile']: r for r in rows if r['sequence'] == sequence and r['scenario'] == 'natural'}
@@ -98,7 +101,8 @@ def main():
         for index in frames:
             if not (root / 'pointclouds' / sequence / f'{int(index):06d}.js').is_file(): raise ValueError('pointcloud asset missing')
             cloud_count += 1
-    for marker in ('训练序列回放只作诊断', '0009/0013/0017', '未通过部署验收', '前方 ±40°'):
+    validation='/'.join(meta['validation_sequences'])
+    for marker in ('训练序列回放只作诊断', validation, '未通过部署验收', '前方 ±40°'):
         if marker not in html: raise ValueError('review scope statement missing')
     audit = dict(cases=len(cases), profile_frames=frame_count, pointclouds=cloud_count,
                  missing=cloud['missing_frames'], json_and_assets_valid=True, browser_render_not_tested=True)

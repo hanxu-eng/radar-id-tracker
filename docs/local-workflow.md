@@ -67,3 +67,8 @@ git push origin main
 增加漏检分层诊断、可选检测头微调及三条新序列冻结验证。候选泛化和延迟验收失败，
 默认配置不变；结果及复现见 [检测头报告](lidar-head-adaptation.md)，输出在
 `outputs/kitti_head_adaptation`。原始数据和学习权重不上传，其他 RadarScenes 改动不发布。
+
+扩大训练覆盖的下一轮使用 `codex/lidar-training-coverage`，基于检测头适配分支，以
+独立草稿 PR 发布。17 条序列训练，0010/0015/0019 冻结验证，0020 留给后续。候选
+恢复部分行人召回，但整体仍未验收，默认配置不变。报告见
+[训练覆盖实验](lidar-training-coverage.md)，输出在 `outputs/kitti_training_coverage`。
