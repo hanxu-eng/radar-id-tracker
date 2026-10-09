@@ -8,6 +8,9 @@ from time import perf_counter
 import numpy as np
 import torch
 from radar_id_tracker.centerpoint_model import CenterPointDetector
+from radar_id_tracker.centerpoint_model import CHECKPOINT_SHA256
+from radar_id_tracker.lidar_box_features import BoxFeatureIndex
+from radar_id_tracker.lidar_box_quality import BoxQualityModel
 from radar_id_tracker.centerpoint_geometry import KITTI_TO_MODEL,box_to_world
 from radar_id_tracker.kitti_adapter import calibration_transforms,load_poses
 from radar_id_tracker.lidar_raw import causal_cloud
@@ -26,10 +29,13 @@ def main():
     p.add_argument('--frames',type=int,default=100)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--voxel-backend',choices=('numpy','numba'))
+    p.add_argument('--quality-model',type=Path)
     args=p.parse_args();torch.set_num_threads(4)
     protocol=json.loads(args.config.read_text())
     inference=RawLidarConfig.from_dict(protocol.get('frozen_inference_config',{}))
     backend=args.voxel_backend or inference.voxel_backend
+    quality=BoxQualityModel.load(args.quality_model) if args.quality_model else None
+    if quality:quality.validate_detector_inputs(CHECKPOINT_SHA256,asdict(inference))
     poses=load_poses(args.dataset_root/'training/oxts'/f'{args.sequence}.txt')
     _,lidar_to_imu=calibration_transforms(args.dataset_root/'training/calib'/f'{args.sequence}.txt')
     transforms=[pose @ lidar_to_imu for pose in poses]
@@ -52,18 +58,25 @@ def main():
         detector.synchronize();before=perf_counter();decoded,stats=detector.predict(cloud);detector.synchronize()
         detector_ms=(perf_counter()-before)*1000
         before=perf_counter();matrix=transforms[index] @ KITTI_TO_MODEL.T
-        tracks=tracker.update(index*inference.period_s,[box_to_world(box,s,c,matrix) for box,s,c in decoded])
+        boxes=[box_to_world(box,s,c,matrix) for box,s,c in decoded]
+        quality_ms=0.
+        if quality:
+            before_quality=perf_counter();boxes,_=quality.rescore(BoxFeatureIndex(points,transforms[index]),boxes)
+            quality_ms=(perf_counter()-before_quality)*1000
+        tracks=tracker.update(index*inference.period_s,boxes)
         track_ms=(perf_counter()-before)*1000
         if index>=args.start:
             records.append(dict(frame=index,read_sha256_ms=read_ms,compensation_ms=compensate_ms,
                 detector_voxel_decode_ms=detector_ms,world_box_tracker_ms=track_ms,
+                box_quality_ms=quality_ms,
                 total_ms=(perf_counter()-start)*1000,tracks=len(tracks),source_sha256=digest))
     if not records:raise ValueError('no available scans in latency frame range')
     result=dict(sequence=args.sequence,requested_frames=args.frames,measured_frames=len(records),voxel_backend=backend,
         inference_config={**asdict(inference),'voxel_backend':backend},
+        box_quality_model_sha256=hashlib.sha256(args.quality_model.read_bytes()).hexdigest() if quality else None,
         period_budget_ms=inference.period_s*1000,gpu=torch.cuda.get_device_name(),torch_version=torch.__version__,
         stages={key:dict(median=float(np.median([r[key] for r in records])),p99=float(np.quantile([r[key] for r in records],.99)))
-            for key in ('read_sha256_ms','compensation_ms','detector_voxel_decode_ms','world_box_tracker_ms','total_ms')},
+            for key in ('read_sha256_ms','compensation_ms','detector_voxel_decode_ms','world_box_tracker_ms','box_quality_ms','total_ms')},
         deadline_misses=sum(r['total_ms']>inference.period_s*1000 for r in records),
         no_other_repo_inference_process=True,warmup_frames=min(warmup,args.start),records=records)
     args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(result,indent=2)+'\n')

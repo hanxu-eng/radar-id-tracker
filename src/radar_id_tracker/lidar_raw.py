@@ -43,10 +43,16 @@ def causal_cloud(history,current_transform,frame,period_s,intensity_scale):
 
 
 def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
-                   period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba'):
+                   period_s=.1,intensity_scale=255.,score_threshold=.1,voxel_backend='numba',quality_model=None):
     inference_config=RawLidarConfig(sweeps,period_s,intensity_scale,score_threshold,voxel_backend)
     if len(sequence)!=4 or not sequence.isdecimal():raise ValueError('invalid sequence ID')
     from .centerpoint_model import CenterPointDetector,CHECKPOINT_SHA256,CHECKPOINT_URL
+    quality=None
+    if quality_model is not None:
+        from .lidar_box_features import BoxFeatureIndex
+        from .lidar_box_quality import BoxQualityModel
+        quality=BoxQualityModel.load(quality_model)
+        quality.validate_detector_inputs(CHECKPOINT_SHA256,asdict(inference_config))
     poses=load_poses(root/'training/oxts'/f'{sequence}.txt')
     _,lidar_to_imu=calibration_transforms(root/'training/calib'/f'{sequence}.txt')
     transforms=[pose @ lidar_to_imu for pose in poses]
@@ -68,7 +74,7 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
             available=path.exists()
             while history and (index-history[0][0])*period_s>(sweeps-1)*period_s+1e-8:
                 history.popleft()
-            inference_ms=None;detections=[];stats={}
+            inference_ms=None;detections=[];stats={};quality_details=[]
             if available:
                 data=path.read_bytes()
                 input_files.append(dict(frame_index=index,bytes=len(data),sha256=hashlib.sha256(data).hexdigest()))
@@ -81,6 +87,8 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
                 world_from_model=transform @ KITTI_TO_MODEL.T
                 # Full homogeneous inverse: KITTI_TO_MODEL has zero translation.
                 detections=[box_to_world(box,score,label,world_from_model) for box,score,label in decoded]
+                if quality is not None:
+                    detections,quality_details=quality.rescore(BoxFeatureIndex(points,transform),detections)
                 rear_count+=sum(int(box[1]<0) for box,score,label in decoded)
                 for detection in detections:
                     class_counts[detection.label]=class_counts.get(detection.label,0)+1
@@ -92,7 +100,8 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
                     world_from_lidar=transform.tolist(),raw_scan_available=available,
                     synthetic_detector_dropout=False,detections=[asdict(d) for d in detections],
                     sweeps_used=[j for j,_,_ in reversed(history)] if available else [],
-                    end_to_end_ms=latency,inference_ms=inference_ms,voxelization=stats),allow_nan=False)+'\n')
+                    end_to_end_ms=latency,inference_ms=inference_ms,voxelization=stats,
+                    box_quality_scores=quality_details),allow_nan=False)+'\n')
             if index%50==0 or index==len(transforms)-1:
                 print(json.dumps(dict(sequence=sequence,frame=index,total=len(transforms),
                                      detections=len(detections),latency_ms=round(latency,2))),flush=True)
@@ -115,10 +124,17 @@ def infer_sequence(root,sequence,output_dir,checkpoint,device='cuda',sweeps=5,
         input_coordinate_transform='KITTI x-forward/y-left to model x-right/y-forward: (-y,x,z)',
         domain_transfer='nuScenes pretrained model on KITTI, unvalidated on RoboSense',
         median_detector_pipeline_ms=float(np.median(timing)),p99_detector_pipeline_ms=float(np.quantile(timing,.99)),
-        latency_includes='scan read + source SHA256 + sweep compensation + CPU voxelization + GPU + decode',
+        latency_includes=('scan read + source SHA256 + sweep compensation + CPU voxelization + GPU + decode'
+                          + (' + current-scan box features + quality scoring' if quality_model else '')),
         warmup_excluded=True,device=str(detector.device),torch_version=torch.__version__,
         gpu=torch.cuda.get_device_name() if detector.device.type=='cuda' else None,
         output_sha256=hashlib.sha256(target.read_bytes()).hexdigest(),input_scans=input_files)
+    if quality is not None:
+        summary.update(box_quality_model_sha256=hashlib.sha256(quality_model.read_bytes()).hexdigest(),
+            box_quality_training_sequences=quality.data['training_sequences'],quality_inference_ground_truth_used=False,
+            box_quality_score_is_calibrated=False,
+            quality_implementation_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
+                for name in ('lidar_box_features.py','lidar_box_quality.py')})
     (output_dir/'inference_summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     return summary
 
@@ -182,6 +198,7 @@ def main(argv=None):
     p.add_argument('--intensity-scale',type=float)
     p.add_argument('--period-s',type=float)
     p.add_argument('--score-threshold',type=float)
+    p.add_argument('--quality-model',type=Path,help='optional frozen JSON box quality model; explicit input config must match training domain')
     p.add_argument('--track-output-dir',type=Path,help='optionally replay inference into a separate tracking directory')
     p.add_argument('--tracker-config',type=Path,help='explicit tracker JSON; required with --track-output-dir')
     args=p.parse_args(argv)
@@ -196,7 +213,7 @@ def main(argv=None):
         if args.track_output_dir and args.track_output_dir.resolve()==args.output_dir.resolve():
             raise ValueError('cache and tracking output directories must differ')
         summary=infer_sequence(args.dataset_root,args.sequence,args.output_dir,args.checkpoint,
-            device=args.device,**asdict(inference))
+            device=args.device,quality_model=args.quality_model,**asdict(inference))
         if args.track_output_dir:
             summary['tracking_run']=replay_cache(args.output_dir,args.track_output_dir,config)
     except (OSError,ValueError,ImportError,KeyError,TypeError) as error:p.exit(2,f'raw LiDAR inference error: {error}\n')

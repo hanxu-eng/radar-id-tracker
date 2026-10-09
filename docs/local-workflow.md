@@ -57,3 +57,8 @@ git push origin main
 后续跨序列输入验证使用 `codex/lidar-input-validation`，基于全周检测功能分支，仍通过
 草稿 PR 审核，不合并主分支。实验输出在 `outputs/kitti_surround_generalization`，配置
 与结果见 [泛化检查报告](lidar-input-validation.md)。单序列阶段结果不是最终参数依据。
+
+当前迭代使用 `codex/lidar-box-quality`，基于输入验证分支，以独立草稿 PR 发布。
+增加当前点云框质量评分、整序列五折训练与三条新序列验证；默认配置不变，实验仍未
+通过部署验收。结果与复现命令见 [框质量报告](lidar-box-quality.md)，本机输出在
+`outputs/kitti_box_quality`。其他未提交 RadarScenes 改动继续留在工作区。

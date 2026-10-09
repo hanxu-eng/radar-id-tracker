@@ -25,6 +25,10 @@ class RawLidarTests(unittest.TestCase):
             self.assertEqual(infer.call_args.kwargs['intensity_scale'],64)
             self.assertEqual(infer.call_args.kwargs['sweeps'],3)
             self.assertEqual(infer.call_args.kwargs['period_s'],.2)
+            self.assertIsNone(infer.call_args.kwargs['quality_model'])
+            with patch('radar_id_tracker.lidar_raw.infer_sequence',return_value={}) as infer,redirect_stdout(io.StringIO()):
+                self.assertEqual(main(argv+['--quality-model',str(Path(directory)/'quality.json')]),0)
+            self.assertEqual(infer.call_args.kwargs['quality_model'],Path(directory)/'quality.json')
             with patch('radar_id_tracker.lidar_raw.infer_sequence') as infer,redirect_stderr(io.StringIO()):
                 with self.assertRaises(SystemExit):main(argv+['--intensity-scale','255'])
                 infer.assert_not_called()
