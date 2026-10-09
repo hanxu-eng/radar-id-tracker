@@ -14,17 +14,28 @@ from fit_calibration_folds import sha
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--dataset-root',type=Path,required=True);p.add_argument('--plan',type=Path,required=True)
-    p.add_argument('--run-root',type=Path,required=True);args=p.parse_args();root=args.run_root
+    p.add_argument('--run-root',type=Path,required=True)
+    p.add_argument('--geometry',action='store_true',help='diagnose frozen matched geometry controls, without score calibration')
+    p.add_argument('--parent-run',type=Path)
+    args=p.parse_args();root=args.run_root
     plan,digest=load_calibration_plan(args.plan);manifest=json.loads((root/'cache_manifest.json').read_text())
     frozen=json.loads((root/'evaluation_protocol.json').read_text())
-    if frozen['plan_sha256']!=digest:raise ValueError('frozen evaluation plan differs')
-    records=[]
+    if not args.geometry and frozen['plan_sha256']!=digest:raise ValueError('frozen evaluation plan differs')
+    profiles=('continued_l1','weighted_axis_huber') if args.geometry else ('baseline','head_raw')
+    if args.geometry:
+        if args.parent_run is None:raise ValueError('geometry diagnosis requires parent')
+        protocol=json.loads((root/'protocol.json').read_text())
+        if protocol['parent_calibration_plan_sha256']!=digest or frozen['protocol_sha256']!=sha(root/'protocol.json'):
+            raise ValueError('geometry diagnostic protocol differs')
+        records=json.loads((args.parent_run/'geometry_diagnostics.json').read_text())['records'].copy()
+    else:records=[]
     for fold,(_,_,evaluate) in enumerate(plan['roles']):
-        ScoreCalibrationModel.load(root/f'fold_{fold}'/'calibration/model.json')
-        if sha(root/f'fold_{fold}'/'calibration/model.json')!=frozen['calibration_model_sha256'][str(fold)]:raise ValueError('frozen calibration differs')
+        if not args.geometry:
+            ScoreCalibrationModel.load(root/f'fold_{fold}'/'calibration/model.json')
+            if sha(root/f'fold_{fold}'/'calibration/model.json')!=frozen['calibration_model_sha256'][str(fold)]:raise ValueError('frozen calibration differs')
         for sequence in plan['groups'][evaluate]:
             truth,_=load_truth(args.dataset_root,sequence)
-            for profile in ('baseline','head_raw'):
+            for profile in profiles:
                 cache=Path(manifest['records'][f'{fold}/{sequence}/{profile}']['cache']);stats={l:dict(gt=0,covered_025=0,covered_05=0,errors=[],failed_strict_errors=[]) for l in ('Car','Pedestrian')}
                 if sha(cache/'detections.jsonl')!=manifest['records'][f'{fold}/{sequence}/{profile}']['output_sha256']:raise ValueError('raw diagnostic cache differs')
                 with (cache/'detections.jsonl').open() as source:
@@ -58,7 +69,7 @@ def main():
                     records.append(item)
                 print(json.dumps(dict(fold=fold,sequence=sequence,profile=profile,geometry_scored=True)),flush=True)
                 (root/'geometry_diagnostics.json').write_text(json.dumps(dict(plan_sha256=digest,metric='per-GT best same-class front box; duplicate box use allowed; not one-to-one recall',
-                    error_selection='best-box IoU>=.25; strict-failure subset .25<=IoU<.5',online_used=False,geometry_training_changed=False,records=records),indent=2)+'\n')
+                    error_selection='best-box IoU>=.25; strict-failure subset .25<=IoU<.5',online_used=False,geometry_training_changed=args.geometry,records=records),indent=2)+'\n')
 
 
 if __name__=='__main__':main()

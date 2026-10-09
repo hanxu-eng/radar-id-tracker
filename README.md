@@ -41,6 +41,8 @@ conda run --no-capture-output -n radar-id-tracker python -m radar_id_tracker.poi
 新增 [整序列分数校准实验](docs/lidar-sequence-calibration.md)：检测训练、校准、评价
 三种角色隔离，17 条完整开发序列复验。中分确认提升召回，但精度及 3s 恢复退化，
 仍保留默认；原始点云对照和逐类别失败均已记录。
+随后 [行人框几何实验](docs/lidar-pedestrian-geometry.md) 使用同预算原 L1 对照，
+新损失未改善严格行人召回及 3s ID 恢复；完整失败和分序列点云展示已保留。
 `outputs/` 首轮效果审查、新实验档和多序列复验结果见
 [2026-09-30 迭代报告](docs/iteration-2026-09-30.md)。
 

@@ -1,0 +1,24 @@
+{
+  "format_version": 1,
+  "parent_calibration_plan_sha256": "63db016e2ca1097f9e966b1d715a3f5bfc867d3b1ffbb3b022f45093b93955ab",
+  "parent_head_sha256": {
+    "0": "7c0115b8451e8f05ab5d463e6a23b017364ed92ee31785334d2e746b7d33c279",
+    "1": "be932f5f6d151ae5df49d1b8af94b2b565b776a43c588f28b837a4785cd16f86",
+    "2": "19989cc60456a1b958981520dcabecde8d91050b6a39f8141f9c390159ef2eac"
+  },
+  "variants": ["continued_l1", "weighted_axis_huber"],
+  "geometry_training_parameters": {
+    "epochs": 6, "samples_per_sequence_per_epoch": 128, "batch_size": 8,
+    "learning_rate": 0.00005, "weight_decay": 0.01, "regression_weight": 0.25,
+    "seed": 17, "gradient_clip": 10, "beta": 0.1,
+    "field_weights": [2, 2, 1, 2, 2, 2], "axis_weight": 0.5, "unit_norm_weight": 0.1,
+    "classification_frozen": true, "car_frozen": true,
+    "frozen_batchnorm_statistics": true, "validation_used_for_selection": false
+  },
+  "score_calibration_applied": false,
+  "evaluation_used_for_selection": false,
+  "reserved_sequence_opened": false,
+  "acceptance_precision": 0.96,
+  "acceptance_recall": 0.85,
+  "note": "Repeat the same development folds. Compare equal-budget pedestrian geometry loss variants; do not reuse first-round score calibration on changed geometry or select a best fold."
+}
