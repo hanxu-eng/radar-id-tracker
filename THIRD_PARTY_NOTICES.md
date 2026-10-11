@@ -20,3 +20,13 @@ reproduction. Tensor parity checks are documented in `docs/lidar-surround.md`.
 Model weights are downloaded separately from OpenMMLab with a fixed SHA256;
 they are not included in the repository. Dataset licenses and access conditions
 remain those of their respective providers.
+
+The optional `openpcdet_adapter.py` bridge invokes the original OpenPCDet
+runtime from https://github.com/open-mmlab/OpenPCDet, pinned to commit
+`233f849829b6ac19afb8af8837a0246890908755`. OpenPCDet is licensed under
+Apache License 2.0. Its source checkout, original LICENSE and separately
+downloaded model-zoo weights are stored under ignored `outputs/` paths, not
+distributed as this package's source. No OpenPCDet neural architecture or
+compiled operator implementation is copied into the bridge. Dataset and
+weight access conditions remain those of their providers. See
+`docs/lidar-official-detectors.md` for provenance and the unvalidated runtime.

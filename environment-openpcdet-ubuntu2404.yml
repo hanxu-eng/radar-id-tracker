@@ -1,0 +1,9 @@
+name: radar-openpcdet-ubuntu2404
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy=1.26.4
+# Ubuntu 24.04 system Python remains untouched. Run the separate setup script
+# inside this environment to install the pinned CUDA wheels and compile ops.
