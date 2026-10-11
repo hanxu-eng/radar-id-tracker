@@ -1,5 +1,224 @@
 # Radar ID Tracker：10 Hz 雷达／激光雷达稳定编号
 
+目标工作环境为 **Ubuntu 24.04 LTS x86_64 + NVIDIA 独立显卡**。车载速腾激光雷达
+主路径是“原始点云 → 3D 检测 → 固定坐标系变换 → 稳定 ID 跟踪”。下面给出从
+新电脑克隆、安装、生成基线到完整序列评价的步骤。Ubuntu 的系统 Python 保持不变，
+检测程序使用独立 Python 3.11 环境。ARM/Jetson 需要另外适配依赖，不套用此配方。
+
+**当前状态：接口与 CPU 测试已实现，官方模型权重可下载；Ubuntu GPU 编译、真实
+检测精度和全链路 10 Hz 尚待目标电脑验收。当前不能据此认定可以上实车。**
+
+发布前从 Git 暂存区导出的干净版本执行了 134 项 CPU 测试：127 项通过，7 项因
+可选依赖缺失而跳过；安装脚本通过 Bash 语法检查。仓库另有 Ubuntu 24.04 /
+Python 3.11 自动检查，覆盖安装、测试及评测命令入口，不运行 GPU 模型。
+
+## Ubuntu 24.04 环境与版本
+
+| 组件 | 本轮配置 | 作用 |
+| --- | --- | --- |
+| Ubuntu | 24.04 LTS / x86_64 | 目标运行系统 |
+| Python | 3.11，独立 Conda 环境 | 避开系统 Python 3.12 与选定 spconv wheel 的差异 |
+| CUDA Toolkit | 12.6 | 编译 OpenPCDet CUDA 算子，必须有 `nvcc` |
+| PyTorch / torchvision | 2.7.1 cu126 / 0.22.1 cu126 | 检测网络运行 |
+| NumPy | 1.26.4 | 固定旧检测代码使用的数组接口 |
+| spconv | spconv-cu120 2.3.6 | 使用已发布的 Python 3.11 Linux 预编译包 |
+| OpenPCDet | `233f849829b6ac19afb8af8837a0246890908755` | 固定官方模型实现 |
+| 检测模型 | SECOND-IoU、PV-RCNN | 官方 KITTI Car/Pedestrian/Cyclist 权重 |
+
+CUDA 12.6 官方支持 Ubuntu 24.04；spconv 官方允许同一 CUDA 主版本的不同次版本
+组合，所以使用 cu120 spconv 和 cu126 torch。但此组合仍需要下面的实际算子和模型
+检查，安装成功不能代替运行验收。来源：[CUDA 安装指南](https://docs.nvidia.com/cuda/archive/12.6.3/cuda-installation-guide-linux/index.html)、
+[spconv 安装说明](https://github.com/traveller59/spconv#install)、
+[PyTorch 官方版本](https://pytorch.org/get-started/previous-versions/)。
+
+### 1. 克隆本轮分支并安装系统工具
+
+```bash
+git clone --branch codex/ubuntu2404-openpcdet https://github.com/hanxu-eng/radar-id-tracker.git
+cd radar-id-tracker
+sudo apt update
+sudo apt install -y build-essential git curl ca-certificates libgl1 libglib2.0-0t64
+nvidia-smi
+```
+
+`nvidia-smi` 应能显示显卡与驱动。驱动安装按 Ubuntu/NVIDIA 的硬件推荐完成，
+必要时重启电脑后再检查。不要将 `nvidia-smi` 显示的 CUDA 支持版本当作已安装
+Toolkit 的版本；编译工具以 `nvcc --version` 为准。
+
+未安装 CUDA Toolkit 12.6 时，使用 NVIDIA 的 Ubuntu 24.04 软件源：
+
+```bash
+curl -fL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb -o /tmp/radar-cuda-keyring.deb
+sudo dpkg -i /tmp/radar-cuda-keyring.deb
+sudo apt update
+sudo apt install -y cuda-toolkit-12-6
+export CUDA_HOME=/usr/local/cuda-12.6
+export PATH="$CUDA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH:-}"
+nvcc --version
+```
+
+使用 `cuda-toolkit-12-6` 安装编译工具；显卡驱动独立管理。网络受限时可以先按
+NVIDIA 官方指南安装 Toolkit，再继续下面的项目安装。
+
+### 2. 创建独立环境与安装检测器
+
+先安装 [Miniforge/Conda](https://github.com/conda-forge/miniforge)。在仓库根目录：
+
+```bash
+conda env create -f environment-openpcdet-ubuntu2404.yml
+conda activate radar-openpcdet-ubuntu2404
+python --version
+bash scripts/setup_openpcdet_ubuntu2404.sh
+```
+
+脚本检查 Ubuntu、架构、Python 与 Toolkit，安装固定直接依赖，下载固定版本
+OpenPCDet 及两套官方权重，编译 CUDA 扩展，执行运行检查并保存依赖快照。脚本
+不调用 sudo，不更改系统 Python，也不读取 KITTI 标签。默认编译当前可见显卡
+架构，使用两线程；显存不影响编译内存消耗，内存不足时可设置 `MAX_JOBS=1`。
+
+```bash
+MAX_JOBS=1 bash scripts/setup_openpcdet_ubuntu2404.sh
+python -m unittest discover -s tests -v
+```
+
+运行检查结果在 `outputs/ubuntu2404/runtime_check.json`，环境快照在
+`outputs/ubuntu2404/pip-freeze.txt`。只有检查 JSON 中 `passed: true` 才进入数据集
+推理。检查包括两个模型的完整权重加载、CUDA IoU/NMS、点落框判断和稀疏卷积，
+尚不代表数据集检测精度通过。需要用一个真实扫描再验证完整网络前向：
+
+```bash
+python examples/check_openpcdet_runtime.py --scan /data/kitti/training/velodyne/0000/000000.bin --output outputs/ubuntu2404/real_scan_check.json
+```
+
+### 3. 准备 KITTI Tracking 数据
+
+数据可以放在任意位置；后续例子使用 `/data/kitti`，请改为实际目录。至少应有：
+
+```text
+/data/kitti/
+  training/
+    velodyne/0000/000000.bin
+    calib/0000.txt
+    oxts/0000.txt
+    label_02/0000.txt
+```
+
+需要 Tracking 的训练点云、标定、OXTS 和训练标签。标签仅用于最后的离线评价；
+推理与跟踪不读取它。点云和 OXTS 必须保留完整帧编号，缺失扫描保留为空检测，
+不要通过重新编号消除缺帧。官方入口：[KITTI Tracking](https://www.cvlibs.net/datasets/kitti/eval_tracking.php)。
+
+### 4. 在 Ubuntu 生成可搬迁的 CenterPoint 对照基线
+
+新克隆不会包含 Windows 电脑的 `outputs/`。下面生成自己的基线，不依赖
+`C:\Projects\...` 或 WSL `/mnt/c`：
+
+```bash
+python examples/download_centerpoint.py
+python examples/prepare_centerpoint_baseline.py \
+  --dataset-root /data/kitti \
+  --checkpoint outputs/models/centerpoint/centerpoint_02pillar_second_secfpn_circlenms_4x8_cyclic_20e_nus_20220811_031844-191a3822.pth \
+  --output-dir outputs/ubuntu2404/centerpoint_baseline
+```
+
+固定五帧因果扫描、强度乘 64、0.1 秒标称周期和 0.1 检测门槛。它复现当前
+CenterPoint 对照配置，不表示其精度合格。生成的 `cache_manifest.json` 使用相对于
+清单目录的路径，复制整个基线目录即可迁移。禁止让评价标签或真值 ID 进入基线。
+
+如果复制了旧电脑的整个 `outputs/`，可以使用旧清单，并为评测提供
+`--cache-root /实际仓库/outputs` 重定位旧绝对路径；原始输入、缓存和源代码校验
+仍需通过。推荐新环境重新生成基线，以保留实际运行时信息。
+
+### 5. 固定方案、推理、评价
+
+所有命令在激活的检测环境、仓库根目录执行：
+
+```bash
+python examples/benchmark_openpcdet.py --stage prepare \
+  --dataset-root /data/kitti \
+  --baseline-manifest outputs/ubuntu2404/centerpoint_baseline/cache_manifest.json \
+  --output-dir outputs/ubuntu2404/comparison
+
+python examples/benchmark_openpcdet.py --stage infer \
+  --dataset-root /data/kitti \
+  --baseline-manifest outputs/ubuntu2404/centerpoint_baseline/cache_manifest.json \
+  --output-dir outputs/ubuntu2404/comparison
+
+python examples/benchmark_openpcdet.py --stage evaluate \
+  --dataset-root /data/kitti \
+  --baseline-manifest outputs/ubuntu2404/centerpoint_baseline/cache_manifest.json \
+  --output-dir outputs/ubuntu2404/comparison --with-pointclouds
+```
+
+配置在 `configs/openpcdet_comparison.experimental.json`：固定 17 条完整开发序列，
+0020 不打开；两个官方模型与 CenterPoint 使用同一跟踪配置，单独比较检测 PR 和
+固定门槛的跟踪效果。没有按序列调整阈值。推理与评价是独立阶段。
+
+准备阶段只清点、校验并冻结协议。推理阶段可继续使用完整且校验通过的缓存；
+只有 `.part` 的目录需要先保留排错证据，再另选目录重跑。源代码、配置或模型发生
+变化时选择新的实验目录；已生成的评价目录不自动覆盖。
+
+| 输出 | 内容 |
+| --- | --- |
+| `protocol.json` / `preparation.json` | 冻结配置、来源、输入清单及准备状态 |
+| `raw_cache/` | 原始点云检测结果，包含位姿、帧号、分数与校验值 |
+| `benchmark.json` | 完整序列、自然回放及三秒中断的逐项结果 |
+| `detection_curves.json` | 类别检测 PR/AP 与高精度条件下的召回 |
+| `observed_counts.json` | IoU 0.25/0.5 的类别精度、召回、IDF1 与 ID 切换 |
+| `fixed_recovery.json` | 固定基线目标分母的三秒同 ID 恢复 |
+| `review.html` + `pointclouds/` | 双栏原始点云、框、ID 与离线真值叠图 |
+
+打开 `outputs/ubuntu2404/comparison/review.html`，场景名区分 SECOND-IoU 和
+PV-RCNN。保留同目录 `pointclouds/`；这些输出和权重都不上传 Git。
+
+### 6. 实机接入与验收边界
+
+当前 KITTI 官方模型是前向检测对照，不能用来证明车后方的召回。KITTI Object
+预训练与 Tracking 场景是否重叠仍需审计，本地 AP/IDF1 也不是 KITTI 官方成绩。
+实车下一步需要速腾实测数据、真实采集时间戳、点云去畸变、定位噪声与坐标重置
+验证，并测量检测到追踪的全链路 P99 延迟、误检、自然遮挡和错误身份恢复。
+
+ROS 接入应读取当帧点云、当帧位姿和真实时间戳，将框变换到同一固定坐标系后
+调用 `LidarTracker.update(timestamp_s, detections)`。当前仓库尚未提供完整 ROS 节点。
+ROS 的系统 Python 与检测 Conda Python 分别管理，不能直接把不同 Python 版本的
+二进制 `rclpy` 放进检测环境。
+
+常见排错：
+
+- `nvcc` 找不到或版本不符：检查 `CUDA_HOME`、PATH 和 Toolkit 12.6，不能只装
+  PyTorch wheel。升级驱动不等于安装了 CUDA 编译工具。
+- `CUDA unavailable`：检查 `nvidia-smi` 和当前 torch wheel；先解决驱动/GPU 可见性。
+- `av2`、`SharedArray`、`spconv` 缺失：在激活的环境重新执行安装脚本，不使用系统 pip。
+- CUDA 扩展编译失败：查看最早的编译错误和 GCC/nvcc/torch 版本，内存不足时减小
+  `MAX_JOBS`，不要以跳过算子或丢弃权重张量来绕过错误。
+- 协议校验失败：核对数据、代码、模型和缓存来源，使用新的实验目录保留旧证据。
+- GPU 检查成功但召回差：查看检测 PR、几何误差和确认阶段损失，再决定迭代位置。
+
+### 7. 在 Ubuntu 拉取与推送
+
+公开克隆不需要登录；推送需要在 Ubuntu 上配置自己的 GitHub SSH 或凭据，本机
+Windows 的凭据不会随仓库迁移。保持实验分支和提交范围清楚：
+
+```bash
+git status
+git pull --ff-only
+git switch -c codex/my-iteration
+# 修改、运行检查后，逐个添加相关文件
+git add README.md path/to/changed_file.py
+git diff --cached
+git commit -m "Describe the change and validation"
+git push -u origin HEAD
+```
+
+工作区有未保存改动时先检查并保存自己的修改再拉取。数据集、学习权重、特征缓存、
+视频及运行输出保持在 Git 忽略目录，避免意外发布。
+
+## 既有实验与其他平台说明
+
+新增 [官方 OpenPCDet 检测器接入与评测准备](docs/lidar-official-detectors.md)：
+SECOND-IoU / PV-RCNN 官方权重已下载，固定完整序列对照协议；真实模型推理与
+性能评价待 Linux CUDA 算子环境准备完成后执行。
+
 车载速腾激光雷达使用新增的 **3D 检测框跟踪器 `LidarTracker`**，输入固定坐标系下的
 中心、类别、尺寸和方向，不需要多普勒。已实现车辆位姿补偿、短时预测、4 秒身份保留、
 保守恢复及独立 KITTI 数据集评分。复现命令、实测结果和已发现的问题见

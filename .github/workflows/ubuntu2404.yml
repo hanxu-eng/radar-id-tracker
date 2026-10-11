@@ -1,0 +1,20 @@
+name: Ubuntu 24.04 compatibility
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  cpu-contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: python -m pip install . h5py radar_scenes
+      - run: bash -n scripts/setup_openpcdet_ubuntu2404.sh
+      - run: python -m unittest discover -s tests -v
+      - run: python examples/benchmark_openpcdet.py --help
+      - run: python examples/prepare_centerpoint_baseline.py --help
+      # Hosted CPU runner validates package/CLI/evaluation contracts only.
+      # Actual CUDA compilation and model performance need the target GPU.

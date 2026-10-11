@@ -1,0 +1,26 @@
+{
+  "format_version": 1,
+  "models": ["second_iou", "pv_rcnn"],
+  "fallback_reason": "Part-A2-Free official model-zoo checkpoint link could not be downloaded. Keep its failure record; use official PV-RCNN as the two-stage comparison.",
+  "sequences": ["0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0011", "0012", "0013", "0014", "0016", "0017", "0018"],
+  "reserved_sequences": ["0020"],
+  "excluded_viewed_sequences": ["0010", "0015", "0019"],
+  "tracker_config": {
+    "high_confidence": 0.7,
+    "low_confidence": 0.1,
+    "maximum_tentative_tracks": 128,
+    "duplicate_birth_iou": 0.85
+  },
+  "iou_thresholds": [0.25, 0.5],
+  "dropout_start_frame": 50,
+  "dropout_frames": 30,
+  "dropout_start_rule": "min(50, frame_count - 30 - 5), retaining >=2 warm-up frames and >=5 return frames",
+  "fixed_recovery_reference_profile": "centerpoint",
+  "minimum_detector_precision": 0.96,
+  "target_detector_recall": 0.85,
+  "pretrained_scene_overlap_status": "not audited",
+  "development_only": true,
+  "score_threshold_tuning": false,
+  "point_input_recipe": "official DemoDataset single Nx4 scan; native intensity; range/voxelization/NMS unchanged; no image-FOV crop",
+  "note": "All 17 whole development sequences, same fixed tracker configuration. Detection PR separates score-scale effects. Not official KITTI evaluation; does not establish unseen generalization or rear/RoboSense accuracy. No retraining or model selection on reserved sequence."
+}

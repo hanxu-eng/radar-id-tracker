@@ -1,0 +1,20 @@
+# Direct dependencies for the pinned upstream checkout, Python 3.11 x86_64.
+# Install torch/torchvision from the separate cu126 index before this file.
+numpy==1.26.4
+spconv-cu120==2.3.6
+av2==0.3.6
+numba==0.61.2
+llvmlite==0.44.0
+easydict==1.13
+PyYAML==6.0.2
+tensorboardX==2.6.2.2
+scikit-image==0.25.2
+SharedArray==3.2.4
+pyquaternion==0.9.9
+gdown==5.2.0
+ninja==1.11.1.4
+setuptools==75.8.0
+wheel==0.45.1
+# av2 declares opencv-python even for LiDAR-only registration. Constrain
+# its NumPy requirement instead of allowing an implicit upgrade to NumPy 2.x.
+opencv-python==4.11.0.86
